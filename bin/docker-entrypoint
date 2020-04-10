@@ -1,0 +1,7 @@
+#!/bin/sh
+
+whoami
+
+nginx &&
+
+docker-php-entrypoint php-fpm
