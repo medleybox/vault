@@ -13,6 +13,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class ImportYoutubeCommand extends Command
 {
     /**
+     * @var string
+     */
+    protected static $defaultName = 'app:import:youtube';
+
+    /**
      * @var \App\Service\Import
      */
     private $import;
@@ -22,8 +27,6 @@ class ImportYoutubeCommand extends Command
         $this->import = $import;
         parent::__construct();
     }
-
-    protected static $defaultName = 'app:import:youtube';
 
     protected function configure()
     {
