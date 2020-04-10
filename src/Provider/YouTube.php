@@ -30,7 +30,7 @@ final class YouTube implements ProviderInterface
     public function __construct($url)
     {
         $this->api = new YouTubeApi([
-            'key' => 'AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc'
+            'key' => $_ENV['API_GOOGLE']
         ]);
         $this->setUrl($url);
     }

@@ -7,6 +7,8 @@ x-variables: &x-variables
   MINIO_ACCESS_KEY: medley
   MINIO_BUCKET: medley
   MINIO_SECRET_KEY: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
+  # Test key to be removed in production
+  API_GOOGLE: AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc
 
 services:
   vault:
