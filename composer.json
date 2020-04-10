@@ -1,8 +1,13 @@
 {
     "type": "project",
     "license": "proprietary",
+    "config": {
+        "platform": {
+            "php": "7.3"
+        }
+    },
     "require": {
-        "php": "^7.2.5",
+        "php": "^7.3",
         "ext-ctype": "*",
         "ext-iconv": "*",
         "guzzlehttp/guzzle": "^6.5",
