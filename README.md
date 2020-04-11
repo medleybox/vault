@@ -17,4 +17,16 @@ bin/docker-up
 
 Once the containers have started within the stack, you will have access to the Symfony Console via the provided bin script `bin/docker-console`.
 
+## Bin Scripts
+Bin scripts have been written to automate common CLI tasks:
+
+| Script | Description |
+|--|--|
+| bin/docker-build | Build docker images via docker-compose |
+| bin/docker-console | Run the Symfony Console within the vault container |
+| bin/docker-entrypoint | Docker image entrypoint for vault. Starts FPM and then Nginx |
+| bin/docker-psql | Login to the pqsl console |
+| bin/docker-up | Start the stack locally via docker-compose  |
+
+
 [github-import]: https://github.com/medleybox/import
