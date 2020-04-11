@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Aws\S3\S3Client;
+use Symfony\Component\Finder\SplFileInfo;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
 
@@ -44,6 +45,19 @@ class Minio
 
         $this->adapter = new AwsS3Adapter($this->client, $bucket, '');
         $this->filesystem = new Filesystem($this->adapter);
+    }
+
+    public function getFileStats(SplFileInfo $file)
+    {
+        $getID3 = new \getID3;
+        $info = $getID3->analyze($file->getRealPath());
+
+        dump($info);
+
+        return [
+            'size' => $info['filesize'],
+            'seconds' => $info['playtime_seconds']
+        ];
     }
 
     public function has($path)

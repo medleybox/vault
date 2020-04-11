@@ -71,6 +71,9 @@
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
+    "james-heinrich/getid3": {
+        "version": "v1.9.19"
+    },
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
