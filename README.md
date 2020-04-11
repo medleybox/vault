@@ -1,6 +1,7 @@
 # Vault
 [![Docker Hub Link](https://img.shields.io/docker/image-size/medleybox/vault/latest?style=for-the-badge)][dockerhub-vault]
 [![Docker Hub Link](https://img.shields.io/docker/cloud/automated/medleybox/vault?style=for-the-badge)][dockerhub-vault-builds]
+[![Docker Hub Link](https://img.shields.io/docker/cloud/build/medleybox/vault?style=for-the-badge)][dockerhub-vault-builds]
 
 A Symfony 5 application to retrieve and store music for Medlybox. Rewritten concepts from  [medlybox/import][github-import].
 
