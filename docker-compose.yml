@@ -1,8 +1,11 @@
 version: '3.7'
 
 x-variables: &x-variables
-  APP_ENV: prod
+  APP_ENV: dev
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
+  POSTGRES_USER: medleybox
+  POSTGRES_PASSWORD: Ze964V98S4w622dzf45WJ37W
+  POSTGRES_DB: medleybox_vault
   MINIO_ENDPOINT: http://minio:9000
   MINIO_ACCESS_KEY: medley
   MINIO_BUCKET: medley
@@ -37,5 +40,13 @@ services:
      - "9000:9000"
     command: server /data
 
+  db:
+    image: postgres:12-alpine
+    restart: always
+    environment: *x-variables
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
 volumes:
   minio-data:
+  postgres-data:

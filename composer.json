@@ -4,7 +4,11 @@
     "config": {
         "platform": {
             "php": "7.3"
-        }
+        },
+        "preferred-install": {
+            "*": "dist"
+        },
+        "sort-packages": true
     },
     "require": {
         "php": "^7.3",
@@ -19,17 +23,12 @@
         "symfony/flex": "^1.3.1",
         "symfony/framework-bundle": "5.0.*",
         "symfony/monolog-bundle": "^3.5",
+        "symfony/orm-pack": "^1.0",
         "symfony/process": "5.0.*",
         "symfony/yaml": "5.0.*"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.14"
-    },
-    "config": {
-        "preferred-install": {
-            "*": "dist"
-        },
-        "sort-packages": true
     },
     "autoload": {
         "psr-4": {
@@ -49,7 +48,8 @@
         "symfony/polyfill-php72": "*",
         "symfony/polyfill-php71": "*",
         "symfony/polyfill-php70": "*",
-        "symfony/polyfill-php56": "*"
+        "symfony/polyfill-php56": "*",
+        "doctrine/doctrine-migrations-bundle": "*"
     },
     "conflict": {
         "symfony/symfony": "*"
