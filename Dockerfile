@@ -6,7 +6,7 @@ COPY src/ /app/src
 
 RUN composer install -vvv -o -a --no-scripts --ignore-platform-reqs
 
-FROM xigen/php:fpm-73
+FROM xigen/php:fpm-74
 
 ENV APP_ENV dev
 
