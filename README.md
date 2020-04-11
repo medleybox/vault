@@ -1,4 +1,7 @@
 # Vault
+[![Docker Hub Link](https://img.shields.io/docker/image-size/medleybox/vault/latest?style=for-the-badge)][dockerhub-vault]
+[![Docker Hub Link](https://img.shields.io/docker/cloud/automated/medleybox/vault?style=for-the-badge)][dockerhub-vault-builds]
+
 A Symfony 5 application to retrieve and store music for Medlybox. Rewritten concepts from  [medlybox/import][github-import].
 
 ## Quick Start
@@ -28,5 +31,6 @@ Bin scripts have been written to automate common CLI tasks:
 | bin/docker-psql | Login to the pqsl console |
 | bin/docker-up | Start the stack locally via docker-compose  |
 
-
 [github-import]: https://github.com/medleybox/import
+[dockerhub-vault]: https://hub.docker.com/repository/docker/medleybox/vault
+[dockerhub-vault-builds]: https://hub.docker.com/repository/docker/medleybox/vault/builds
