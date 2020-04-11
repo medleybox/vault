@@ -1,7 +1,7 @@
 version: '3.7'
 
 x-variables: &x-variables
-  APP_ENV: dev
+  APP_ENV: prod
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
   MINIO_ENDPOINT: http://minio:9000
   MINIO_ACCESS_KEY: medley
@@ -25,6 +25,7 @@ services:
       - ./src:/var/www/src
       - ./templates:/var/www/templates
       - ./vendor:/var/www/vendor
+      - ./var/log:/var/www/var/log
 
   minio:
     image: minio/minio

@@ -4,10 +4,11 @@ namespace App\Service;
 
 use App\Provider\ProviderInterface;
 use GuzzleHttp\Client;
+use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
-use Symfony\Component\Process\Process;
-use Symfony\Component\Finder\Finder;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Finder\Finder;
+use Symfony\Component\Process\Process;
 
 final class Import
 {
@@ -76,9 +77,15 @@ final class Import
      */
     private $minio;
 
-    public function __construct(Minio $minio)
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $log;
+
+    public function __construct(Minio $minio, LoggerInterface $log)
     {
         $this->minio = $minio;
+        $this->log = $log;
     }
 
     public function setUp(ProviderInterface $provider, SymfonyStyle $io = null): bool
@@ -99,17 +106,24 @@ final class Import
             throw new \Exception('You need to call setUp() on this service first!');
         }
 
+        $this->log->info('Attempting to download and convert from source');
         if (false === $this->attemptDownload()) {
-            dump('Unable to download file');
+            $this->log->error('Unable to download file');
+
             return false;
         }
 
+        $this->log->info('Checking for download in a permitted format');
         if (false === $this->checkForDownload()) {
             return false;
         }
 
+        $this->log->info('Running process functions');
         $this->process();
+
+        $this->log->info('Uploading file to minio');
         $this->upload();
+
         $this->dump();
 
         return true;
@@ -141,21 +155,23 @@ final class Import
 
     protected function checkForDownload()
     {
+        $name = [$this->uuid . '.*'];
+        $this->log->debug("Looking for files with name", $name);
         $finder = new Finder();
         $finder->files()
             ->in(self::TMP_DIR)
-            ->name([$this->uuid . '.*'])
+            ->name($name)
         ;
 
         if (!$finder->hasResults()) {
-            dump("No download found!");
+            $this->log->error('No download found!');
 
             return false;
         }
 
         foreach ($finder as $file) {
             $this->file = $file;
-            dump("Found download {$file->getRelativePathname()}");
+            $this->log->info("Found download {$this->file->getRelativePathname()}");
 
             return true;
         }
@@ -163,16 +179,14 @@ final class Import
 
     public function generateThumbnail()
     {
-        dump('Generating thumbnail');
         $link = $this->provider->getThumbnailLink();
         $filename = "{$this->uuid}.jpg";
         $this->thumbnail = self::THUMBNAILS_MIMIO . "/{$this->uuid}.jpg";
 
-        dump("Downloading from {$link}");
-        $client = new Client();
-        $client->request('GET', $link, ['sink' => self::TMP_DIR . $filename]);
+        $this->log->debug("Downloading from {$link} and uploading to {$this->thumbnail}");
+        $client = (new Client())->request('GET', $link, ['sink' => self::TMP_DIR . $filename]);
 
-        dump("Uploading to minio");
+        $this->log->debug('Uploading thumbnail to minio', [$filename, $this->thumbnail]);
         $this->minio->upload($filename, $this->thumbnail);
 
         return $this->thumbnail;
