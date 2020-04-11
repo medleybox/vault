@@ -15,6 +15,7 @@
         "ext-ctype": "*",
         "ext-iconv": "*",
         "doctrine/collections": "^1.6",
+        "dunglas/doctrine-json-odm": "^1.0",
         "guzzlehttp/guzzle": "^6.5",
         "james-heinrich/getid3": "^1.9",
         "league/flysystem-aws-s3-v3": "^1.0",

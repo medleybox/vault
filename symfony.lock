@@ -62,6 +62,15 @@
     "doctrine/reflection": {
         "version": "1.2.1"
     },
+    "dunglas/doctrine-json-odm": {
+        "version": "0.1",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "0.1",
+            "ref": "c2ab78f625df0c89af5908d50a28602ff8c4919f"
+        }
+    },
     "guzzlehttp/guzzle": {
         "version": "6.5.2"
     },
@@ -209,6 +218,9 @@
     "symfony/http-kernel": {
         "version": "v5.0.7"
     },
+    "symfony/inflector": {
+        "version": "v5.0.7"
+    },
     "symfony/maker-bundle": {
         "version": "1.0",
         "recipe": {
@@ -250,6 +262,12 @@
     "symfony/process": {
         "version": "v5.0.7"
     },
+    "symfony/property-access": {
+        "version": "v5.0.7"
+    },
+    "symfony/property-info": {
+        "version": "v5.0.7"
+    },
     "symfony/routing": {
         "version": "4.2",
         "recipe": {
@@ -263,6 +281,9 @@
             "config/packages/routing.yaml",
             "config/routes.yaml"
         ]
+    },
+    "symfony/serializer": {
+        "version": "v5.0.7"
     },
     "symfony/service-contracts": {
         "version": "v2.0.1"
