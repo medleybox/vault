@@ -38,7 +38,8 @@ services:
      - minio-data:/data
     ports:
      - "9000:9000"
-    command: server /data
+    entrypoint: sh
+    command: -c 'mkdir -p /data/${MINIO_BUCKET} && /usr/bin/minio server /data'`
 
   db:
     image: postgres:12-alpine
