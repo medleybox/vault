@@ -24,6 +24,7 @@ services:
     ports:
      - "8084:80"
     volumes:
+      - tmp-data:/var/www/var/tmp
       - ./bin:/var/www/bin
       - ./config:/var/www/config
       - ./src:/var/www/src
@@ -40,7 +41,7 @@ services:
     ports:
      - "9000:9000"
     entrypoint: sh
-    command: -c 'mkdir -p /data/${MINIO_BUCKET} && /usr/bin/minio server /data'`
+    command: -c 'mkdir -p /data/medley && /usr/bin/minio server /data'
 
   db:
     image: postgres:12-alpine
@@ -59,3 +60,4 @@ services:
 volumes:
   minio-data:
   postgres-data:
+  tmp-data:
