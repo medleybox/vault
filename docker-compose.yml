@@ -12,6 +12,7 @@ x-variables: &x-variables
   MINIO_SECRET_KEY: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
   # Test key to be removed in production
   API_GOOGLE: AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc
+  MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
 
 services:
   vault:
@@ -47,6 +48,13 @@ services:
     environment: *x-variables
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
 
 volumes:
   minio-data:

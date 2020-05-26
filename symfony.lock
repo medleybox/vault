@@ -62,6 +62,9 @@
     "doctrine/reflection": {
         "version": "1.2.1"
     },
+    "doctrine/sql-formatter": {
+        "version": "1.0.1"
+    },
     "dunglas/doctrine-json-odm": {
         "version": "0.1",
         "recipe": {
@@ -82,9 +85,6 @@
     },
     "james-heinrich/getid3": {
         "version": "v1.9.19"
-    },
-    "jdorn/sql-formatter": {
-        "version": "v1.2.17"
     },
     "league/flysystem": {
         "version": "1.0.46"
@@ -110,6 +110,15 @@
     "php": {
         "version": "7.3"
     },
+    "phpdocumentor/reflection-common": {
+        "version": "2.1.0"
+    },
+    "phpdocumentor/reflection-docblock": {
+        "version": "5.1.0"
+    },
+    "phpdocumentor/type-resolver": {
+        "version": "1.1.0"
+    },
     "psr/cache": {
         "version": "1.0.1"
     },
@@ -133,6 +142,9 @@
     },
     "ramsey/uuid": {
         "version": "4.0.1"
+    },
+    "symfony/amqp-pack": {
+        "version": "v1.0.12"
     },
     "symfony/cache": {
         "version": "v5.0.7"
@@ -230,6 +242,18 @@
             "ref": "fadbfe33303a76e25cb63401050439aa9b1a9c7f"
         }
     },
+    "symfony/messenger": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "8a2675c061737658bed85102e9241c752620e575"
+        },
+        "files": [
+            "config/packages/messenger.yaml"
+        ]
+    },
     "symfony/mime": {
         "version": "v5.0.7"
     },
@@ -285,6 +309,9 @@
     "symfony/serializer": {
         "version": "v5.0.7"
     },
+    "symfony/serializer-pack": {
+        "version": "v1.0.3"
+    },
     "symfony/service-contracts": {
         "version": "v2.0.1"
     },
@@ -296,6 +323,9 @@
     },
     "symfony/yaml": {
         "version": "v5.0.7"
+    },
+    "webmozart/assert": {
+        "version": "1.8.0"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"

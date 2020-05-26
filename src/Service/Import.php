@@ -4,6 +4,8 @@ namespace App\Service;
 
 use App\Provider\ProviderInterface;
 use App\Repository\EntryRepository;
+use App\Message\ImportJob;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
@@ -11,6 +13,7 @@ use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Messenger\MessageBusInterface;
 
 final class Import
 {
@@ -30,7 +33,7 @@ final class Import
      * Permitted file extensions that will be downloaded and then uploaded to minio
      * @var array
      */
-    const EXTENSIONS =['*.opus', '*.ogg'];
+    const EXTENSIONS = ['*.opus', '*.ogg'];
 
     /**
      * Downloads must complete within 300 seconds (5 minutes)
@@ -95,22 +98,31 @@ final class Import
      */
     private $log;
 
-    public function __construct(Minio $minio, EntryRepository $entryRepo, LoggerInterface $log)
+    public function __construct(Minio $minio, EntryRepository $entryRepo, LoggerInterface $log, MessageBusInterface $bus)
     {
         $this->minio = $minio;
         $this->entryRepo = $entryRepo;
         $this->log = $log;
+        $this->bus = $bus;
     }
 
-    public function setUp(ProviderInterface $provider, SymfonyStyle $io = null): bool
+    public function setUp(ProviderInterface $provider, string $uuid = null, SymfonyStyle $io = null): bool
     {
         $this->provider = $provider;
-        $this->uuid = Uuid::uuid4()->toString();
+        $this->uuid = $uuid;
+        if (null === $uuid) {
+            $this->uuid = Uuid::uuid4()->toString();
+        }
         if (null !== $io) {
             $this->io = $io;
         }
 
         return true;
+    }
+
+    public function queue()
+    {
+        $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
     }
 
     public function start(): bool
