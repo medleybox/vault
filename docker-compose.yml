@@ -32,6 +32,16 @@ services:
       - ./vendor:/var/www/vendor
       - ./var/log:/var/www/var/log
 
+  messenger:
+    image: medleybox/vault
+    environment: *x-variables
+    depends_on:
+      - vault
+      - rabbitmq
+    volumes:
+      - tmp-data:/var/www/var/tmp
+    entrypoint: ["bin/console", "messenger:consume", "async", "-vvv"]
+
   minio:
     image: minio/minio
     hostname: minio
@@ -51,11 +61,9 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: rabbitmq
-    ports:
-      - 5672:5672
-      - 15672:15672
+    image: rabbitmq:3
+    expose:
+      - "5672"
 
 volumes:
   minio-data:
