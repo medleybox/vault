@@ -30,7 +30,15 @@ Bin scripts have been written to automate common CLI tasks:
 | bin/docker-console | Run the Symfony Console within the vault container |
 | bin/docker-entrypoint | Docker image entrypoint for vault. Starts FPM and then Nginx |
 | bin/docker-psql | Login to the pqsl console |
-| bin/docker-up | Start the stack locally via docker-compose  |
+| bin/docker-up | Start the stack locally via docker-compose |
+
+## API Endpoint tests
+
+### Import
+```
+curl -d "id=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
+```
+
 
 [github-import]: https://github.com/medleybox/import
 [dockerhub-vault]: https://hub.docker.com/repository/docker/medleybox/vault

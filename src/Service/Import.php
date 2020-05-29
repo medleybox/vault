@@ -120,9 +120,12 @@ final class Import
         return true;
     }
 
-    public function queue()
+    public function queue(): string
     {
+        // Create a new import job and dispatch it to run in the background.
         $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
+
+        return $this->uuid;
     }
 
     public function start(): bool
