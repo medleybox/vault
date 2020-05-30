@@ -3,6 +3,9 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Repository\EntryRepository;
+use Doctrine\ORM\EntityManagerInterface;
+
 class ResetData
 {
     /**
@@ -10,9 +13,32 @@ class ResetData
      */
     private $minio;
 
-    public function __construct(Minio $minio)
+    /**
+     * @var \Doctrine\ORM\EntityManagerInterface
+     */
+    private $em;
+
+    /**
+     * @var \App\Repository\EntryRepository
+     */
+    private $entry;
+
+    public function __construct(Minio $minio, EntityManagerInterface $em, EntryRepository $entry)
     {
         $this->minio = $minio;
+        $this->em = $em;
+        $this->entry = $entry;
+    }
+
+    public function removeEntities()
+    {
+        foreach ($this->entry->findAll() as $entity) {
+            dump($entity);
+            $this->em->remove($entity);
+        }
+        $this->em->flush();
+
+        return true;
     }
 
     private function removeAllFilesInFolder($path): array

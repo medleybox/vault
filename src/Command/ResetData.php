@@ -30,17 +30,19 @@ class ResetData extends Command
 
     protected function configure()
     {
-        $this->setDescription('Remove all data stored in minio');
+        $this->setDescription('Remove all data stored in minio and the vault database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $io->success('Import Complete!');
+        $io->caution('Removing files and data from Vault');
 
         $this->resetData->removeThubmnails();
 
         $this->resetData->removeProviderData();
+
+        $this->resetData->removeEntities();
 
         return 0;
     }
