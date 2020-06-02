@@ -29,7 +29,6 @@ Bin scripts have been written to automate common CLI tasks:
 | bin/docker-build | Build docker images via docker-compose |
 | bin/docker-console | Run the Symfony Console within the vault container |
 | bin/docker-entrypoint | Docker image entrypoint for vault. Starts FPM and then Nginx |
-| bin/docker-psql | Login to the pqsl console |
 | bin/docker-up | Start the stack locally via docker-compose |
 
 ## API Endpoint tests
