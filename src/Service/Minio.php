@@ -75,6 +75,12 @@ class Minio
         $path = Import::TMP_DIR;
         $file = trim(preg_replace('/\s+/', ' ', $file));
         $stream = fopen("{$path}{$file}", 'r+');
+
+        // If uploading a file with the same name, delete it first as it can't be overwritten
+        if (true === $this->filesystem->has($path)) {
+            $this->filesystem->delete($path);
+        }
+
         $this->filesystem->writeStream($dest, $stream);
         fclose($stream);
         unlink("{$path}{$file}");
