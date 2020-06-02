@@ -3,7 +3,7 @@
     "license": "proprietary",
     "config": {
         "platform": {
-            "php": "7.3"
+            "php": "7.4"
         },
         "preferred-install": {
             "*": "dist"
@@ -29,7 +29,8 @@
         "symfony/monolog-bundle": "^3.5",
         "symfony/orm-pack": "^1.0",
         "symfony/process": "5.0.*",
-        "symfony/yaml": "5.0.*"
+        "symfony/yaml": "5.0.*",
+        "xigen.io/guzzle-bundle": "^1.1"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.14"

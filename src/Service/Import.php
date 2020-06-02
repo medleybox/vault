@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Entity\Entry;
 use App\Provider\ProviderInterface;
 use App\Repository\EntryRepository;
 use App\Message\ImportJob;
@@ -98,12 +99,18 @@ final class Import
      */
     private $log;
 
-    public function __construct(Minio $minio, EntryRepository $entryRepo, LoggerInterface $log, MessageBusInterface $bus)
+    /**
+     * @var \App\Service\Request
+     */
+    private $request;
+
+    public function __construct(Minio $minio, EntryRepository $entryRepo, LoggerInterface $log, MessageBusInterface $bus, Request $request)
     {
         $this->minio = $minio;
         $this->entryRepo = $entryRepo;
         $this->log = $log;
         $this->bus = $bus;
+        $this->request = $request;
     }
 
     public function setUp(ProviderInterface $provider, string $uuid = null, SymfonyStyle $io = null): bool
@@ -264,7 +271,30 @@ final class Import
             'size' => $this->stats['size'],
             'seconds' => $this->stats['seconds']
         ]);
-        $import = $this->entryRepo->createFromCompletedImport($data);
-        dump($data, $import);
+        dump($data);
+        $entry = $this->entryRepo->createFromCompletedImport($data);
+
+        $this->webhock($entry, $metadata);
+
+        return true;
+    }
+
+    /**
+     * Function to notify webapp of import
+     */
+    protected function webhock(Entry $entry, $metadata, $status = 'complete')
+    {
+        $this->log->debug("Webhock !!!");
+        $this->request->post("/media-file/update", [
+            'uuid' => $entry->getUuid(),
+            'path' => $entry->getPath(),
+            'provider' => $entry->getProvider(),
+            'title' => $entry->getTitle(),
+            'size' => $entry->getSize(),
+            'seconds' => $entry->getSeconds(),
+            'metadata' => $metadata
+        ]);
+
+        return true;
     }
 }

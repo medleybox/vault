@@ -37,7 +37,7 @@ class EntryRepository extends ServiceEntityRepository
         ;
         $this->persist($entry);
 
-        return true;
+        return $entry;
     }
 
     private function persist(Entry $entry) {
