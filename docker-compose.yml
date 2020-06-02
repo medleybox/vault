@@ -49,7 +49,7 @@ services:
       - rabbitmq
     volumes:
       - tmp-data:/var/www/var/tmp
-    entrypoint: ["bin/console", "messenger:consume", "async", "-vvv"]
+    entrypoint: ["bin/console", "messenger:consume", "async", "-v"]
 
   minio:
     image: minio/minio
