@@ -93,10 +93,16 @@ final class YouTube implements ProviderInterface
         }
 
         $fetch = $this->api->getVideoInfo($this->id);
+
+        $thumbnail = $fetch->snippet->thumbnails->default->url;
+        if (isset($fetch->snippet->thumbnails->maxres)) {
+            $thumbnail = $fetch->snippet->thumbnails->default->url;
+        }
+
         $this->metadata = [
             'title' => $fetch->snippet->title,
             'artist' => $fetch->snippet->channelTitle,
-            'thumbnail' => $fetch->snippet->thumbnails->maxres->url,
+            'thumbnail' => $thumbnail
         ];
 
         return $this->metadata;
