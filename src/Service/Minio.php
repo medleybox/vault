@@ -65,6 +65,11 @@ class Minio
         return $this->filesystem->has($path);
     }
 
+    public function get(string $path)
+    {
+        return $this->filesystem->read($path);
+    }
+
     public function listContents($path, $recursive = false)
     {
         return $this->filesystem->listContents($path, $recursive);

@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\Import;
+use App\Service\{Import, Minio};
 use App\Provider\YouTube;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,9 +11,29 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
 {
-    public function __construct(Import $import)
+    public function __construct(Import $import, Minio $minio)
     {
         $this->import = $import;
+        $this->minio = $minio;
+    }
+
+    /**
+     * @Route("/entry/thumbnail/{uuid}", name="entry_thumbnail", methods={"GET"})
+     */
+    public function thumbnail(string $uuid)
+    {
+        if (null === $uuid) {
+            exit();
+        }
+
+        $path = Import::THUMBNAILS_MIMIO . "/{$uuid}.jpg";
+        $thumbnail = $this->minio->get($path);
+
+        $response = new Response();
+        $response->headers->set('Content-Type', 'image/jpg');
+        $response->setContent($thumbnail);
+
+        return $response;
     }
 
     /**
