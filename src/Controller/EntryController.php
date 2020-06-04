@@ -2,11 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Entry;
 use App\Service\{Import, Minio};
 use App\Provider\YouTube;
 
+use GuzzleHttp\Psr7\Stream;
+use giggsey\PSR7StreamResponse\PSR7StreamResponse;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{Request, Response};
+use Symfony\Component\HttpFoundation\{Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
@@ -15,6 +19,24 @@ class EntryController extends AbstractController
     {
         $this->import = $import;
         $this->minio = $minio;
+    }
+
+    /**
+     * @Route("/entry/steam/{uuid}", name="entry_steam", methods={"GET"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function steam(Entry $entry)
+    {
+        $path = $entry->getPath();
+        $stream = $this->minio->stream($path);
+        $metadata = stream_get_meta_data($stream);
+        $filename = $metadata["uri"];
+        $mime = mime_content_type($filename);
+
+        $response = new PSR7StreamResponse(new Stream($stream), $mime);
+        $response = $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
+
+        return $response;
     }
 
     /**
