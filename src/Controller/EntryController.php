@@ -22,10 +22,10 @@ class EntryController extends AbstractController
     }
 
     /**
-     * @Route("/entry/steam/{uuid}", name="entry_steam", methods={"GET"})
+     * @Route("/entry/steam/{uuid}/{name}", name="entry_steam", methods={"GET"})
      * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
      */
-    public function steam(Entry $entry)
+    public function steam(string $name, Entry $entry)
     {
         $path = $entry->getPath();
         $stream = $this->minio->stream($path);
