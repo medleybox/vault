@@ -50,7 +50,7 @@ final class YouTube implements ProviderInterface
 
     public function getDownloadLink()
     {
-        return "ytsearch:{$this->id}";
+        return "https://www.youtube.com/watch?v={$this->id}";
     }
 
     public function getThumbnailLink()
@@ -91,8 +91,6 @@ final class YouTube implements ProviderInterface
         if ([] !== $this->metadata) {
             return $this->metadata;
         }
-
-        $fetch = $this->api->getVideoInfo($this->id);
 
         $thumbnail = $fetch->snippet->thumbnails->default->url;
         if (isset($fetch->snippet->thumbnails->maxres)) {
