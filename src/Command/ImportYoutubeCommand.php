@@ -41,10 +41,6 @@ class ImportYoutubeCommand extends Command
         $youtube = new YouTube($input->getArgument('url'));
 
         $this->import->setUp($youtube, null, $io);
-        $this->import->queue();
-
-        return 1;
-
         if (true === $this->import->start()) {
             $io->success('Import Complete!');
 
