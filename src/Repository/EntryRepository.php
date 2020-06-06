@@ -3,6 +3,8 @@
 namespace App\Repository;
 
 use App\Entity\Entry;
+use App\Service\Minio;
+
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
@@ -11,8 +13,14 @@ use Exception;
 
 class EntryRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    /**
+     * @var \App\Service\Minio
+     */
+    private $minio;
+
+    public function __construct(ManagerRegistry $registry, Minio $minio)
     {
+        $this->minio = $minio;
         parent::__construct($registry, Entry::class);
     }
 
@@ -38,6 +46,16 @@ class EntryRepository extends ServiceEntityRepository
         $this->persist($entry);
 
         return $entry;
+    }
+
+    public function delete(Entry $entry)
+    {
+        $this->minio->delete($entry->getPath());
+
+        $this->_em->remove($entry);
+        $this->_em->flush();
+
+        return true;
     }
 
     private function persist(Entry $entry) {

@@ -3,8 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Entry;
-use App\Service\{Import, Minio};
 use App\Provider\YouTube;
+use App\Repository\EntryRepository;
+use App\Service\{Import, Minio};
 
 use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
@@ -15,10 +16,11 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
 {
-    public function __construct(Import $import, Minio $minio)
+    public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo)
     {
-        $this->import = $import;
         $this->minio = $minio;
+        $this->import = $import;
+        $this->entryRepo = $entryRepo;
     }
 
     /**
@@ -56,6 +58,17 @@ class EntryController extends AbstractController
         $response->setContent($thumbnail);
 
         return $response;
+    }
+
+    /**
+     * @Route("/entry/delete/{uuid}", name="entry_delete", methods={"DELETE"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function delete(Entry $entry)
+    {
+        $this->entryRepo->delete($entry);
+
+        return $this->json(['delete' => true]);
     }
 
     /**
