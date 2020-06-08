@@ -98,6 +98,11 @@ class Minio
         return $this->filesystem->readStream($path);
     }
 
+    public function read($path)
+    {
+        return $this->filesystem->read($path);
+    }
+
     public function delete($path)
     {
         return $this->filesystem->delete($path);

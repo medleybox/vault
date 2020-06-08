@@ -42,6 +42,17 @@ class EntryController extends AbstractController
     }
 
     /**
+     * @Route("/entry/download/{uuid}", name="entry_download", methods={"GET"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function download(Entry $entry)
+    {
+        $contents = $this->minio->read($entry->getPath());
+
+        return new Response($contents);
+    }
+
+    /**
      * @Route("/entry/thumbnail/{uuid}", name="entry_thumbnail", methods={"GET"})
      */
     public function thumbnail(string $uuid)
