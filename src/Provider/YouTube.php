@@ -88,13 +88,24 @@ final class YouTube implements ProviderInterface
 
     public function fetchMetaData()
     {
+        // Check if the metadata has been fetched
         if ([] !== $this->metadata) {
             return $this->metadata;
         }
+
+        $thumbnail = null;
         $fetch = $this->api->getVideoInfo($this->id);
 
-        $thumbnail = $fetch->snippet->thumbnails->default->url;
         if (isset($fetch->snippet->thumbnails->maxres)) {
+            $thumbnail = $fetch->snippet->thumbnails->maxres->url;
+        }
+
+        if (null !== $fetch && isset($fetch->snippet->thumbnails->medium)) {
+            $thumbnail = $fetch->snippet->thumbnails->medium->url;
+        }
+
+        // Fallback to the default thumbnail
+        if (null === $fetch) {
             $thumbnail = $fetch->snippet->thumbnails->default->url;
         }
 
