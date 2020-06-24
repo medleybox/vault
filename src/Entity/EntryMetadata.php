@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\EntryMetadataRepository;
+use App\Provider\ProviderInterface;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -69,6 +70,11 @@ class EntryMetadata
     public function getProvider(): ?string
     {
         return $this->provider;
+    }
+
+    public function getProviderInstance(): ProviderInterface
+    {
+        return (new $this->provider)->setId($this->getRef())->setMetadata($this);
     }
 
     public function setProvider(string $provider): self

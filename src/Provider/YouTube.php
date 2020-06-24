@@ -37,9 +37,16 @@ final class YouTube implements ProviderInterface
         $this->api = new YouTubeApi([
             'key' => $_ENV['API_GOOGLE']
         ]);
-        if (null !== !$url) {
+        if (null !== $url) {
             $this->setUrl($url);
         }
+    }
+
+    public function setId($id)
+    {
+        $this->id = $id;
+
+        return $this;
     }
 
     public function setUrl($url)
@@ -132,9 +139,22 @@ final class YouTube implements ProviderInterface
         return $data->id;
     }
 
+    public function search($title)
+    {
+        $search = $this->api->searchVideos($title, 1);
+        if (false === $search) {
+            return false;
+        }
+
+        $id = $search[0]->id->videoId;
+        $this->setUrl($id);
+
+        return $this->fetchMetaData();
+    }
+
     private function setIdFromUrl()
     {
-        $this->id = $this->getIdFromUrl();
+        $this->setId($this->getIdFromUrl());
     }
 
     private function getIdFromUrl(): string

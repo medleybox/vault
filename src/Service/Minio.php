@@ -52,8 +52,6 @@ class Minio
         $getID3 = new \getID3;
         $info = $getID3->analyze($file->getRealPath());
 
-        dump($info);
-
         return [
             'size' => $info['filesize'],
             'seconds' => $info['playtime_seconds']
@@ -82,8 +80,8 @@ class Minio
         $stream = fopen("{$path}{$file}", 'r+');
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($path)) {
-            $this->filesystem->delete($path);
+        if (true === $this->filesystem->has($dest)) {
+            $this->filesystem->delete($dest);
         }
 
         $this->filesystem->writeStream($dest, $stream);

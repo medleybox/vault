@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\{Entry, EntryMetadata};
 use App\Service\{Minio, Thumbnail};
+use App\Provider\YouTube;
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -32,7 +33,29 @@ class EntryRepository extends ServiceEntityRepository
 
     public function refreshThumbnail(Entry $entry)
     {
+        if (null === $entry->getMetadata() || 0 === count((array) $entry->getMetadata()->getData())) {
+            $this->fetchMetadata($entry);
+        }
 
+        $providor = $entry->getMetadata()->getProviderInstance();
+        $link = $providor->getThumbnailLink();
+        $path = $this->thumbnail->generate($entry->getUuid(), $link);
+
+        $entry->setPath($path);
+        $this->_em->flush();
+
+        return $path;
+    }
+
+    public function fetchMetadata(Entry $entry)
+    {
+        // For the time being, it will only be youtube that will have no metadata
+        $providor = new YouTube();
+        $metadata = $providor->search($entry->getTitle());
+
+        $entry->setMetadata($metadata);
+        $this->_em->persist($metadata);
+        $this->_em->flush();
     }
 
     public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)

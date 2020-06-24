@@ -72,6 +72,17 @@ class EntryController extends AbstractController
     }
 
     /**
+     * @Route("/entry/refresh-thumbnail/{uuid}", name="entry_refreshThumbnail", methods={"GET"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function refreshThumbnail(Entry $entry)
+    {
+        $this->entryRepo->refreshThumbnail($entry);
+
+        return $this->json(['refresh' => true]);
+    }
+
+    /**
      * @Route("/entry/delete/{uuid}", name="entry_delete", methods={"DELETE"})
      * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
      */
