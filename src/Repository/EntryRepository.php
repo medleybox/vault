@@ -19,32 +19,10 @@ class EntryRepository extends ServiceEntityRepository
      */
     private $minio;
 
-    /**
-     * @var \App\Service\Thumbnail
-     */
-    private $thumbnail;
-
-    public function __construct(ManagerRegistry $registry, Minio $minio, Thumbnail $thumbnail)
+    public function __construct(ManagerRegistry $registry, Minio $minio)
     {
         $this->minio = $minio;
-        $this->thumbnail = $thumbnail;
         parent::__construct($registry, Entry::class);
-    }
-
-    public function refreshThumbnail(Entry $entry)
-    {
-        if (null === $entry->getMetadata() || 0 === count((array) $entry->getMetadata()->getData())) {
-            $this->fetchMetadata($entry);
-        }
-
-        $providor = $entry->getMetadata()->getProviderInstance();
-        $link = $providor->getThumbnailLink();
-        $path = $this->thumbnail->generate($entry->getUuid(), $link);
-
-        $entry->setPath($path);
-        $this->_em->flush();
-
-        return $path;
     }
 
     public function fetchMetadata(Entry $entry)
@@ -82,6 +60,12 @@ class EntryRepository extends ServiceEntityRepository
         $this->_em->flush();
 
         return $entry;
+    }
+
+    public function save(Entry $entry)
+    {
+        // Do webhook to webapp here to update that database
+        $this->_em->flush();
     }
 
     public function delete(Entry $entry)

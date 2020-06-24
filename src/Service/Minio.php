@@ -58,13 +58,17 @@ class Minio
         ];
     }
 
-    public function has($path)
+    public function has(string $path): bool
     {
         return $this->filesystem->has($path);
     }
 
-    public function get(string $path)
+    public function get(string $path): ?string
     {
+        if (false === $this->filesystem->has($path)) {
+            return null;
+        }
+
         return $this->filesystem->read($path);
     }
 

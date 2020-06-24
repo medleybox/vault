@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\Entity\Entry;
 use App\Provider\YouTube;
 use App\Repository\EntryRepository;
-use App\Service\{Import, Minio};
+use App\Service\{Import, Minio, Thumbnail};
 
 use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
@@ -16,11 +16,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
 {
-    public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo)
+    public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo, Thumbnail $thumbnail)
     {
         $this->minio = $minio;
         $this->import = $import;
         $this->entryRepo = $entryRepo;
+        $this->thumbnail = $thumbnail;
     }
 
     /**
@@ -54,21 +55,11 @@ class EntryController extends AbstractController
 
     /**
      * @Route("/entry/thumbnail/{uuid}", name="entry_thumbnail", methods={"GET"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
      */
-    public function thumbnail(string $uuid)
+    public function thumbnail(Entry $entry)
     {
-        if (null === $uuid) {
-            exit();
-        }
-
-        $path = Import::THUMBNAILS_MIMIO . "/{$uuid}.jpg";
-        $thumbnail = $this->minio->get($path);
-
-        $response = new Response();
-        $response->headers->set('Content-Type', 'image/jpg');
-        $response->setContent($thumbnail);
-
-        return $response;
+        return $this->thumbnail->render($entry);
     }
 
     /**
