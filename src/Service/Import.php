@@ -273,7 +273,7 @@ final class Import
     /**
      * Function to notify webapp of import
      */
-    protected function webhock(Entry $entry, $status = 'complete')
+    public function webhock(Entry $entry, $status = 'complete')
     {
         $this->log->debug("Webhock !!!");
         $this->request->post("/media-file/update", [
