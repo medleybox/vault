@@ -2,8 +2,8 @@
 
 namespace App\Repository;
 
-use App\Entity\Entry;
-use App\Service\Minio;
+use App\Entity\{Entry, EntryMetadata};
+use App\Service\{Minio, Thumbnail};
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -18,16 +18,27 @@ class EntryRepository extends ServiceEntityRepository
      */
     private $minio;
 
-    public function __construct(ManagerRegistry $registry, Minio $minio)
+    /**
+     * @var \App\Service\Thumbnail
+     */
+    private $thumbnail;
+
+    public function __construct(ManagerRegistry $registry, Minio $minio, Thumbnail $thumbnail)
     {
         $this->minio = $minio;
+        $this->thumbnail = $thumbnail;
         parent::__construct($registry, Entry::class);
     }
 
-    public function createFromCompletedImport(ArrayCollection $data)
+    public function refreshThumbnail(Entry $entry)
+    {
+
+    }
+
+    public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)
     {
         // Do some baisc validation on fields that are required in the database
-        foreach(['uuid', 'path', 'provider', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
+        foreach(['uuid', 'path', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
             if (!$data->containsKey($key)) {
                 throw new Exception("Missing field {$key}");
             }
@@ -37,13 +48,15 @@ class EntryRepository extends ServiceEntityRepository
             ->setImported(new DateTime('now'))
             ->setUuid($data['uuid'])
             ->setPath($data['path'])
-            ->setProvider($data['provider'])
             ->setTitle($data['title'])
             ->setThumbnail($data['thumbnail'])
             ->setSize($data['size'])
             ->setSeconds($data['seconds'])
+            ->setMetadata($metadata)
         ;
-        $this->persist($entry);
+        $this->_em->persist($metadata);
+        $this->_em->persist($entry);
+        $this->_em->flush();
 
         return $entry;
     }
@@ -53,13 +66,6 @@ class EntryRepository extends ServiceEntityRepository
         $this->minio->delete($entry->getPath());
 
         $this->_em->remove($entry);
-        $this->_em->flush();
-
-        return true;
-    }
-
-    private function persist(Entry $entry) {
-        $this->_em->persist($entry);
         $this->_em->flush();
 
         return true;

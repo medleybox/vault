@@ -9,4 +9,5 @@ interface ProviderInterface
     public function getDownloadLink();
     public function getThumbnailLink();
     public function fetchMetaData();
+    public function getUrlFromMetadata();
 }

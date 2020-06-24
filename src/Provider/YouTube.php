@@ -2,12 +2,17 @@
 
 namespace App\Provider;
 
+use App\Entity\EntryMetadata;
 use Madcoda\Youtube\Youtube as YouTubeApi;
 use Exception;
 
 final class YouTube implements ProviderInterface
 {
-    private $url;
+    /**
+     * URL of import
+     * @var string
+     */
+    private $url = null;
 
     /**
      * The ID for the YouTube video
@@ -23,16 +28,18 @@ final class YouTube implements ProviderInterface
 
     /**
      * Metadata from the YouTube API relating to this video
-     * @var array
+     * @var App\Entity\EntryMetadata
      */
-    private $metadata = [];
+    private $metadata = null;
 
-    public function __construct($url)
+    public function __construct($url = null)
     {
         $this->api = new YouTubeApi([
             'key' => $_ENV['API_GOOGLE']
         ]);
-        $this->setUrl($url);
+        if (null !== !$url) {
+            $this->setUrl($url);
+        }
     }
 
     public function setUrl($url)
@@ -48,18 +55,81 @@ final class YouTube implements ProviderInterface
         return $this->url;
     }
 
-    public function getDownloadLink()
+    public function setMetadata(EntryMetadata $metadata)
+    {
+        $this->metadata = $metadata;
+
+        return $this;
+    }
+
+    /**
+     * Used to import the video
+     * @return string
+     */
+    public function getDownloadLink(): string
     {
         return "https://www.youtube.com/watch?v={$this->id}";
     }
 
-    public function getThumbnailLink()
+    public function getTitle()
     {
-        if ($this->metadata === []) {
+        if (null === $this->metadata) {
             $this->fetchMetaData();
         }
 
-        return $this->metadata['thumbnail'];
+        $data = $this->metadata->getData();
+
+        return $data->snippet->title;
+    }
+
+    public function getThumbnailLink()
+    {
+        if (null === $this->metadata) {
+            $this->fetchMetaData();
+        }
+
+        $thumbnail = null;
+        $data = $this->metadata->getData();
+        if (isset($data->snippet->thumbnails->maxres)) {
+            $thumbnail = $data->snippet->thumbnails->maxres->url;
+        }
+        if (null !== $data && isset($data->snippet->thumbnails->medium)) {
+            $thumbnail = $data->snippet->thumbnails->medium->url;
+        }
+        // Fallback to the default thumbnail
+        if (null === $data) {
+            $thumbnail = $data->snippet->thumbnails->default->url;
+        }
+
+        return $thumbnail;
+    }
+
+    public function fetchMetaData()
+    {
+        // Check if the metadata has been fetched
+        if (null !== $this->metadata) {
+            return $this->metadata;
+        }
+
+        $data = $this->api->getVideoInfo($this->id);
+        $this->metadata = (new EntryMetadata())
+            ->setRef($this->id)
+            ->setData($data)
+            ->setProvider(self::class)
+        ;
+
+        return $this->metadata;
+    }
+
+    public function getUrlFromMetadata()
+    {
+        if (null === $this->metadata) {
+            $this->fetchMetaData();
+        }
+
+        $data = $this->metadata->getData();
+
+        return $data->id;
     }
 
     private function setIdFromUrl()
@@ -77,44 +147,10 @@ final class YouTube implements ProviderInterface
 
         $params = null;
         parse_str(parse_url($this->url, PHP_URL_QUERY), $params);
-        print_r($params);
-
         if (!array_key_exists('v', $params)) {
             throw new Exception("Unable to find video id in link", 1);
         }
 
         return $params['v'];
-    }
-
-    public function fetchMetaData()
-    {
-        // Check if the metadata has been fetched
-        if ([] !== $this->metadata) {
-            return $this->metadata;
-        }
-
-        $thumbnail = null;
-        $fetch = $this->api->getVideoInfo($this->id);
-
-        if (isset($fetch->snippet->thumbnails->maxres)) {
-            $thumbnail = $fetch->snippet->thumbnails->maxres->url;
-        }
-
-        if (null !== $fetch && isset($fetch->snippet->thumbnails->medium)) {
-            $thumbnail = $fetch->snippet->thumbnails->medium->url;
-        }
-
-        // Fallback to the default thumbnail
-        if (null === $fetch) {
-            $thumbnail = $fetch->snippet->thumbnails->default->url;
-        }
-
-        $this->metadata = [
-            'title' => $fetch->snippet->title,
-            'artist' => $fetch->snippet->channelTitle,
-            'thumbnail' => $thumbnail
-        ];
-
-        return $this->metadata;
     }
 }

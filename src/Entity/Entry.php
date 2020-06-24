@@ -31,11 +31,6 @@ class Entry
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $provider;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     private $title;
 
     /**
@@ -57,6 +52,11 @@ class Entry
      * @ORM\Column(type="datetime")
      */
     private $imported;
+
+    /**
+     * @ORM\OneToOne(targetEntity=EntryMetadata::class, inversedBy="entry", cascade={"persist", "remove"})
+     */
+    private $metadata;
 
     public function getId(): ?int
     {
@@ -83,18 +83,6 @@ class Entry
     public function setPath(string $path): self
     {
         $this->path = $path;
-
-        return $this;
-    }
-
-    public function getProvider(): ?string
-    {
-        return $this->provider;
-    }
-
-    public function setProvider(string $provider): self
-    {
-        $this->provider = $provider;
 
         return $this;
     }
@@ -155,6 +143,18 @@ class Entry
     public function setImported(\DateTimeInterface $imported): self
     {
         $this->imported = $imported;
+
+        return $this;
+    }
+
+    public function getMetadata(): ?EntryMetadata
+    {
+        return $this->metadata;
+    }
+
+    public function setMetadata(?EntryMetadata $metadata): self
+    {
+        $this->metadata = $metadata;
 
         return $this;
     }

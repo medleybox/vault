@@ -258,15 +258,14 @@ final class Import
         $data = new ArrayCollection([
             'uuid' => $this->uuid,
             'path' => $this->upload,
-            'provider' => $this->getProvidorNamespace(),
-            'title' => $metadata['title'],
+            'title' => $this->provider->getTitle(),
             'thumbnail' => $this->thumbnail->getPath(),
             'size' => $this->stats['size'],
             'seconds' => $this->stats['seconds']
         ]);
 
-        $this->entry = $this->entryRepo->createFromCompletedImport($data);
-        $this->webhock($this->entry, $metadata);
+        $this->entry = $this->entryRepo->createFromCompletedImport($data, $metadata);
+        $this->webhock($this->entry);
 
         return true;
     }
@@ -274,17 +273,17 @@ final class Import
     /**
      * Function to notify webapp of import
      */
-    protected function webhock(Entry $entry, $metadata, $status = 'complete')
+    protected function webhock(Entry $entry, $status = 'complete')
     {
         $this->log->debug("Webhock !!!");
         $this->request->post("/media-file/update", [
             'uuid' => $entry->getUuid(),
             'path' => $entry->getPath(),
-            'provider' => $entry->getProvider(),
+            'provider' => $entry->getMetadata()->getProvider(),
             'title' => $entry->getTitle(),
             'size' => $entry->getSize(),
             'seconds' => $entry->getSeconds(),
-            'metadata' => $metadata
+            'metadata' => $entry->getMetadata()->getData()
         ]);
 
         return true;
