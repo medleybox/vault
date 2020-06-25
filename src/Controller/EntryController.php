@@ -68,7 +68,7 @@ class EntryController extends AbstractController
      */
     public function refreshThumbnail(Entry $entry)
     {
-        $this->entryRepo->refreshThumbnail($entry);
+        $this->thumbnail->refreshThumbnail($entry);
 
         return $this->json(['refresh' => true]);
     }
