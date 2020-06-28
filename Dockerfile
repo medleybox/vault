@@ -12,7 +12,7 @@ ENV APP_ENV dev
 
 COPY --from=composer /app/vendor /var/www/vendor
 
-RUN apk add --update --no-cache ca-certificates curl ffmpeg python gnupg py-pip nginx \
+RUN apk add --update --no-cache ca-certificates curl ffmpeg python3 gnupg py-pip nginx \
     && pip install -U youtube-dl
 
 COPY bin/ /var/www/bin
