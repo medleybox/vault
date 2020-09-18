@@ -113,15 +113,12 @@ final class Import
         $this->thumbnail = $thumbnail;
     }
 
-    public function setUp(ProviderInterface $provider, string $uuid = null, SymfonyStyle $io = null): bool
+    public function setUp(ProviderInterface $provider, string $uuid = null): bool
     {
         $this->provider = $provider;
         $this->uuid = $uuid;
         if (null === $uuid) {
             $this->uuid = Uuid::uuid4()->toString();
-        }
-        if (null !== $io) {
-            $this->io = $io;
         }
 
         return true;
@@ -172,13 +169,13 @@ final class Import
         $args = ['youtube-dl', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '-x', $url];
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
 
-        if (null !== $this->io) {
+        if (null !== $this->log) {
             $process->start();
             foreach ($process as $type => $data) {
                 if ($process::OUT === $type) {
-                    $this->io->write($data);
+                    $this->log->debug($data);
                 } else { // $process::ERR === $type
-                    $this->io->getErrorStyle()->warning($data);
+                    $this->log->error($data);
                 }
             }
 
@@ -275,8 +272,7 @@ final class Import
      */
     public function webhock(Entry $entry, $status = 'complete')
     {
-        $this->log->debug("Webhock !!!");
-        $this->request->post("/media-file/update", [
+        $update = [
             'uuid' => $entry->getUuid(),
             'path' => $entry->getPath(),
             'provider' => $entry->getMetadata()->getProvider(),
@@ -284,7 +280,9 @@ final class Import
             'size' => $entry->getSize(),
             'seconds' => $entry->getSeconds(),
             'metadata' => $entry->getMetadata()->getData()
-        ]);
+        ];
+        $this->log->debug("Webhock !!!", $update);
+        $this->request->post("/media-file/update", $update);
 
         return true;
     }

@@ -40,7 +40,7 @@ class ImportYoutubeCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $youtube = new YouTube($input->getArgument('url'));
 
-        $this->import->setUp($youtube, null, $io);
+        $this->import->setUp($youtube);
         if (true === $this->import->start()) {
             $io->success('Import Complete!');
 
