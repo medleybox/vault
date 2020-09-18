@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use App\Repository\EntryRepository;
+use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 
 class ResetData
@@ -23,11 +23,17 @@ class ResetData
      */
     private $entry;
 
-    public function __construct(Minio $minio, EntityManagerInterface $em, EntryRepository $entry)
+    /**
+     * @var \App\Repository\EntryMetadataRepository
+     */
+    private $meta;
+
+    public function __construct(Minio $minio, EntityManagerInterface $em, EntryRepository $entry, EntryMetadataRepository $meta)
     {
         $this->minio = $minio;
         $this->em = $em;
         $this->entry = $entry;
+        $this->meta = $meta;
     }
 
     public function removeEntities()
@@ -35,6 +41,10 @@ class ResetData
         foreach ($this->entry->findAll() as $entity) {
             dump($entity);
             $this->em->remove($entity);
+        }
+
+        foreach ($this->meta->findAll() as $meta) {
+            $this->em->remove($meta);
         }
         $this->em->flush();
 
