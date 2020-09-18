@@ -36,22 +36,30 @@ class Request
 
     public function get($url, array $data = [])
     {
-        return $this->guzzle->request(
-            'GET',
-            $url,
-            ['base_uri' => SELF::BASE_URI]
-        );
+        try {
+            return $this->guzzle->request(
+                'GET',
+                $url,
+                ['base_uri' => SELF::BASE_URI]
+            );
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     public function post($url, array $data = [])
     {
-        return $this->guzzle->request(
-            'POST',
-            $url,
-            [
-                'base_uri' => SELF::BASE_URI,
-                'form_params' => $data
-            ]
-        );
+        try {
+            return $this->guzzle->request(
+                'POST',
+                $url,
+                [
+                    'base_uri' => SELF::BASE_URI,
+                    'form_params' => $data
+                ]
+            );
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 }
