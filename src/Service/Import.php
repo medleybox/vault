@@ -115,6 +115,12 @@ final class Import
 
     public function setUp(ProviderInterface $provider, string $uuid = null): bool
     {
+        // First check for import
+        $entry = $this->entryRepo->findViaProvider($provider);
+        if (null !== $entry) {
+            throw new \Exception('Entry has already been imported');
+        }
+
         $this->provider = $provider;
         $this->uuid = $uuid;
         if (null === $uuid) {

@@ -4,13 +4,13 @@ namespace App\Repository;
 
 use App\Entity\{Entry, EntryMetadata};
 use App\Service\{Minio, Thumbnail};
-use App\Provider\YouTube;
+use App\Provider\{ProviderInterface, YouTube};
 
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
-use DateTime;
-use Exception;
+use \DateTime;
+use \Exception;
 
 class EntryRepository extends ServiceEntityRepository
 {
@@ -19,10 +19,26 @@ class EntryRepository extends ServiceEntityRepository
      */
     private $minio;
 
-    public function __construct(ManagerRegistry $registry, Minio $minio)
+    /**
+     * @var EntryMetadataRepository
+     */
+     private $meta;
+
+    public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta)
     {
         $this->minio = $minio;
+        $this->meta = $meta;
         parent::__construct($registry, Entry::class);
+    }
+
+    public function findViaProvider(ProviderInterface $provider): ?Entry
+    {
+        $check = $this->meta->findOneBy(['ref' => $provider->getId()]);
+        if (null !== $check) {
+            return $check->getEntry();
+        }
+
+        return null;
     }
 
     public function fetchMetadata(Entry $entry)
@@ -34,6 +50,8 @@ class EntryRepository extends ServiceEntityRepository
         $entry->setMetadata($metadata);
         $this->_em->persist($metadata);
         $this->_em->flush();
+
+        return $metadata;
     }
 
     public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)

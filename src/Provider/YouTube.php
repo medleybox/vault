@@ -49,6 +49,11 @@ final class YouTube implements ProviderInterface
         return $this;
     }
 
+    public function getId()
+    {
+        return $this->id;
+    }
+
     public function setUrl($url)
     {
         $this->url = $url;
@@ -119,6 +124,17 @@ final class YouTube implements ProviderInterface
         }
 
         $data = $this->api->getVideoInfo($this->id);
+
+        // Remove data that isn't required so shouldn't get stored
+        unset(
+            $data->contentDetails,
+            $data->player,
+            $data->tags,
+            $data->localized,
+            $data->status,
+            $data->snippet->tags
+        );
+
         $this->metadata = (new EntryMetadata())
             ->setRef($this->id)
             ->setData($data)
