@@ -7,6 +7,7 @@ use App\Provider\YouTube;
 use App\Repository\EntryRepository;
 use App\Service\{Import, Minio, Thumbnail};
 
+use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
@@ -89,14 +90,60 @@ class EntryController extends AbstractController
      */
     public function import(Request $request)
     {
-        $id = $request->request->get('id');
-        if (null === $id) {
-            exit();
+        $uuid = $request->request->get('uuid');
+        if (null === $uuid) {
+            return $this->json(['error' => true]);
         }
 
-        $this->import->setUp(new YouTube($id));
-        $uuid = $this->import->queue();
+        $entry = $this->import->entrySetup($uuid, new YouTube($uuid));
+        if (false === $entry) {
+            return $this->json(['error' => true]);
+        }
 
-        return $this->json(['uuid' => $uuid]);
+        $queue = $this->import->queue($entry);
+
+        return $this->json(['error' => false, 'uuid' => $uuid, 'queue' => $queue]);
+    }
+
+    /**
+     * @Route("/entry/check", name="entry_check", methods={"POST"})
+     */
+    public function check(Request $request)
+    {
+        $id = $request->request->get('id');
+        if (null === $id) {
+            return $this->json([
+                'found' => false,
+                'message' => 'No URL provided'
+            ]);
+        }
+
+        $provider = new YouTube($id);
+        $seach = $this->import->seachForDownload($provider);
+        if (true !== $seach) {
+            return $this->json([
+                'found' => false,
+                'message' => 'Unable to find video metadata'
+            ]);
+        }
+
+        $metadata = $provider->fetchMetaData();
+        if (false === $metadata) {
+            return $this->json([
+                'found' => false,
+                'message' => 'Unable to find video'
+            ]);
+        }
+
+        $uuid = Uuid::uuid4()->toString();
+        $link = $provider->getThumbnailLink();
+        $thumbnail = $this->thumbnail->generate($uuid, $link);
+        $this->entryRepo->createPartialImport($metadata, $provider, $uuid, $thumbnail);
+
+        return $this->json([
+            'uuid' => $uuid,
+            'title' => $provider->getTitle(),
+            'thumbnail' => "/vault/entry/thumbnail/{$uuid}"
+        ]);
     }
 }

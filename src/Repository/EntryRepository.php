@@ -43,7 +43,7 @@ class EntryRepository extends ServiceEntityRepository
 
     public function fetchMetadata(Entry $entry)
     {
-        // For the time being, it will only be youtube that will have no metadata
+        // For the time being, it will only be youtube that will have metadata
         $providor = new YouTube();
         $metadata = $providor->search($entry->getTitle());
 
@@ -52,6 +52,29 @@ class EntryRepository extends ServiceEntityRepository
         $this->_em->flush();
 
         return $metadata;
+    }
+
+    /**
+     * Create a new enity with minimal info. Used when initially fetching import metdata
+     * @param  EntryMetadata $metadata
+     * @param  string        $title
+     * @param  string        $thumbnail
+     * @return Entry
+     */
+    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail): Entry
+    {
+        $entry = (new Entry())
+            ->setUuid($uuid)
+            ->setImported(new DateTime('now'))
+            ->setTitle($provider->getTitle())
+            ->setThumbnail($thumbnail)
+            ->setMetadata($metadata)
+        ;
+        $this->_em->persist($metadata);
+        $this->_em->persist($entry);
+        $this->_em->flush();
+
+        return $entry;
     }
 
     public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)
@@ -73,8 +96,13 @@ class EntryRepository extends ServiceEntityRepository
             ->setSeconds($data['seconds'])
             ->setMetadata($metadata)
         ;
-        $this->_em->persist($metadata);
-        $this->_em->persist($entry);
+        if (null === $metadata->getId()) {
+            $this->_em->persist($metadata);
+        }
+        if (null === $entry->getId()) {
+            $this->_em->persist($entry);
+        }
+
         $this->_em->flush();
 
         return $entry;

@@ -4,7 +4,7 @@ namespace App\Provider;
 
 use App\Entity\EntryMetadata;
 use Madcoda\Youtube\Youtube as YouTubeApi;
-use Exception;
+use \Exception;
 
 final class YouTube implements ProviderInterface
 {
@@ -28,7 +28,7 @@ final class YouTube implements ProviderInterface
 
     /**
      * Metadata from the YouTube API relating to this video
-     * @var App\Entity\EntryMetadata
+     * @var \App\Entity\EntryMetadata
      */
     private $metadata = null;
 
@@ -124,6 +124,9 @@ final class YouTube implements ProviderInterface
         }
 
         $data = $this->api->getVideoInfo($this->id);
+        if (false === $data) {
+            return false;
+        }
 
         // Remove data that isn't required so shouldn't get stored
         unset(

@@ -113,12 +113,30 @@ final class Import
         $this->thumbnail = $thumbnail;
     }
 
+    public function seachForDownload($provider)
+    {
+        $args = ['youtube-dl', '--print-json', '--get-thumbnail', $provider->getDownloadLink()];
+        $this->log->error('youtube check args', $args);
+        $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
+        $process->run();
+
+        dump($process->getOutput());
+
+        return $process->isSuccessful();
+
+    }
+
     public function setUp(ProviderInterface $provider, string $uuid = null): bool
     {
         // First check for import
         $entry = $this->entryRepo->findViaProvider($provider);
         if (null !== $entry) {
             throw new \Exception('Entry has already been imported');
+        }
+
+        $search = $this->seachForDownload($provider);
+        if (true !== $search) {
+            throw new \Exception('Unable to find entry after search');
         }
 
         $this->provider = $provider;
@@ -130,12 +148,25 @@ final class Import
         return true;
     }
 
+    public function entrySetup($uuid, ProviderInterface $provider): ?Entry
+    {
+        $entry = $this->entryRepo->findOneBy(['uuid' => $uuid]);
+        if (null === $entry) {
+            return false;
+        }
+
+        $this->provider = $provider;
+        $this->uuid = $entry->getUuid();
+
+        return $entry;
+    }
+
     public function queue(): string
     {
         // Create a new import job and dispatch it to run in the background.
         $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
 
-        return $this->uuid;
+        return true;
     }
 
     public function start(): bool
@@ -147,7 +178,7 @@ final class Import
 
         $this->log->info('Attempting to download and convert from source');
         if (false === $this->attemptDownload()) {
-            $this->log->error('Unable to download file');
+            $this->log->error('Unable to download file ',  [$this->provider->getDownloadLink()]);
 
             return false;
         }
@@ -172,7 +203,10 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
+        $this->log->info($url);
+        $this->log->info($this->uuid);
         $args = ['youtube-dl', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '-x', $url];
+        $this->log->error('youtube args', $args);
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
 
         if (null !== $this->log) {
