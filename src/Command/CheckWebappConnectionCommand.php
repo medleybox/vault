@@ -33,10 +33,13 @@ class CheckWebappConnectionCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        if (true === $this->request->checkConnectivity()) {
+        try {
+            $this->request->checkConnectivity();
             $io->success('Connected to webapp service!');
 
             return 0;
+        } catch (\Exception $e) {
+            $io->error($e->getMessage());
         }
 
         $io->error('Failed to connect to the webapp service');

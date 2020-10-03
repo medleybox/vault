@@ -24,7 +24,7 @@ class Request
     {
         try {
             $version = $this->get('/api/version');
-            if (200 === $version->getStatusCode()) {
+            if (false !== $version && 200 === $version->getStatusCode()) {
                 return true;
             }
         } catch (\Exception $e) {
