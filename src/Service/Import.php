@@ -282,7 +282,7 @@ final class Import
     protected function upload()
     {
         $this->upload = "{$this->getProvidorNamespace()}/{$this->file->getFilename()}";
-        $this->log->error('$this->upload', $this->upload);
+        $this->log->error('upload()', [$this->upload, $this->file]);
         $this->minio->upload($this->file->getFilename(), $this->upload);
 
         return true;
