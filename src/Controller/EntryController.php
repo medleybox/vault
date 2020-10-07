@@ -95,7 +95,8 @@ class EntryController extends AbstractController
             return $this->json(['error' => true]);
         }
 
-        $entry = $this->import->entrySetup($uuid, new YouTube($uuid));
+        $providor = new YouTube($request->request->get('url'));
+        $entry = $this->import->entrySetup($uuid, $providor);
         if (false === $entry) {
             return $this->json(['error' => true]);
         }

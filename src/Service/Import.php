@@ -120,8 +120,6 @@ final class Import
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         $process->run();
 
-        dump($process->getOutput());
-
         return $process->isSuccessful();
 
     }
@@ -130,7 +128,7 @@ final class Import
     {
         // First check for import
         $entry = $this->entryRepo->findViaProvider($provider);
-        if (null !== $entry) {
+        if (null !== $entry && null === $uuid) {
             throw new \Exception('Entry has already been imported');
         }
 

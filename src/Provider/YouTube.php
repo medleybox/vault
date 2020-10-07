@@ -165,8 +165,8 @@ final class YouTube implements ProviderInterface
             return false;
         }
 
-        $id = $search[0]->id->videoId;
-        $this->setUrl($id);
+        $this->id = $search[0]->id->videoId;
+        $this->setUrl($this->getDownloadLink());
 
         return $this->fetchMetaData();
     }
