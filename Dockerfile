@@ -10,11 +10,10 @@ FROM xigen/php:fpm-74
 
 ENV APP_ENV dev
 
-COPY --from=composer /app/vendor /var/www/vendor
-
 RUN apk add --update --no-cache ca-certificates curl ffmpeg python3 gnupg py-pip nginx \
     && pip install -U youtube-dl
 
+COPY --from=composer /app/vendor /var/www/vendor
 COPY bin/ /var/www/bin
 COPY config/ /var/www/config
 COPY public/index.php /var/www/public/index.php
