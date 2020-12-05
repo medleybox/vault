@@ -32,3 +32,11 @@ services:
             $key: "%env(MINIO_ACCESS_KEY)%"
             $bucket: "%env(MINIO_BUCKET)%"
             $secret: "%env(MINIO_SECRET_KEY)%"
+
+    # https://stackoverflow.com/a/64929154
+    doctrine.query_sql_command:
+        class: Doctrine\DBAL\Tools\Console\Command\RunSqlCommand
+        arguments:
+            - '@Doctrine\Bundle\DoctrineBundle\Dbal\ManagerRegistryAwareConnectionProvider'
+        tags:
+            - { name: console.command, command: doctrine:query:sql }
