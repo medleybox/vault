@@ -9,6 +9,7 @@ use App\Provider\{ProviderInterface, YouTube};
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\DBAL\DBALException;
 use \DateTime;
 use \Exception;
 
@@ -41,6 +42,26 @@ class EntryRepository extends ServiceEntityRepository
         return null;
     }
 
+    /**
+     * Search for entry that had been marked as imported. Returns null if nothing found
+     * @param  ProviderInterface $provider
+     * @return \App\Entity\Entry|null
+     */
+    public function checkForImported(ProviderInterface $provider): ?Entry
+    {
+        $check = $this->meta->findOneBy(['ref' => $provider->getId()]);
+        if (null === $check) {
+            return null;
+        }
+
+        $entry = $check->getEntry();
+        if (null !== $entry && null !== $entry->getImported()) {
+            return $entry;
+        }
+
+        return null;
+    }
+
     public function fetchMetadata(Entry $entry)
     {
         // For the time being, it will only be youtube that will have metadata
@@ -65,12 +86,18 @@ class EntryRepository extends ServiceEntityRepository
     {
         $entry = (new Entry())
             ->setUuid($uuid)
-            ->setImported(new DateTime('now'))
             ->setTitle($provider->getTitle())
             ->setThumbnail($thumbnail)
             ->setMetadata($metadata)
         ;
-        $this->_em->persist($metadata);
+        try {
+            if (null === $metadata->getId()) {
+                $this->_em->persist($metadata);
+            }
+        } catch (DBALException $e) {
+            // Maybe this is still an issue?
+        }
+
         $this->_em->persist($entry);
         $this->_em->flush();
 
@@ -86,21 +113,35 @@ class EntryRepository extends ServiceEntityRepository
             }
         }
 
-        $entry = (new Entry())
-            ->setImported(new DateTime('now'))
-            ->setUuid($data['uuid'])
+        $entry = $this->findOneBy(['uuid' => $data['uuid']]);
+        if (null === $entry) {
+            $entry = (new Entry())
+                ->setTitle($data['title'])
+                ->setUuid($data['uuid'])
+            ;
+        }
+
+        $entry->setImported(new DateTime('now'))
             ->setPath($data['path'])
-            ->setTitle($data['title'])
             ->setThumbnail($data['thumbnail'])
             ->setSize($data['size'])
             ->setSeconds($data['seconds'])
-            ->setMetadata($metadata)
         ;
-        if (null === $metadata->getId()) {
-            $this->_em->persist($metadata);
+
+        if (null === $entry->getMetadata()) {
+            $entry->setMetadata($metadata);
         }
-        if (null === $entry->getId()) {
-            $this->_em->persist($entry);
+
+        try {
+            if (null === $metadata->getId()) {
+                $this->_em->persist($metadata);
+            }
+
+            if (null === $entry->getId()) {
+                $this->_em->persist($entry);
+            }
+        } catch (DBALException $e) {
+            return $entry;
         }
 
         $this->_em->flush();

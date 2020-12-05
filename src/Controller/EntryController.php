@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Entry;
 use App\Provider\YouTube;
-use App\Repository\EntryRepository;
+use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Service\{Import, Minio, Thumbnail};
 
 use Ramsey\Uuid\Uuid;
@@ -17,11 +17,12 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
 {
-    public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo, Thumbnail $thumbnail)
+    public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo, EntryMetadataRepository $entryMetaRepo, Thumbnail $thumbnail)
     {
         $this->minio = $minio;
         $this->import = $import;
         $this->entryRepo = $entryRepo;
+        $this->entryMetaRepo = $entryMetaRepo;
         $this->thumbnail = $thumbnail;
     }
 
@@ -92,16 +93,21 @@ class EntryController extends AbstractController
     {
         $uuid = $request->request->get('uuid');
         if (null === $uuid) {
-            return $this->json(['error' => true]);
+            return $this->json(['error' => true, 'message' => 'No uuid provided']);
         }
 
-        $providor = new YouTube($request->request->get('url'));
-        $entry = $this->import->entrySetup($uuid, $providor);
-        if (false === $entry) {
-            return $this->json(['error' => true]);
+        $provider = new YouTube($request->request->get('url'));
+        $check = $this->entryRepo->checkForImported($provider);
+        if (null !== $check) {
+            return $this->json(['error' => true, 'message' => 'Entry already imported']);
         }
 
-        $queue = $this->import->queue($entry);
+        $setup = $this->import->setUp($provider, $uuid);
+        if (false === $setup) {
+            return $this->json(['error' => true, 'message' => 'Unable to setup import']);
+        }
+
+        $queue = $this->import->queue();
 
         return $this->json(['error' => false, 'uuid' => $uuid, 'queue' => $queue]);
     }
@@ -120,19 +126,38 @@ class EntryController extends AbstractController
         }
 
         $provider = new YouTube($id);
+
+        $check = $this->entryRepo->checkForImported($provider);
+        if (null !== $check) {
+            return $this->json(['found' => false, 'message' => 'Entry already imported']);
+        }
+
         $seach = $this->import->seachForDownload($provider);
         if (true !== $seach) {
             return $this->json([
                 'found' => false,
-                'message' => 'Unable to find video metadata'
+                'message' => 'Unable to find video'
             ]);
         }
 
-        $metadata = $provider->fetchMetaData();
-        if (false === $metadata) {
+        $metadata = $this->entryMetaRepo->findOneBy(['ref' => $provider->getId()]);
+        if (null === $metadata) {
+            $metadata = $provider->fetchMetadata();
+            if (false === $metadata) {
+                return $this->json([
+                    'found' => false,
+                    'message' => 'Unable to find video metadata'
+                ]);
+            }
+        }
+
+        $entry = $metadata->getEntry();
+        if (null !== $entry && null !== $entry->getThumbnail()) {
             return $this->json([
-                'found' => false,
-                'message' => 'Unable to find video'
+                'found' => true,
+                'uuid' => $entry->getUuid(),
+                'title' => $entry->getTitle(),
+                'thumbnail' => "/vault/entry/thumbnail/{$entry->getUuid()}"
             ]);
         }
 
@@ -142,6 +167,7 @@ class EntryController extends AbstractController
         $this->entryRepo->createPartialImport($metadata, $provider, $uuid, $thumbnail);
 
         return $this->json([
+            'found' => true,
             'uuid' => $uuid,
             'title' => $provider->getTitle(),
             'thumbnail' => "/vault/entry/thumbnail/{$uuid}"

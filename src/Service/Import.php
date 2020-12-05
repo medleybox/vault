@@ -4,7 +4,7 @@ namespace App\Service;
 
 use App\Entity\Entry;
 use App\Provider\ProviderInterface;
-use App\Repository\EntryRepository;
+use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Message\ImportJob;
 
 use Doctrine\Common\Collections\ArrayCollection;
@@ -89,6 +89,11 @@ final class Import
     private $entryRepo;
 
     /**
+     * @var \App\Repository\EntryMetadataRepository
+     */
+    private $entryMetaRepo;
+
+    /**
      * @var \Psr\Log\LoggerInterface
      */
     private $log;
@@ -103,10 +108,11 @@ final class Import
      */
     private $thumbnail;
 
-    public function __construct(Minio $minio, EntryRepository $entryRepo, LoggerInterface $log, MessageBusInterface $bus, Request $request, Thumbnail $thumbnail)
+    public function __construct(Minio $minio, EntryRepository $entryRepo, EntryMetadataRepository $entryMetaRepo, LoggerInterface $log, MessageBusInterface $bus, Request $request, Thumbnail $thumbnail)
     {
         $this->minio = $minio;
         $this->entryRepo = $entryRepo;
+        $this->entryMetaRepo = $entryMetaRepo;
         $this->log = $log;
         $this->bus = $bus;
         $this->request = $request;
@@ -116,12 +122,11 @@ final class Import
     public function seachForDownload($provider)
     {
         $args = ['youtube-dl', '--print-json', '--get-thumbnail', $provider->getDownloadLink()];
-        $this->log->error('youtube check args', $args);
+        $this->log->debug('youtube search', $args);
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         $process->run();
 
         return $process->isSuccessful();
-
     }
 
     public function setUp(ProviderInterface $provider, string $uuid = null): bool
@@ -130,6 +135,11 @@ final class Import
         $entry = $this->entryRepo->findViaProvider($provider);
         if (null !== $entry && null === $uuid) {
             throw new \Exception('Entry has already been imported');
+        }
+
+        // Check if the entry had been marked as imported
+        if (null !== $entry && null !== $entry->getImported()){
+            throw new \Exception('Entry has already been imported in database');
         }
 
         $search = $this->seachForDownload($provider);
@@ -146,20 +156,7 @@ final class Import
         return true;
     }
 
-    public function entrySetup($uuid, ProviderInterface $provider): ?Entry
-    {
-        $entry = $this->entryRepo->findOneBy(['uuid' => $uuid]);
-        if (null === $entry) {
-            return false;
-        }
-
-        $this->provider = $provider;
-        $this->uuid = $entry->getUuid();
-
-        return $entry;
-    }
-
-    public function queue(): string
+    public function queue(): bool
     {
         // Create a new import job and dispatch it to run in the background.
         $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
@@ -201,12 +198,12 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
-        $this->log->info($url);
-        $this->log->info($this->uuid);
         $args = ['youtube-dl', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '-x', $url];
-        $this->log->error('youtube args', $args);
-        $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
 
+        $this->log->info('attemptDownload()', [$url, $this->uuid]);
+        $this->log->debug('youtube-dl args', $args);
+
+        $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         if (null !== $this->log) {
             $process->start();
             foreach ($process as $type => $data) {
@@ -282,7 +279,7 @@ final class Import
     protected function upload()
     {
         $this->upload = "{$this->getProvidorNamespace()}/{$this->file->getFilename()}";
-        $this->log->error('upload()', [$this->upload, $this->file]);
+        $this->log->debug('upload()', [$this->upload, $this->file]);
         $this->minio->upload($this->file->getFilename(), $this->upload);
 
         return true;
@@ -290,7 +287,11 @@ final class Import
 
     protected function import()
     {
-        $metadata = $this->provider->fetchMetadata();
+        $metadata = $this->entryMetaRepo->findOneBy(['ref' => $this->provider->getId()]);
+        if (null === $metadata) {
+            $metadata = $this->provider->fetchMetadata();
+        }
+
         $data = new ArrayCollection([
             'uuid' => $this->uuid,
             'path' => $this->upload,

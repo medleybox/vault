@@ -10,6 +10,8 @@ use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+use Exception;
+
 class ImportYoutubeCommand extends Command
 {
     /**
@@ -40,7 +42,22 @@ class ImportYoutubeCommand extends Command
         $io = new SymfonyStyle($input, $output);
         $youtube = new YouTube($input->getArgument('url'));
 
-        $this->import->setUp($youtube);
+        try {
+            $this->import->setUp($youtube);
+        } catch (\Exception $e) {
+            $io->error($e->getMessage());
+
+            return 1;
+        }
+
+        // Process via message broker
+        if (true === $this->import->queue()) {
+            $io->success('Import job sent for processing!');
+
+            return 0;
+        }
+
+        // Process now
         if (true === $this->import->start()) {
             $io->success('Import Complete!');
 
