@@ -1,3 +1,5 @@
 #!/bin/sh
 
 vendor/bin/phpstan analyse -l 5 src
+
+vendor/bin/phpcs --colors -pn --report=full,summary src
