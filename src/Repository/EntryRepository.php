@@ -76,10 +76,10 @@ class EntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Create a new enity with minimal info. Used when initially fetching import metdata
-     * @param  EntryMetadata $metadata
-     * @param  string        $title
-     * @param  string        $thumbnail
+     * @param  EntryMetadata     $metadata
+     * @param  ProviderInterface $provider
+     * @param  string            $uuid
+     * @param  string            $thumbnail
      * @return Entry
      */
     public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail): Entry

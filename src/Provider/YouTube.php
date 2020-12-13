@@ -108,8 +108,9 @@ final class YouTube implements ProviderInterface
         if (null !== $data && isset($data->snippet->thumbnails->medium)) {
             $thumbnail = $data->snippet->thumbnails->medium->url;
         }
+
         // Fallback to the default thumbnail
-        if (null === $data) {
+        if (null === $thumbnail) {
             $thumbnail = $data->snippet->thumbnails->default->url;
         }
 

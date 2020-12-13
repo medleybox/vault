@@ -20,7 +20,7 @@ class ImportJobHandler implements MessageHandlerInterface
 
     public function __invoke(ImportJob $message)
     {
-        $this->import->setUp($message->getProvider(), $message->getUuid(), null);
+        $this->import->setUp($message->getProvider(), $message->getUuid());
         $this->import->start();
     }
 }
