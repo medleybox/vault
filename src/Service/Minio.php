@@ -49,7 +49,7 @@ class Minio
 
     public function getFileStats(SplFileInfo $file)
     {
-        $getID3 = new \getID3;
+        $getID3 = new \getID3();
         $info = $getID3->analyze($file->getRealPath());
 
         return [

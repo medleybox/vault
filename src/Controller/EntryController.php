@@ -6,7 +6,6 @@ use App\Entity\Entry;
 use App\Provider\YouTube;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Service\{Import, Minio, Thumbnail};
-
 use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;

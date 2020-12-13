@@ -5,13 +5,12 @@ namespace App\Repository;
 use App\Entity\{Entry, EntryMetadata};
 use App\Service\{Minio, Thumbnail};
 use App\Provider\{ProviderInterface, YouTube};
-
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\DBALException;
-use \DateTime;
-use \Exception;
+use DateTime;
+use Exception;
 
 class EntryRepository extends ServiceEntityRepository
 {
@@ -107,7 +106,7 @@ class EntryRepository extends ServiceEntityRepository
     public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)
     {
         // Do some baisc validation on fields that are required in the database
-        foreach(['uuid', 'path', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
+        foreach (['uuid', 'path', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
             if (!$data->containsKey($key)) {
                 throw new Exception("Missing field {$key}");
             }

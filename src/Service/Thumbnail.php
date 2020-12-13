@@ -73,7 +73,8 @@ class Thumbnail
         $providor = $entry->getMetadata()->getProviderInstance();
         $link = $providor->getThumbnailLink();
 
-        return $this->generate($entry->getUuid(), $link);;
+        return $this->generate($entry->getUuid(), $link);
+        ;
     }
 
     public function generate(string $uuid, string $link): string

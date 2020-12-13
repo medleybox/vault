@@ -74,7 +74,7 @@ class EntryMetadata
 
     public function getProviderInstance(): ProviderInterface
     {
-        return (new $this->provider)->setId($this->getRef())->setMetadata($this);
+        return (new $this->provider())->setId($this->getRef())->setMetadata($this);
     }
 
     public function setProvider(string $provider): self

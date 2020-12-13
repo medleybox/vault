@@ -6,7 +6,6 @@ use App\Entity\Entry;
 use App\Provider\ProviderInterface;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Message\ImportJob;
-
 use Doctrine\Common\Collections\ArrayCollection;
 use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
@@ -143,7 +142,7 @@ final class Import
         }
 
         // Check if the entry had been marked as imported
-        if (null !== $entry && null !== $entry->getImported()){
+        if (null !== $entry && null !== $entry->getImported()) {
             throw new \Exception('Entry has already been imported in database');
         }
 
@@ -178,7 +177,7 @@ final class Import
 
         $this->log->info('Attempting to download and convert from source');
         if (false === $this->attemptDownload()) {
-            $this->log->error('Unable to download file ',  [$this->provider->getDownloadLink()]);
+            $this->log->error('Unable to download file ', [$this->provider->getDownloadLink()]);
 
             return false;
         }

@@ -4,7 +4,7 @@ namespace App\Provider;
 
 use App\Entity\EntryMetadata;
 use Madcoda\Youtube\Youtube as YouTubeApi;
-use \Exception;
+use Exception;
 
 final class YouTube implements ProviderInterface
 {

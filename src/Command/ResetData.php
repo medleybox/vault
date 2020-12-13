@@ -4,7 +4,6 @@ namespace App\Command;
 
 use App\Provider\YouTube;
 use App\Service\ResetData as ResetDataService;
-
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
