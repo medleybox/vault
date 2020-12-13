@@ -124,8 +124,9 @@ final class YouTube implements ProviderInterface
             return $this->metadata;
         }
 
-        $data = $this->api->getVideoInfo($this->id);
-        if (false === $data) {
+        try {
+            $data = $this->api->getVideoInfo($this->id);
+        } catch (\Exception $e) {
             return false;
         }
 
@@ -161,8 +162,9 @@ final class YouTube implements ProviderInterface
 
     public function search($title)
     {
-        $search = $this->api->searchVideos($title, 1);
-        if (false === $search) {
+        try {
+            $search = $this->api->searchVideos($title, 1);
+        } catch (\Exception $e) {
             return false;
         }
 
