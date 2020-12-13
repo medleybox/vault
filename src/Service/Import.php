@@ -99,6 +99,11 @@ final class Import
     private $log;
 
     /**
+     * @var \Symfony\Component\Messenger\MessageBusInterface
+     */
+    private $bus;
+
+    /**
      * @var \App\Service\Request
      */
     private $request;
@@ -301,8 +306,8 @@ final class Import
             'seconds' => $this->stats['seconds']
         ]);
 
-        $this->entry = $this->entryRepo->createFromCompletedImport($data, $metadata);
-        $this->webhock($this->entry);
+        $entry = $this->entryRepo->createFromCompletedImport($data, $metadata);
+        $this->webhock($entry);
 
         return true;
     }

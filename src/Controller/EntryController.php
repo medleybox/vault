@@ -17,6 +17,31 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class EntryController extends AbstractController
 {
+    /**
+     * @var \App\Service\Minio
+     */
+    private $minio;
+
+    /**
+     * @var \App\Service\Import
+     */
+    private $import;
+
+    /**
+     * @var \App\Repository\EntryRepository
+     */
+    private $entryRepo;
+
+    /**
+     * @var \App\Repository\EntryMetadataRepository
+     */
+    private $entryMetaRepo;
+
+    /**
+     * @var \App\Service\Thumbnail
+     */
+    private $thumbnail;
+
     public function __construct(Minio $minio, Import $import, EntryRepository $entryRepo, EntryMetadataRepository $entryMetaRepo, Thumbnail $thumbnail)
     {
         $this->minio = $minio;
