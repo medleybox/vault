@@ -2,8 +2,9 @@
 [![Docker Hub Link](https://img.shields.io/docker/image-size/medleybox/vault/latest?style=for-the-badge)][dockerhub-vault]
 [![Docker Hub Link](https://img.shields.io/docker/cloud/automated/medleybox/vault?style=for-the-badge)][dockerhub-vault-builds]
 [![Docker Hub Link](https://img.shields.io/docker/cloud/build/medleybox/vault?style=for-the-badge)][dockerhub-vault-builds]
+[![Github Workflows Link](https://github.com/medleybox/vault/workflows/PHP%20Tests/badge.svg)][github-workflows]
 
-A Symfony 5 application to retrieve and store music for Medlybox. Rewritten concepts from  [medlybox/import][github-import].
+A Symfony 5.2 application to retrieve and store music for Medlybox. Rewritten concepts from  [medlybox/import][github-import].
 
 ## Quick Start
 This project uses Docker and docker-compose to manage project dependencies. You will need up to date installed and working versions of both. PHP 7.4 is used within the nginx + FPM container setup. There is only one container for running nginx and fpm.
@@ -35,10 +36,11 @@ Bin scripts have been written to automate common CLI tasks:
 
 ### Import
 ```
-curl -d "id=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
+curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 ```
 
 
 [github-import]: https://github.com/medleybox/import
 [dockerhub-vault]: https://hub.docker.com/repository/docker/medleybox/vault
 [dockerhub-vault-builds]: https://hub.docker.com/repository/docker/medleybox/vault/builds
+[github-workflows]: https://github.com/medleybox/vault/actions?query=workflow%3A%22PHP+Tests%22
