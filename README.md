@@ -31,6 +31,16 @@ Bin scripts have been written to automate common CLI tasks:
 | bin/docker-console | Run the Symfony Console within the vault container |
 | bin/docker-entrypoint | Docker image entrypoint for vault. Starts FPM and then Nginx |
 | bin/docker-up | Start the stack locally via docker-compose |
+| bin/run-tests | Run PHP CS tests using phpstan and phpcs |
+
+
+## Testing
+PHP Coding Standards tests using `phpstan` and `squizlabs/php_codesniffer` using the [phpcs-symfony-ruleset](@Symfony:risky) ruleset. Use the `run-tests` bin script to use the correct command line arguments for each program.
+
+Fix reported issues with `phpcbf`:
+```
+vendor/bin/phpcbf --standard=PSR12 --colors src
+```
 
 ## API Endpoint tests
 
@@ -44,3 +54,4 @@ curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 [dockerhub-vault]: https://hub.docker.com/repository/docker/medleybox/vault
 [dockerhub-vault-builds]: https://hub.docker.com/repository/docker/medleybox/vault/builds
 [github-workflows]: https://github.com/medleybox/vault/actions?query=workflow%3A%22PHP+Tests%22
+[phpcs-symfony-ruleset]: https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/2.17/doc/ruleSets/Symfony.rst
