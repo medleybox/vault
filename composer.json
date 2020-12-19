@@ -20,6 +20,7 @@
         "guzzlehttp/guzzle": "^6.5",
         "guzzlehttp/streams": "^3.0",
         "james-heinrich/getid3": "^1.9",
+        "league/csv": "^9.6",
         "league/flysystem-aws-s3-v3": "^1.0.25",
         "madcoda/php-youtube-api": "^1.2",
         "ramsey/uuid": "^4.0",

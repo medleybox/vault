@@ -95,6 +95,18 @@ class Minio
         return true;
     }
 
+    public function uploadString(string $dest, string $contents): bool
+    {
+        // If uploading a file with the same name, delete it first as it can't be overwritten
+        if (true === $this->filesystem->has($dest)) {
+            $this->filesystem->delete($dest);
+        }
+
+        $this->filesystem->write($dest, $contents);
+
+        return true;
+    }
+
     public function stream($path)
     {
         return $this->filesystem->readStream($path);

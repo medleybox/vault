@@ -92,6 +92,9 @@
     "james-heinrich/getid3": {
         "version": "v1.9.19"
     },
+    "league/csv": {
+        "version": "9.6.2"
+    },
     "league/flysystem": {
         "version": "1.0.46"
     },
