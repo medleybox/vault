@@ -142,7 +142,7 @@ final class Import
         }
 
         // Check if the entry had been marked as imported
-        if (null !== $entry && null !== $entry->getImported()) {
+        if (null !== $entry && null !== $entry->getImported() && null !== $entry->getPath()) {
             throw new \Exception('Entry has already been imported in database');
         }
 
@@ -162,8 +162,12 @@ final class Import
 
     public function queue(): bool
     {
-        // Create a new import job and dispatch it to run in the background.
-        $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
+        try {
+            // Create a new import job and dispatch it to run in the background.
+            $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
+        } catch (\Exception $e) {
+            return false;
+        }
 
         return true;
     }

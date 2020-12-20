@@ -35,7 +35,9 @@ class ExportCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->export->export();
+        $file = $this->export->export();
+
+        $output->writeln("Exported ${file}.csv");
 
         return Command::SUCCESS;
     }

@@ -15,6 +15,8 @@ class Kernel extends BaseKernel
 
     private const CONFIG_EXTS = '.{php,xml,yaml,yml}';
 
+    public const APP_TIMEFORMAT = 'H:i:s d-m-Y';
+
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';

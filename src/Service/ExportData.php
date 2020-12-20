@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Kernel;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -12,11 +13,6 @@ use Ramsey\Uuid\Uuid;
 
 class ExportData
 {
-    /**
-     * @var \App\Service\Minio
-     */
-    private $minio;
-
     /**
      * @var \Doctrine\ORM\EntityManagerInterface
      */
@@ -27,26 +23,35 @@ class ExportData
      */
     private $entry;
 
+    /**
+     * @var \App\Service\Minio
+     */
+    private $minio;
+
+    /**
+     * Headers of the output CSV
+     * @var array
+     */
     private $headers = [
         'uuid',
         'title',
         'ref',
+        'imported',
     ];
 
-    public function __construct(Minio $minio, EntityManagerInterface $em, EntryRepository $entry)
+    public function __construct(EntityManagerInterface $em, EntryRepository $entry, Minio $minio)
     {
-        $this->minio = $minio;
         $this->em = $em;
         $this->entry = $entry;
+        $this->minio = $minio;
     }
 
-    public function export()
+    public function export(): string
     {
-        $entries = $this->getEntries();
-        $csv = $this->createCsv($entries);
-        $this->upload($csv);
+        $csv = $this->createCsv($this->getEntries());
+        $name = $this->upload($csv);
 
-        return true;
+        return $name;
     }
 
     private function getEntries()
@@ -62,6 +67,7 @@ class ExportData
                 $entity->getUuid(),
                 $entity->getTitle(),
                 $ref,
+                $entity->getImported()->format(Kernel::APP_TIMEFORMAT),
             ]);
         }
 

@@ -117,7 +117,7 @@ class Minio
         return $this->filesystem->read($path);
     }
 
-    public function delete($path)
+    public function delete($path): bool
     {
         return $this->filesystem->delete($path);
     }
