@@ -43,7 +43,7 @@ class Minio
             ]
         ]);
 
-        $this->adapter = new AwsS3Adapter($this->client, $bucket, '');
+        $this->adapter = new AwsS3Adapter($this->client, $bucket, '', [], false);
         $this->filesystem = new Filesystem($this->adapter);
     }
 
