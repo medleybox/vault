@@ -86,9 +86,6 @@
     "guzzlehttp/psr7": {
         "version": "1.6.1"
     },
-    "guzzlehttp/streams": {
-        "version": "3.0.0"
-    },
     "james-heinrich/getid3": {
         "version": "v1.9.19"
     },
