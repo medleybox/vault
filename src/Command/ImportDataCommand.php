@@ -39,7 +39,7 @@ class ImportDataCommand extends Command
 
         $options = [];
         $files = $this->import->getAvalibleImports();
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $date = (new \DateTime())->setTimestamp($file['timestamp'])->format('H:i:s d-m-Y');
             $options[$file['basename']] = "{$date} {$file['basename']}";
         }
