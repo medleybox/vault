@@ -37,26 +37,23 @@ class ImportDataCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        // $options = [];
-        // $files = $this->import->getAvalibleImports();
-        // foreach($files as $file) {
-        //     $date = (new \DateTime())->setTimestamp($file['timestamp'])->format('H:i:s d-m-Y');
-        //     $options[$file['basename']] = "{$date} {$file['basename']}";
-        // }
-        //
-        // $question = new ChoiceQuestion('Please select a file to import', $options);
-        // $question->setErrorMessage('%s not a invalid choice.');
-        //
-        // $helper = $this->getHelper('question');
-        // $file = $helper->ask($input, $output, $question);
-        //
-        // $output->writeln("You have just selected: ${file} for import");
+        $options = [];
+        $files = $this->import->getAvalibleImports();
+        foreach($files as $file) {
+            $date = (new \DateTime())->setTimestamp($file['timestamp'])->format('H:i:s d-m-Y');
+            $options[$file['basename']] = "{$date} {$file['basename']}";
+        }
 
-        $file = '71e3d50a-d99b-411f-8fe3-e625ec5baab8.csv';
+        $question = new ChoiceQuestion('Please select a file to import', $options);
+        $question->setErrorMessage('%s not a invalid choice.');
+
+        $helper = $this->getHelper('question');
+        $file = $helper->ask($input, $output, $question);
+
+        $output->writeln("You have just selected: ${file} for import");
 
         $import = $this->import->import($file);
         $output->writeln("${import} entries queued for import");
-
 
         return Command::SUCCESS;
     }

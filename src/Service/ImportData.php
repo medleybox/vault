@@ -10,6 +10,7 @@ use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\Reader;
 use Ramsey\Uuid\Uuid;
+use Exception;
 
 class ImportData
 {
@@ -71,8 +72,12 @@ class ImportData
         $csv = Reader::createFromString($data);
         $csv->setHeaderOffset(0);
         foreach ($csv->getRecords() as $record) {
-            $this->importRecord($record);
-            $imported++;
+            try {
+                $this->importRecord($record);
+                $imported++;
+            } catch (Exception $e) {
+                continue;
+            }
         }
 
         return $imported;
@@ -81,8 +86,14 @@ class ImportData
     private function importRecord(array $record): bool
     {
         $imported = (new \DateTime())->createFromFormat(Kernel::APP_TIMEFORMAT, $record['imported']);
-
         $provider = new YouTube($record['ref']);
+
+        // First check for import
+        $entry = $this->entry->findViaProvider($provider);
+        if (null !== $entry) {
+            throw new Exception('Entry has already been imported');
+        }
+
         $metadata = $provider->fetchMetadata();
 
         $uuid = $record['uuid'];

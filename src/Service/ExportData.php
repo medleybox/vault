@@ -63,11 +63,16 @@ class ExportData
                 $ref = $entity->getMetadata()->getRef();
             }
 
+            $imported = (new \DateTime())->format(Kernel::APP_TIMEFORMAT);
+            if (null !== $entity->getImported()) {
+                $imported = $entity->getImported()->format(Kernel::APP_TIMEFORMAT);
+            }
+
             $data->add([
                 $entity->getUuid(),
                 $entity->getTitle(),
                 $ref,
-                $entity->getImported()->format(Kernel::APP_TIMEFORMAT),
+                $imported,
             ]);
         }
 
