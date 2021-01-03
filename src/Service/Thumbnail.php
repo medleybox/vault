@@ -58,6 +58,8 @@ class Thumbnail
         }
 
         $response = new Response();
+        $response->setPublic();
+        $response->setMaxAge(86400 * 30);
         $response->headers->set('Content-Type', 'image/jpg');
         $response->setContent($thumbnail);
 

@@ -181,7 +181,7 @@ class EntryController extends AbstractController
                 'found' => true,
                 'uuid' => $entry->getUuid(),
                 'title' => $entry->getTitle(),
-                'thumbnail' => "/vault/entry/thumbnail/{$entry->getUuid()}"
+                'thumbnail' => "/vault/entry/thumbnail/{$entry->getUuid()}.jpg"
             ]);
         }
 
@@ -194,7 +194,7 @@ class EntryController extends AbstractController
             'found' => true,
             'uuid' => $uuid,
             'title' => $provider->getTitle(),
-            'thumbnail' => "/vault/entry/thumbnail/{$uuid}"
+            'thumbnail' => "/vault/entry/thumbnail/{$uuid}.jpg"
         ]);
     }
 }
