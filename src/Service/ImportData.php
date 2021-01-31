@@ -8,7 +8,7 @@ use App\Kernel;
 use App\Provider\YouTube;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
-use League\Csv\Reader;
+use League\Csv\{Reader, Statement};
 use Ramsey\Uuid\Uuid;
 use Exception;
 
@@ -71,7 +71,16 @@ class ImportData
 
         $csv = Reader::createFromString($data);
         $csv->setHeaderOffset(0);
-        foreach ($csv->getRecords() as $record) {
+        // Sort resocrds within the csv by imported so they're imported in order
+        $stmt = (new Statement())
+            ->offset(0)
+            ->orderBy(function ($a, $b) {
+                return $b['imported'] >= $a['imported'] ? 0 : 1;
+            })
+        ;
+        $records = $stmt->process($csv);
+
+        foreach ($records as $record) {
             try {
                 $this->importRecord($record);
                 $imported++;
@@ -101,7 +110,6 @@ class ImportData
         $thumbnail = $this->thumbnail->generate($uuid, $link);
         $entry = $this->entry->createPartialImport($metadata, $provider, $uuid, $thumbnail);
 
-        $entry->setImported($imported);
         $this->em->flush();
 
         try {

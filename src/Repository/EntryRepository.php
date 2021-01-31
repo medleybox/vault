@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\{Entry, EntryMetadata};
-use App\Service\{Minio, Thumbnail};
+use App\Service\{Minio, Request, Thumbnail};
 use App\Provider\{ProviderInterface, YouTube};
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -24,10 +24,16 @@ class EntryRepository extends ServiceEntityRepository
      */
      private $meta;
 
-    public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta)
+    /**
+     * @var \App\Service\Request
+     */
+    private $request;
+
+    public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta, Request $request)
     {
         $this->minio = $minio;
         $this->meta = $meta;
+        $this->request = $request;
         parent::__construct($registry, Entry::class);
     }
 
@@ -81,7 +87,7 @@ class EntryRepository extends ServiceEntityRepository
      * @param  string            $thumbnail
      * @return Entry
      */
-    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail): Entry
+    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail, ?DateTimeInterface $imported = null): Entry
     {
         $entry = (new Entry())
             ->setUuid($uuid)
@@ -89,6 +95,11 @@ class EntryRepository extends ServiceEntityRepository
             ->setThumbnail($thumbnail)
             ->setMetadata($metadata)
         ;
+
+        if (null !== $imported) {
+            $entry->setImported($imported);
+        }
+
         try {
             if (null === $metadata->getId()) {
                 $this->_em->persist($metadata);
@@ -97,10 +108,30 @@ class EntryRepository extends ServiceEntityRepository
             // Maybe this is still an issue?
         }
 
+        $this->createWebappEntry($entry);
+
         $this->_em->persist($entry);
         $this->_em->flush();
 
         return $entry;
+    }
+
+    /**
+     * Update webapp with new entry
+     * @param  Entry  $entry
+     * @return bool
+     */
+    private function createWebappEntry(Entry $entry): bool
+    {
+        $update = [
+            'uuid' => $entry->getUuid(),
+            'provider' => $entry->getMetadata()->getProvider(),
+            'title' => $entry->getTitle(),
+            'metadata' => $entry->getMetadata()->getData()
+        ];
+        $this->request->post("/media-file/update", $update);
+
+        return (bool) true;
     }
 
     public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)
