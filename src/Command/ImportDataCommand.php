@@ -30,7 +30,7 @@ class ImportDataCommand extends Command
 
     protected function configure()
     {
-        $this->setDescription('Download and import YouTube video into the vault');
+        $this->setDescription('Import Entry entities from CSV');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
