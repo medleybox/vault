@@ -96,7 +96,7 @@ class EntryRepository extends ServiceEntityRepository
      * @param  string            $thumbnail
      * @return Entry
      */
-    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail, ?DateTimeInterface $imported = null): Entry
+    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, string $uuid, string $thumbnail, ?\DateTimeInterface $imported = null): Entry
     {
         $entry = (new Entry())
             ->setUuid($uuid)
