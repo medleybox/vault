@@ -67,6 +67,15 @@ class EntryRepository extends ServiceEntityRepository
         return null;
     }
 
+    public function metadata(Entry $entry): array
+    {
+        $metadata = $entry->getMetadata();
+        return [
+            'imported' => $entry->getImported(),
+            'meta' => $metadata->getRef()
+        ];
+    }
+
     public function fetchMetadata(Entry $entry)
     {
         // For the time being, it will only be youtube that will have metadata

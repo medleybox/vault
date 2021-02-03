@@ -100,6 +100,17 @@ class EntryController extends AbstractController
     }
 
     /**
+     * @Route("/entry/metadata/{uuid}", name="entry_metadata", methods={"GET"})
+     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
+     */
+    public function metadata(Entry $entry)
+    {
+        $metadata = $this->entryRepo->metadata($entry);
+
+        return $this->json($metadata);
+    }
+
+    /**
      * @Route("/entry/delete/{uuid}", name="entry_delete", methods={"DELETE"})
      * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
      */
