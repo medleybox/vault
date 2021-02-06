@@ -80,7 +80,7 @@ class EntryController extends AbstractController
     }
 
     /**
-     * @Route("/entry/thumbnail/{uuid}", name="entry_thumbnail", methods={"GET"})
+     * @Route("/entry/thumbnail/{uuid}.{ext}", name="entry_thumbnail", methods={"GET"})
      * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
      */
     public function thumbnail(Entry $entry)
