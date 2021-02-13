@@ -107,6 +107,8 @@ class EntryRepository extends ServiceEntityRepository
 
         if (null !== $imported) {
             $entry->setImported($imported);
+
+            $this->createWebappEntry($entry);
         }
 
         try {
@@ -116,8 +118,6 @@ class EntryRepository extends ServiceEntityRepository
         } catch (DBALException $e) {
             // Maybe this is still an issue?
         }
-
-        $this->createWebappEntry($entry);
 
         $this->_em->persist($entry);
         $this->_em->flush();
