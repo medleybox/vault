@@ -65,6 +65,14 @@ class ExportData
     {
         $data = new ArrayCollection();
         foreach ($this->entry->findAll() as $entity) {
+            $uuid = $entity->getUuid();
+            $data->containsKey($uuid);
+            if ($data->containsKey($uuid)) {
+                dump('Duplicate entry found, skipping ....');
+                dump($uuid, $entity);
+                continue;
+            }
+
             $ref = null;
             if (null !== $entity->getMetadata()) {
                 $ref = $entity->getMetadata()->getRef();
@@ -72,8 +80,8 @@ class ExportData
 
             $check = $this->checkForMediaFile($entity);
             if (false === $check) {
-                dump('Unable to find entry in webapp .... skipping');
-                dump($entity->getUuid());
+                dump('Unable to find entry in webapp, skipping ....');
+                dump($uuid);
                 continue;
             }
 
@@ -82,8 +90,8 @@ class ExportData
                 $imported = $entity->getImported()->format(Kernel::APP_TIMEFORMAT);
             }
 
-            $data->add([
-                $entity->getUuid(),
+            $data->set($uuid, [
+                $uuid,
                 $entity->getTitle(),
                 $ref,
                 $imported,
