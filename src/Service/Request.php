@@ -33,11 +33,24 @@ class Request
         return false;
     }
 
-    public function get($url, array $data = [])
+    public function get($url)
     {
         try {
             return $this->guzzle->request(
                 'GET',
+                $url,
+                ['base_uri' => self::BASE_URI]
+            );
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    public function head($url)
+    {
+        try {
+            return $this->guzzle->request(
+                'HEAD',
                 $url,
                 ['base_uri' => self::BASE_URI]
             );

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Kernel;
+use App\Entity\Entry;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,6 +30,11 @@ class ExportData
     private $minio;
 
     /**
+     * @var \App\Service\Request
+     */
+    private $request;
+
+    /**
      * Headers of the output CSV
      * @var array
      */
@@ -39,11 +45,12 @@ class ExportData
         'imported',
     ];
 
-    public function __construct(EntityManagerInterface $em, EntryRepository $entry, Minio $minio)
+    public function __construct(EntityManagerInterface $em, EntryRepository $entry, Minio $minio, Request $request)
     {
         $this->em = $em;
         $this->entry = $entry;
         $this->minio = $minio;
+        $this->request = $request;
     }
 
     public function export(): string
@@ -63,6 +70,13 @@ class ExportData
                 $ref = $entity->getMetadata()->getRef();
             }
 
+            $check = $this->checkForMediaFile($entity);
+            if (false === $check) {
+                dump('Unable to find entry in webapp .... skipping');
+                dump($entity->getUuid());
+                continue;
+            }
+
             $imported = (new \DateTime())->format(Kernel::APP_TIMEFORMAT);
             if (null !== $entity->getImported()) {
                 $imported = $entity->getImported()->format(Kernel::APP_TIMEFORMAT);
@@ -77,6 +91,20 @@ class ExportData
         }
 
         return $data;
+    }
+
+    private function checkForMediaFile(Entry $entry): bool
+    {
+        try {
+            $check = $this->request->head("/media-file/metadata/{$entry->getUuid()}");
+            if (false !== $check && 200 === $check->getStatusCode()) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return false;
     }
 
     private function createCsv(ArrayCollection $data)
