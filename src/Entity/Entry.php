@@ -19,7 +19,7 @@ class Entry
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=36)
+     * @ORM\Column(type="string", length=36, unique=true)
      */
     private $uuid;
 
