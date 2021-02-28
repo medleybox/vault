@@ -80,7 +80,22 @@ class EntryRepository extends ServiceEntityRepository
     {
         // For the time being, it will only be youtube that will have metadata
         $providor = new YouTube();
-        $metadata = $providor->search($entry->getTitle());
+
+        $ref = $providor->findRef($entry->getTitle());
+        $metadata = $this->meta->findOneBy(['ref' => $ref]);
+
+        if (false === $metadata) {
+            $metadata = $providor->search($entry->getTitle());
+        }
+
+        if (false === $metadata) {
+            return null;
+        }
+
+        if ((array) $metadata->getData() === []) {
+            $providor->setMetadata($metadata);
+            $providor->search($entry->getTitle());
+        }
 
         $entry->setMetadata($metadata);
         $this->_em->persist($metadata);

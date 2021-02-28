@@ -120,7 +120,7 @@ final class YouTube implements ProviderInterface
     public function fetchMetaData()
     {
         // Check if the metadata has been fetched
-        if (null !== $this->metadata) {
+        if (null !== $this->metadata (array) $metadata->getData() !== []) {
             return $this->metadata;
         }
 
@@ -140,8 +140,11 @@ final class YouTube implements ProviderInterface
             $data->snippet->tags
         );
 
-        $this->metadata = (new EntryMetadata())
-            ->setRef($this->id)
+        if (null === $this->metadata) {
+            $this->metadata = (new EntryMetadata());
+        }
+
+        $this->metadata->setRef($this->id)
             ->setData($data)
             ->setProvider(self::class)
         ;
@@ -172,6 +175,17 @@ final class YouTube implements ProviderInterface
         $this->setUrl($this->getDownloadLink());
 
         return $this->fetchMetaData();
+    }
+
+    public function findRef($title)
+    {
+        try {
+            $search = $this->api->searchVideos($title, 1);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return $search[0]->id->videoId;
     }
 
     private function setIdFromUrl()
