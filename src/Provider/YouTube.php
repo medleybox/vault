@@ -120,7 +120,7 @@ final class YouTube implements ProviderInterface
     public function fetchMetaData()
     {
         // Check if the metadata has been fetched
-        if (null !== $this->metadata (array) $metadata->getData() !== []) {
+        if (null !== $this->metadata && (array) $metadata->getData() !== []) {
             return $this->metadata;
         }
 
