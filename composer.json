@@ -14,6 +14,7 @@
     },
     "require": {
         "php": "^7.4",
+        "composer-plugin-api": "^2",
         "doctrine/collections": "^1.6",
         "dunglas/doctrine-json-odm": "^1.0",
         "giggsey/psr7-stream-response": "^0.1.3",

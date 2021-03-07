@@ -1,4 +1,4 @@
-FROM xigen/php:cli-composer74 as composer
+FROM composer:2 as composer
 
 COPY composer* /app/
 COPY config/ /app/config
