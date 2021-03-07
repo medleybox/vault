@@ -48,14 +48,16 @@ class ImportData
         $this->thumbnail = $thumbnail;
     }
 
+    private function sortImports($a, $b): bool
+    {
+        return $a['timestamp'] <= $b['timestamp'];
+    }
+
     public function getAvalibleImports(): array
     {
         $names = [];
         $files = $this->minio->listContents('export/');
-
-        usort($files, function ($a, $b) {
-            return $a['timestamp'] <= $b['timestamp'];
-        });
+        usort($files, [$this, 'sortImports']);
 
         return $files;
     }
