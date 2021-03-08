@@ -140,6 +140,9 @@
     "psr/event-dispatcher": {
         "version": "1.0.0"
     },
+    "psr/http-client": {
+        "version": "1.0.1"
+    },
     "psr/http-message": {
         "version": "1.0.1"
     },
@@ -278,6 +281,9 @@
             "src/Kernel.php"
         ]
     },
+    "symfony/http-client": {
+        "version": "v5.2.4"
+    },
     "symfony/http-client-contracts": {
         "version": "v2.3.1"
     },
@@ -330,9 +336,6 @@
     },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.18.0"
-    },
-    "symfony/polyfill-intl-idn": {
-        "version": "v1.15.0"
     },
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.18.0"
@@ -401,9 +404,6 @@
     },
     "webmozart/assert": {
         "version": "1.8.0"
-    },
-    "xigen.io/guzzle-bundle": {
-        "version": "v1.0.1"
     },
     "zendframework/zend-code": {
         "version": "3.4.1"

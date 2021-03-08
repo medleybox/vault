@@ -5,9 +5,11 @@ namespace App\Service;
 use App\Entity\Entry;
 use App\Repository\EntryRepository;
 use App\Service\Minio;
-use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class Thumbnail
 {
@@ -76,16 +78,24 @@ class Thumbnail
         $link = $providor->getThumbnailLink();
 
         return $this->generate($entry->getUuid(), $link);
-        ;
     }
 
-    public function generate(string $uuid, string $link): string
+    public function generate(string $uuid, string $link): ?string
     {
         $filename = "{$uuid}.jpg";
         $this->path = Import::THUMBNAILS_MIMIO . "/{$filename}";
 
         $this->log->debug("[Thumbnail] Downloading from {$link} and uploading to {$this->path}");
-        $client = (new Client())->request('GET', $link, ['sink' => Import::TMP_DIR . $filename]);
+        $file = (new HttpClient())->create()->request('GET', $link);
+
+        try {
+            $fs = new Filesystem();
+            $fs->mkdir(Import::THUMBNAILS_MIMIO, 0700);
+            $fs->dumpFile(Import::TMP_DIR . $filename, $file->getContent());
+        } catch (IOExceptionInterface $e) {
+            $this->log->error('[Thumbnail] Unable to save thumbnail', [$file, $filename, $this->path]);
+            return null;
+        }
 
         $this->log->debug('[Thumbnail] Uploading thumbnail to minio', [$filename, $this->path]);
         $this->minio->upload($filename, $this->path);

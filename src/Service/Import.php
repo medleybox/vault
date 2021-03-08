@@ -7,7 +7,6 @@ use App\Provider\ProviderInterface;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Message\ImportJob;
 use Doctrine\Common\Collections\ArrayCollection;
-use GuzzleHttp\Client;
 use Psr\Log\LoggerInterface;
 use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;

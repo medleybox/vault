@@ -2,21 +2,20 @@
 
 namespace App\Service;
 
-use Symfony\Component\Form\Form;
-use Xigen\Bundle\GuzzleBundle\Service\GuzzleClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class Request
 {
     const BASE_URI = 'http://webapp:8080';
 
     /*
-     * @var \Xigen\Bundle\GuzzleBundle\Service\GuzzleClient
+     * @var \Symfony\Contracts\HttpClient\HttpClientInterface
      */
-    public $guzzle;
+    public $client;
 
-    public function __construct(GuzzleClient $guzzle)
+    public function __construct(HttpClientInterface $client)
     {
-        $this->guzzle = $guzzle;
+        $this->client = $client;
     }
 
     public function checkConnectivity(): bool
@@ -36,7 +35,7 @@ class Request
     public function get($url)
     {
         try {
-            return $this->guzzle->request(
+            return $this->client->request(
                 'GET',
                 $url,
                 ['base_uri' => self::BASE_URI]
@@ -49,7 +48,7 @@ class Request
     public function head($url)
     {
         try {
-            return $this->guzzle->request(
+            return $this->client->request(
                 'HEAD',
                 $url,
                 ['base_uri' => self::BASE_URI]
@@ -62,12 +61,12 @@ class Request
     public function post($url, array $data = [])
     {
         try {
-            return $this->guzzle->request(
+            return $this->client->request(
                 'POST',
                 $url,
                 [
                     'base_uri' => self::BASE_URI,
-                    'form_params' => $data
+                    'body' => $data
                 ]
             );
         } catch (\Exception $e) {
