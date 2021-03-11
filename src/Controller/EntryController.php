@@ -7,7 +7,9 @@ use App\Provider\YouTube;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Service\{Import, Minio, Thumbnail};
 use Ramsey\Uuid\Uuid;
-use GuzzleHttp\Psr7\Stream;
+use Nyholm\Psr7\Stream;
+use Nyholm\Psr7\Response as PSR7Response;
+use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -58,11 +60,13 @@ class EntryController extends AbstractController
     {
         $path = $entry->getPath();
         $stream = $this->minio->stream($path);
-        $metadata = stream_get_meta_data($stream);
-        $filename = $metadata["uri"];
-        $mime = mime_content_type($filename);
 
-        $response = new PSR7StreamResponse(new Stream($stream), $mime);
+        $detector = new FinfoMimeTypeDetector();
+        $mime = $detector->detectMimeTypeFromPath($path);
+
+        $psr7 = Stream::create($stream);
+
+        $response = new PSR7StreamResponse($psr7, $mime);
         $response = $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
 
         return $response;

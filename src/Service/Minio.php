@@ -2,10 +2,9 @@
 
 namespace App\Service;
 
-use Aws\S3\S3Client;
+use AsyncAws\S3\S3Client;
 use Symfony\Component\Finder\SplFileInfo;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\Filesystem;
+use League\Flysystem\{Filesystem, AsyncAwsS3\AsyncAwsS3Adapter};
 
 /**
  * Copied and adapted from https://github.com/medleybox/import/blob/master/src/Service/Minio.php
@@ -13,12 +12,12 @@ use League\Flysystem\Filesystem;
 class Minio
 {
     /**
-     * @var \Aws\S3\S3Client
+     * @var \AsyncAws\S3\S3Client
      */
     protected $client;
 
     /**
-     * @var \League\Flysystem\AwsS3v3\AwsS3Adapter
+     * @var \League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter
      */
     protected $adapter;
 
@@ -30,20 +29,14 @@ class Minio
     public function __construct($endpoint, $key, $bucket, $secret)
     {
         $this->client = new S3Client([
-            'version' => 'latest',
             'region'  => 'us-east-1',
             'endpoint' => $endpoint,
-            'use_path_style_endpoint' => true,
-            'credentials' => [
-                'key'    => $key,
-                'secret' => $secret,
-            ],
-            'http'    => [
-                'connect_timeout' => 5
-            ]
+            'accessKeyId' => $key,
+            'accessKeySecret' => $secret,
+            'pathStyleEndpoint' => true,
         ]);
 
-        $this->adapter = new AwsS3Adapter($this->client, $bucket, '', [], false);
+        $this->adapter = new AsyncAwsS3Adapter($this->client, $bucket);
         $this->filesystem = new Filesystem($this->adapter);
     }
 
@@ -60,12 +53,12 @@ class Minio
 
     public function has(string $path): bool
     {
-        return $this->filesystem->has($path);
+        return $this->filesystem->fileExists($path);
     }
 
     public function get(string $path): ?string
     {
-        if (false === $this->filesystem->has($path)) {
+        if (false === $this->filesystem->fileExists($path)) {
             return null;
         }
 
@@ -84,7 +77,7 @@ class Minio
         $stream = fopen("{$path}{$file}", 'r+');
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($dest)) {
+        if (true === $this->filesystem->fileExists($dest)) {
             $this->filesystem->delete($dest);
         }
 
@@ -98,7 +91,7 @@ class Minio
     public function uploadString(string $dest, string $contents): bool
     {
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($dest)) {
+        if (true === $this->filesystem->fileExists($dest)) {
             $this->filesystem->delete($dest);
         }
 
