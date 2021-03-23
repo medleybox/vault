@@ -49,6 +49,7 @@ services:
       - rabbitmq
     volumes:
       - tmp-data:/var/www/var/tmp
+      - ./vendor:/var/www/vendor
     entrypoint: ["bin/console", "messenger:consume", "async", "-vvv"]
 
   minio:

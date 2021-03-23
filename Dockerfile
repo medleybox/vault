@@ -4,11 +4,11 @@ COPY composer* /app/
 COPY config/ /app/config
 COPY src/ /app/src
 
-RUN composer install -vvv -o -a --no-scripts --ignore-platform-reqs
+RUN composer install -vvv --no-dev -o -a --no-scripts --ignore-platform-reqs
 
 FROM xigen/php:fpm-74
 
-ENV APP_ENV dev
+ENV APP_ENV prod
 
 RUN apk add --update --no-cache ca-certificates curl ffmpeg python3 gnupg py-pip nginx \
     && pip install -U youtube-dl
