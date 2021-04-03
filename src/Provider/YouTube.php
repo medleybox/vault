@@ -42,6 +42,11 @@ final class YouTube implements ProviderInterface
         }
     }
 
+    public function toString()
+    {
+        return get_class($this);
+    }
+
     public function setId($id)
     {
         $this->id = $id;

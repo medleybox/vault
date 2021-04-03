@@ -70,9 +70,11 @@ class EntryRepository extends ServiceEntityRepository
     public function metadata(Entry $entry): array
     {
         $metadata = $entry->getMetadata();
+
         return [
+            'meta' => $metadata->getRef(),
             'imported' => $entry->getImported(),
-            'meta' => $metadata->getRef()
+            'provider' => $metadata->getProvider(),
         ];
     }
 
