@@ -1,0 +1,6 @@
+FROM medleybox/vault as vault
+
+HEALTHCHECK --interval=20s --timeout=5s --start-period=30s \  
+    CMD bin/docker-console 
+
+ENTRYPOINT ["/var/www/bin/docker-entrypoint-messenger"]

@@ -5,7 +5,7 @@ namespace App\Command;
 use App\Provider\YouTube;
 use App\Service\Import;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\{InputArgument, InputInterface};
+use Symfony\Component\Console\Input\{InputArgument, InputOption, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Exception;
@@ -32,6 +32,12 @@ class ImportYoutubeCommand extends Command
     {
         $this->setDescription('Download and import YouTube video into the vault')
             ->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
+            ->addOption(
+                'force-start',
+                false,
+                InputOption::VALUE_OPTIONAL,
+                "Don't queue import job"
+            )
         ;
     }
 
@@ -48,8 +54,11 @@ class ImportYoutubeCommand extends Command
             return 1;
         }
 
+        // Check if we queue
+        $forceStart = $input->getOption('force-start');
+
         // Process via message broker
-        if (true === $this->import->queue()) {
+        if (true === $this->import->queue() && false === $forceStart) {
             $io->success('Import job sent for processing!');
 
             return 0;

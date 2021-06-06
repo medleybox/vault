@@ -39,7 +39,10 @@ services:
       - ./var/log:/var/www/var/log
 
   messenger:
-    image: medleybox/vault
+    image: medleybox/messenger
+    build:
+      context: ./
+      dockerfile: Dockerfile-messenger
     environment: *x-variables
     networks:
       - medley
@@ -51,6 +54,18 @@ services:
       - tmp-data:/var/www/var/tmp
       - ./vendor:/var/www/vendor
     entrypoint: ["bin/console", "messenger:consume", "async", "-vvv"]
+
+  websocket:
+    image: medleybox/vault
+    environment:
+      <<: *x-variables
+      APP_ENV: prod
+    networks:
+      - medley
+    restart: always
+    depends_on:
+      - vault
+    entrypoint: ["bin/console", "app:websocket:start", "-vvv"]
 
   minio:
     image: minio/minio

@@ -111,7 +111,12 @@ final class Import
      */
     private $thumbnail;
 
-    public function __construct(Minio $minio, EntryRepository $entryRepo, EntryMetadataRepository $entryMetaRepo, LoggerInterface $log, MessageBusInterface $bus, Request $request, Thumbnail $thumbnail)
+    /**
+     * @var \App\Service\WebsocketClient
+     */
+    private $wsClient;
+
+    public function __construct(Minio $minio, EntryRepository $entryRepo, EntryMetadataRepository $entryMetaRepo, LoggerInterface $log, MessageBusInterface $bus, Request $request, Thumbnail $thumbnail, WebsocketClient $wsClient)
     {
         $this->minio = $minio;
         $this->entryRepo = $entryRepo;
@@ -120,6 +125,16 @@ final class Import
         $this->bus = $bus;
         $this->request = $request;
         $this->thumbnail = $thumbnail;
+        $this->wsClient = $wsClient;
+    }
+
+    private function log(string $msg, string $stage)
+    {
+        $this->log->info($msg);
+        $msg = preg_split('/\r\n|\r|\n/', $msg);
+        $this->wsClient->importLogOutput($msg, $stage);
+
+        return true;
     }
 
     public function seachForDownload($provider)
@@ -162,6 +177,7 @@ final class Import
     public function queue(): bool
     {
         try {
+            $this->log("Starting queue for job {$this->uuid}", 'queue');
             // Create a new import job and dispatch it to run in the background.
             $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
         } catch (\Exception $e) {
@@ -178,26 +194,28 @@ final class Import
             throw new \Exception('You need to call setUp() on this service first!');
         }
 
-        $this->log->info('Attempting to download and convert from source');
+        $this->log('Attempting to download and convert from source', 'start');
         if (false === $this->attemptDownload()) {
             $this->log->error('Unable to download file ', [$this->provider->getDownloadLink()]);
 
             return false;
         }
 
-        $this->log->info('Checking for download in a permitted format');
+        $this->log('Checking for download in a permitted format', 'checkForDownload');
         if (false === $this->checkForDownload()) {
             return false;
         }
 
-        $this->log->info('Running process functions');
+        $this->log('Running process functions', 'process');
         $this->process();
 
-        $this->log->info('Uploading file to minio');
+        $this->log('Uploading file to minio', 'upload');
         $this->upload();
 
-        $this->log->info('Importing into database');
+        $this->log('Importing into database and webapp', 'import');
         $this->import();
+
+        $this->log("Completed import of {$this->uuid}", 'finish');
 
         return true;
     }
@@ -205,38 +223,42 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
-        $args = ['youtube-dl', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '-x', $url];
+        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '-x', $url];
 
-        $this->log->info('attemptDownload()', [$url, $this->uuid]);
+        $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug('youtube-dl args', $args);
 
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         if (null !== $this->log) {
             $process->start();
             foreach ($process as $type => $data) {
+                $this->wsClient->importOutput($data);
                 if ($process::OUT === $type) {
                     $this->log->debug($data);
                 } else { // $process::ERR === $type
                     $this->log->error($data);
                 }
             }
+            $this->log('completed', 'attemptDownload');
 
             return $process->isSuccessful();
         }
 
         $process->run();
+        $this->log('completed', 'attemptDownload');
 
         return $process->isSuccessful();
     }
 
     protected function checkForDownload()
     {
-        $name = [$this->uuid . '.*'];
-        $this->log->debug("Looking for files with name", $name);
+        $name = $this->uuid . '.*';
+        $search = [$name];
+        $this->log("Looking for files with name {$name}", 'checkForDownload');
         $finder = new Finder();
         $finder->files()
             ->in(self::TMP_DIR)
-            ->name($name)
+            ->name($search)
         ;
 
         if (!$finder->hasResults()) {
@@ -247,7 +269,7 @@ final class Import
 
         foreach ($finder as $file) {
             $this->file = $file;
-            $this->log->info("Found download {$this->file->getRelativePathname()}");
+            $this->log("Found download {$this->file->getRelativePathname()}", 'checkForDownload');
 
             return true;
         }

@@ -124,20 +124,29 @@ class EntryRepository extends ServiceEntityRepository
 
         if (null !== $imported) {
             $entry->setImported($imported);
-
             $this->createWebappEntry($entry);
         }
 
-        try {
-            if (null === $metadata->getId()) {
-                $this->_em->persist($metadata);
-            }
-        } catch (DBALException $e) {
-            // Maybe this is still an issue?
+        if (null === $metadata->getId()) {
+            $this->_em->persist($metadata);
         }
 
-        $this->_em->persist($entry);
-        $this->_em->flush();
+        try {
+            $this->_em->persist($entry);
+            $this->_em->flush();
+        } catch (DBALException $e) {
+            if (!$this->entityManager->isOpen()) {
+                $this->entityManager = $this->doctrine->resetManager();
+            }
+            try {
+                $this->entityManager->persist($entity);
+                $this->entityManager->flush();
+            } catch (DBALException $e) {
+                if (!$this->entityManager->isOpen()) {
+                    $this->entityManager = $this->doctrine->resetManager();
+                }
+            }
+        }
 
         return $entry;
     }
@@ -188,6 +197,10 @@ class EntryRepository extends ServiceEntityRepository
             $entry->setMetadata($metadata);
         }
 
+        if (!$this->_em->isOpen()) {
+            $this->_em = $this->doctrine->resetManager();
+        }
+
         try {
             if (null === $metadata->getId()) {
                 $this->_em->persist($metadata);
@@ -196,8 +209,11 @@ class EntryRepository extends ServiceEntityRepository
             if (null === $entry->getId()) {
                 $this->_em->persist($entry);
             }
+            $this->_em->flush();
         } catch (DBALException $e) {
-            return $entry;
+            if (!$this->_em->isOpen()) {
+                $this->_em = $this->doctrine->resetManager();
+            }
         }
 
         $this->_em->flush();
@@ -209,6 +225,7 @@ class EntryRepository extends ServiceEntityRepository
     {
         // Do webhook to webapp here to update that database
         $this->_em->flush();
+        $this->wsClient->refreshMediaList();
     }
 
     public function delete(Entry $entry)
@@ -217,6 +234,7 @@ class EntryRepository extends ServiceEntityRepository
 
         $this->_em->remove($entry);
         $this->_em->flush();
+        $this->wsClient->refreshMediaList();
 
         return true;
     }

@@ -48,7 +48,12 @@ vendor/bin/phpcbf --standard=PSR12 --colors src
 ```
 curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 ```
+## Useful scripts
 
+Clear rabbitmq files
+```
+find /var/lib/docker/volumes/ -name mnesia | xargs rm -rf
+```
 
 [github-import]: https://github.com/medleybox/import
 [dockerhub-vault]: https://hub.docker.com/repository/docker/medleybox/vault
