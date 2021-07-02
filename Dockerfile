@@ -75,6 +75,7 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     && rm -rf /usr/src
 
 COPY --from=composer /app/vendor /var/www/vendor
+COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
 COPY bin/ /var/www/bin
 COPY config/ /var/www/config
 COPY public/index.php /var/www/public/index.php
