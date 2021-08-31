@@ -48,6 +48,8 @@ jobs:
       contents: read
       packages: write
 
+    needs: [vault]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
