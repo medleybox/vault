@@ -287,9 +287,6 @@
     "symfony/amqp-messenger": {
         "version": "v5.1.3"
     },
-    "symfony/amqp-pack": {
-        "version": "v1.0.12"
-    },
     "symfony/cache": {
         "version": "v5.0.7"
     },
@@ -433,9 +430,6 @@
             "config/packages/test/monolog.yaml"
         ]
     },
-    "symfony/orm-pack": {
-        "version": "v1.0.8"
-    },
     "symfony/polyfill-intl-grapheme": {
         "version": "v1.18.0"
     },
@@ -485,9 +479,6 @@
     },
     "symfony/serializer": {
         "version": "v5.0.7"
-    },
-    "symfony/serializer-pack": {
-        "version": "v1.0.3"
     },
     "symfony/service-contracts": {
         "version": "v2.0.1"
