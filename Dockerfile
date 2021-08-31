@@ -74,6 +74,9 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     && rm -rf /var/cache/apk/* \
     && rm -rf /usr/src
 
+RUN apk --no-cache add gcc zlib-static libpng-static boost-static
+COPY --from=ghcr.io/medleybox/audiowaveform-alpine /bin/audiowaveform /usr/local/bin/audiowaveform
+
 COPY --from=composer /app/vendor /var/www/vendor
 COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
 COPY bin/ /var/www/bin

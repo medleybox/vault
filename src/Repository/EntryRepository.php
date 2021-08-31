@@ -3,7 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\{Entry, EntryMetadata};
-use App\Service\{Minio, Request, Thumbnail};
+use App\Service\{Minio, Request, Thumbnail, WebsocketClient};
 use App\Provider\{ProviderInterface, YouTube};
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -29,11 +29,17 @@ class EntryRepository extends ServiceEntityRepository
      */
     private $request;
 
-    public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta, Request $request)
+        /**
+     * @var \App\Service\WebsocketClient
+     */
+    private $wsClient;
+
+    public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta, Request $request, WebsocketClient $wsClient)
     {
         $this->minio = $minio;
         $this->meta = $meta;
         $this->request = $request;
+        $this->wsClient = $wsClient;
         parent::__construct($registry, Entry::class);
     }
 
@@ -70,11 +76,16 @@ class EntryRepository extends ServiceEntityRepository
     public function metadata(Entry $entry): array
     {
         $metadata = $entry->getMetadata();
+        $wavedata = null;
+        if (null !== $entry->getWaveData()) {
+            $wavedata = $entry->getWaveData()->getData();
+        }
 
         return [
             'meta' => $metadata->getRef(),
             'imported' => $entry->getImported(),
             'provider' => $metadata->getProvider(),
+            'wavedata' => $wavedata
         ];
     }
 
@@ -169,7 +180,7 @@ class EntryRepository extends ServiceEntityRepository
         return (bool) true;
     }
 
-    public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata)
+    public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata, $wave = null)
     {
         // Do some baisc validation on fields that are required in the database
         foreach (['uuid', 'path', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
@@ -191,6 +202,7 @@ class EntryRepository extends ServiceEntityRepository
             ->setThumbnail($data['thumbnail'])
             ->setSize($data['size'])
             ->setSeconds($data['seconds'])
+            ->setWaveData($wave)
         ;
 
         if (null === $entry->getMetadata()) {
@@ -223,8 +235,9 @@ class EntryRepository extends ServiceEntityRepository
 
     public function save(Entry $entry)
     {
-        // Do webhook to webapp here to update that database
         $this->_em->flush();
+
+        // Do webhook to webapp here to update that database
         $this->wsClient->refreshMediaList();
     }
 

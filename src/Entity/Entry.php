@@ -58,6 +58,11 @@ class Entry
      */
     private $metadata;
 
+    /**
+     * @ORM\OneToOne(targetEntity=WaveData::class, mappedBy="entry", cascade={"persist", "remove"})
+     */
+    private $waveData;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -155,6 +160,28 @@ class Entry
     public function setMetadata(?EntryMetadata $metadata): self
     {
         $this->metadata = $metadata;
+
+        return $this;
+    }
+
+    public function getWaveData(): ?WaveData
+    {
+        return $this->waveData;
+    }
+
+    public function setWaveData(?WaveData $waveData): self
+    {
+        // unset the owning side of the relation if necessary
+        if ($waveData === null && $this->waveData !== null) {
+            $this->waveData->setEntry(null);
+        }
+
+        // set the owning side of the relation if necessary
+        if ($waveData !== null && $waveData->getEntry() !== $this) {
+            $waveData->setEntry($this);
+        }
+
+        $this->waveData = $waveData;
 
         return $this;
     }
