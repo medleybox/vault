@@ -314,6 +314,7 @@ final class Import
 
                 $this->log->debug("ffmpeg args to convert '{$entry->getTitle()}' to .ogg", $args);
                 $process = new Process($args, self::TMP_DIR);
+                $process->setTimeout(300);
                 $process->run();
                 $ogg = $this->checkForDownload($entry->getUuid(), '.ogg');
             }
