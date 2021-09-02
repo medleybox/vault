@@ -288,7 +288,11 @@ final class Import
      */
     private function minioToTmp(Entry $entry): ?SplFileInfo
     {
-        $this->download($entry);
+        $download = $this->download($entry);
+        if (null === $download) {
+            return null;
+        }
+
         $file = $this->checkForDownload($entry->getUuid());
         if (null === $file) {
             return null;
@@ -414,16 +418,28 @@ final class Import
         return true;
     }
 
-    protected function download(Entry $entry): bool
+    protected function download(Entry $entry): ?string
     {
         $download = $entry->getPath();
         if (null === $download) {
-            return false;
+            return null;
         }
+
         $stream = $this->minio->stream($download);
+        if (false === $stream) {
+            return null;
+        }
+
         $path = self::TMP_DIR . basename($download);
         $this->log->debug("download: {$download} -> {$path}");
-        file_put_contents($path, $stream);
+
+        try {
+            file_put_contents($path, $stream);
+        } catch (\Exception $e) {
+            $this->log->error("Unable to download: {$download}");
+
+            return null;
+        }
 
         return $path;
     }

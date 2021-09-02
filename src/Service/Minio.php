@@ -107,9 +107,15 @@ class Minio
         return true;
     }
 
-    public function stream($path)
+    public function stream(string $path)
     {
-        return $this->filesystem->readStream($path);
+        try {
+            return $this->filesystem->readStream($path);
+        } catch (\Exception $e) {
+            // Unable to stream file from minio
+        }
+
+        return false;
     }
 
     public function read($path)
