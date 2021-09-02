@@ -309,6 +309,24 @@ final class Import
         return $file;
     }
 
+    private function convert($entry, $file)
+    {
+        $args = ['/usr/bin/ffmpeg', '-i', $file->getPathname(), '-c:a', 'libvorbis', '-b:a', '64k', self::TMP_DIR . "{$entry->getUuid()}.ogg"];
+        $this->log->debug("ffmpeg args to convert '{$entry->getTitle()}' to .ogg", $args);
+
+        try {
+            $process = new Process($args, self::TMP_DIR);
+            $process->setTimeout(300);
+            $process->run();
+        } catch (\Exception $e) {
+            $this->log->error("ffmpeg: {$e->getMessage()}");
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function generateEntryWaveData(Entry $entry, Bool $convert = true): ?Entry
     {
         $file = $this->minioToTmp($entry);
@@ -328,12 +346,7 @@ final class Import
         if (null === $ogg) {
             $this->log->info('Need to convert to ogg before running audiowaveform');
             if (true === $convert) {
-                $args = ['/usr/bin/ffmpeg', '-i', $file->getPathname(), '-c:a', 'libvorbis', '-b:a', '64k', self::TMP_DIR . "{$entry->getUuid()}.ogg"];
-
-                $this->log->debug("ffmpeg args to convert '{$entry->getTitle()}' to .ogg", $args);
-                $process = new Process($args, self::TMP_DIR);
-                $process->setTimeout(300);
-                $process->run();
+                $this->convert($entry, $file);
                 $ogg = $this->checkForDownload($entry->getUuid(), '.ogg');
             }
 
