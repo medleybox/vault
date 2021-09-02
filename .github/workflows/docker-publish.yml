@@ -31,7 +31,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v3
         with:
-          images: ghcr.io/medleybox/messenger
+          images: ghcr.io/medleybox/vault
 
       - name: Build and push Vault image
         uses: docker/build-push-action@v2
