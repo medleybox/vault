@@ -153,6 +153,9 @@ final class Import
         return $process->isSuccessful();
     }
 
+    /**
+     * Setup service for first import
+     */
     public function setUp(ProviderInterface $provider, string $uuid = null): bool
     {
         // First check for import
@@ -288,6 +291,11 @@ final class Import
      */
     private function minioToTmp(Entry $entry): ?SplFileInfo
     {
+        $file = $this->checkForDownload($entry->getUuid());
+        if (null != $file) {
+            return $file;
+        }
+
         $download = $this->download($entry);
         if (null === $download) {
             return null;
@@ -306,8 +314,14 @@ final class Import
         $file = $this->minioToTmp($entry);
         if (null === $file) {
             $this->log->error("Unable to download mediafile - {$entry->getUuid()}");
+            if (false === $this->refreshSource($entry)) {
+                return null;
+            }
 
-            return null;
+            $file = $this->minioToTmp($entry);
+            if (null === $file) {
+                return null;
+            }
         }
 
         $ogg = $this->checkForDownload($entry->getUuid(), '.ogg');
@@ -400,7 +414,7 @@ final class Import
         return true;
     }
 
-    private function getProvidorNamespace()
+    private function getProviderNamespace()
     {
         $class = get_class($this->provider);
         $explode = explode('\\', $class);
@@ -411,7 +425,7 @@ final class Import
 
     protected function upload()
     {
-        $this->upload = "{$this->getProvidorNamespace()}/{$this->file->getFilename()}";
+        $this->upload = "{$this->getProviderNamespace()}/{$this->file->getFilename()}";
         $this->log->debug('upload()', [$this->upload, $this->file]);
         $this->minio->upload($this->file->getFilename(), $this->upload);
 
@@ -442,6 +456,25 @@ final class Import
         }
 
         return $path;
+    }
+
+    public function refreshSource(Entry $entry): bool
+    {
+        $this->log->info('Attempting to refresh from source');
+        $this->uuid = $entry->getUuid();
+        $this->provider = $entry->getMetadata()->getProviderInstance();
+
+        if (false === $this->attemptDownload()) {
+            $this->log->error('Unable to download file ', [$this->provider->getDownloadLink()]);
+
+            return false;
+        }
+
+        if (null === $this->checkForDownload($this->uuid)) {
+            return false;
+        }
+
+        return true;
     }
 
     protected function import()
