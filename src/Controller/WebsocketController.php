@@ -26,7 +26,7 @@ class WebsocketController extends AbstractController
     public function refreshMediaList()
     {
         $this->wsClient->refreshMediaList();
-        
+
         return new Response();
     }
 }

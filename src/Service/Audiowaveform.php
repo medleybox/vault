@@ -57,7 +57,7 @@ final class Audiowaveform
         $this->log = $log;
     }
 
-    public function generate(String $uuid, SplFileInfo $input): ?WaveData
+    public function generate(string $uuid, SplFileInfo $input): ?WaveData
     {
         $output = Import::TMP_DIR . "{$uuid}-audiowaveform.json";
         $process = new Process([
@@ -84,7 +84,7 @@ final class Audiowaveform
         $maxPeak = floatval(max($peaks));
         $newPeaks = [];
         foreach ($peaks as $peak) {
-            $newPeaks[] = $peak/$maxPeak;
+            $newPeaks[] = $peak / $maxPeak;
         }
         $json['data'] = $newPeaks;
 

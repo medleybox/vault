@@ -259,7 +259,7 @@ final class Import
         return $process->isSuccessful();
     }
 
-    public function checkForDownload(String $uuid, $search = ".*"): ?SplFileInfo
+    public function checkForDownload(string $uuid, $search = ".*"): ?SplFileInfo
     {
         $name = $uuid . $search;
         $search = [$name];
@@ -327,7 +327,7 @@ final class Import
         return true;
     }
 
-    public function generateEntryWaveData(Entry $entry, Bool $convert = true): ?Entry
+    public function generateEntryWaveData(Entry $entry, bool $convert = true): ?Entry
     {
         $file = $this->minioToTmp($entry);
         if (null === $file) {

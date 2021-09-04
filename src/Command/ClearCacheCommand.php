@@ -12,6 +12,11 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class ClearCacheCommand extends Command
 {
+    /**
+     * @var \App\Service\Import
+     */
+    private $import;
+
     protected static $defaultName = 'app:clear-cache';
 
     public function __construct(Import $import)

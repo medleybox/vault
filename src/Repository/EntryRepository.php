@@ -209,10 +209,6 @@ class EntryRepository extends ServiceEntityRepository
             $entry->setMetadata($metadata);
         }
 
-        if (!$this->_em->isOpen()) {
-            $this->_em = $this->doctrine->resetManager();
-        }
-
         try {
             if (null === $metadata->getId()) {
                 $this->_em->persist($metadata);
@@ -223,9 +219,7 @@ class EntryRepository extends ServiceEntityRepository
             }
             $this->_em->flush();
         } catch (DBALException $e) {
-            if (!$this->_em->isOpen()) {
-                $this->_em = $this->doctrine->resetManager();
-            }
+            throw new Exception($e->getMessage());
         }
 
         $this->_em->flush();

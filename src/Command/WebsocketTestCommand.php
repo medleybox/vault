@@ -12,7 +12,18 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class WebsocketTestCommand extends Command
 {
+    /**
+     * @var \App\Service\WebsocketClient
+     */
+    private $client;
+
+    /**
+     * @var \Symfony\Component\Console\Style\SymfonyStyle
+     */
+    private $io;
+
     protected static $defaultName = 'app:websocket:test';
+
     protected static $defaultDescription = 'Test websocket server';
 
     public function __construct(WebsocketClient $client)

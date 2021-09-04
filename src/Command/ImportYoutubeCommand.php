@@ -34,7 +34,7 @@ class ImportYoutubeCommand extends Command
             ->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
             ->addOption(
                 'force-start',
-                false,
+                null,
                 InputOption::VALUE_OPTIONAL,
                 "Don't queue import job"
             )

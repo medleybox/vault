@@ -4,11 +4,17 @@ namespace App\Service;
 
 use Amp\Websocket\Client\Connection;
 use Amp\Websocket\Message;
+
 use function Amp\delay;
 use function Amp\Websocket\Client\connect;
 
 class WebsocketClient
 {
+    /**
+     * @var string
+     */
+    private string $string;
+
     public function refreshMediaList()
     {
         $this->send('refreshMediaList');
@@ -55,10 +61,10 @@ class WebsocketClient
         \Amp\Loop::run(function () {
             $connection = yield connect('ws://websocket:8089/socketserver');
             yield $connection->send($this->string);
-    
+
             \Amp\Loop::stop();
         });
 
         return true;
-    }    
+    }
 }

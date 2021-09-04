@@ -15,7 +15,13 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class WebsocketStartCommand extends Command
 {
+    /**
+     * @var \App\Service\WebsocketServer
+     */
+    private $ws;
+
     protected static $defaultName = 'app:websocket:start';
+
     protected static $defaultDescription = 'Start the websocket server';
 
     public function __construct(WebsocketServer $ws)
@@ -33,7 +39,7 @@ class WebsocketStartCommand extends Command
     {
         $host = '0.0.0.0';
         $port = 8089;
-        
+
         $io = new SymfonyStyle($input, $output);
         $io->info(["host: ${host}","port: ${port}"]);
 

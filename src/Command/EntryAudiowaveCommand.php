@@ -53,14 +53,13 @@ class EntryAudiowaveCommand extends Command
                 1
             )
         ;
-        
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
         $convert = ($input->getOption('convert') == true);
- 
+
         // Check if only required to generate for one entry
         if ($uuid = $input->getArgument('uuid')) {
             $entry = $this->repo->findOneBy(['uuid' => $uuid]);
