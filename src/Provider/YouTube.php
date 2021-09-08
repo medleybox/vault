@@ -105,8 +105,13 @@ final class YouTube implements ProviderInterface
             $this->fetchMetaData();
         }
 
-        $thumbnail = null;
+        // Check if the metadata stored has snippet data
         $data = $this->metadata->getData();
+        if (false === property_exists($data, 'snippet')) {
+            return null;
+        }
+
+        $thumbnail = null;
         if (isset($data->snippet->thumbnails->maxres)) {
             $thumbnail = $data->snippet->thumbnails->maxres->url;
         }
