@@ -1,4 +1,4 @@
-FROM medleybox/vault as vault
+FROM ghcr.io/medleybox/vault:master as vault
 
 HEALTHCHECK --interval=20s --timeout=5s --start-period=30s \  
     CMD bin/docker-console 
