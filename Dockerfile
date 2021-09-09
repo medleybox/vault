@@ -11,6 +11,7 @@ FROM php:8-fpm-alpine as vault
 ENV TZ=Europe/London
 ENV PAGER='busybox less'
 ENV APP_ENV prod
+ENV MINIO_ENDPOINT 'http://minio:9000'
 ENV REDIS_VERSION="5.3.4"
 ENV EXT_AMQP_VERSION=master
 

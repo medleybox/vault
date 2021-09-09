@@ -3,16 +3,15 @@ version: '3.7'
 x-variables: &x-variables
   APP_ENV: dev
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
+  MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
   POSTGRES_DB: medleybox_vault
-  MINIO_ENDPOINT: http://minio:9000
   MINIO_ACCESS_KEY: medley
   MINIO_BUCKET: medley
   MINIO_SECRET_KEY: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
   # Test key to be removed in production
   API_GOOGLE: AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc
-  MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
 
 networks:
   medley:
