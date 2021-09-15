@@ -80,7 +80,7 @@ services:
     command: -c 'mkdir -p /data/medley && /usr/bin/minio server /data'
 
   rabbitmq:
-    image: rabbitmq:3
+    image: rabbitmq:3-alpine
     networks:
       - medley
     expose:
