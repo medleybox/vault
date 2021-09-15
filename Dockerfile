@@ -27,7 +27,6 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     binutils \
     freetype-dev \
     g++ \
-    gcc \
     git \
     icu-dev \
     icu-libs \
@@ -50,9 +49,9 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
         libzip \
         postfix \
         tzdata \
-        openldap \
-        postgresql \
+        postgresql-libs \
         rabbitmq-c \
+        gcc zlib-static libpng-static boost-static \
         ca-certificates curl ffmpeg python3 gnupg py-pip nginx \
     && pip install -U youtube-dl \
 # =========================================================================== #\
@@ -75,7 +74,6 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     && rm -rf /var/cache/apk/* \
     && rm -rf /usr/src
 
-RUN apk --no-cache add gcc zlib-static libpng-static boost-static
 COPY --from=ghcr.io/medleybox/audiowaveform-alpine:master /bin/audiowaveform /usr/local/bin/audiowaveform
 
 COPY --from=composer /app/vendor /var/www/vendor
