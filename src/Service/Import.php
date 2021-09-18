@@ -232,7 +232,7 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
-        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest', '-o', "{$this->uuid}.%(ext)s", '--audio-format', 'vorbis', '-x', $url];
+        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest', '--extract-audio', '--audio-format', 'vorbis', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug('youtube-dl args', $args);
@@ -390,6 +390,9 @@ final class Import
     private function generateWaves()
     {
         $waveData = $this->audiowaveform->generate($this->uuid, $this->file);
+        if (null === $waveData) {
+            $this->log->error('Unable to generate wavedata', [$waveData, $this->file]);
+        }
         $this->wave = $waveData;
 
         return $this;

@@ -60,13 +60,14 @@ final class Audiowaveform
     public function generate(string $uuid, SplFileInfo $input): ?WaveData
     {
         $output = Import::TMP_DIR . "{$uuid}-audiowaveform.json";
-        $process = new Process([
+        $args = [
             '/usr/local/bin/audiowaveform',
             '-i', $input->getRealPath(),
             '-o', $output,
             '--pixels-per-second', self::AF_PIXELS_PER_SECOND,
             '-b', self::AF_BITS,
-        ], Import::TMP_DIR);
+        ];
+        $process = new Process($args, Import::TMP_DIR);
 
         $process->setTimeout(self::AF_TIMEOUT);
         $process->run();
