@@ -3,25 +3,19 @@
 namespace App\Service;
 
 use App\Entity\WaveData;
-use App\Provider\ProviderInterface;
 use App\Repository\WaveDataRepository;
-use App\Message\ImportJob;
-use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\{Finder, SplFileInfo};
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
-use Symfony\Component\Messenger\MessageBusInterface;
 
 final class Audiowaveform
 {
     /**
-     * Audiowaveform process must complete within 30 seconds
+     * Audiowaveform process must complete within 3 minutes
      * @var int
      */
-    const AF_TIMEOUT = 30;
+    const AF_TIMEOUT = 180;
 
     /**
      * Bits (8 or 16)
