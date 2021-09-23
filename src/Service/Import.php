@@ -36,10 +36,10 @@ final class Import
     const EXTENSIONS = ['*.opus', '*.ogg'];
 
     /**
-     * Downloads must complete within 300 seconds (5 minutes)
+     * Download and convert must complete within 600 seconds (10 minutes)
      * @var int
      */
-    const DOWNLOAD_TIMEOUT = 300;
+    const DOWNLOAD_TIMEOUT = 600;
 
     /**
      * The provider to run the import with
@@ -229,6 +229,9 @@ final class Import
         return true;
     }
 
+    /**
+     * Atempt to download and convert to .ogg if required
+     */
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
