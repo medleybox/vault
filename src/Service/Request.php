@@ -6,7 +6,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class Request
 {
-    const BASE_URI = 'http://webapp:8080';
+    const BASE_URI = 'http://webapp:9501';
 
     /*
      * @var \Symfony\Contracts\HttpClient\HttpClientInterface
