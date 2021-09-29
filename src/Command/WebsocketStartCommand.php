@@ -51,8 +51,8 @@ class WebsocketStartCommand extends Command
             ),
             $port
         );
-        $io->success('Initializing websocket server');
         $server->run();
+        $io->success('Initializing websocket server');
 
         return Command::SUCCESS;
     }

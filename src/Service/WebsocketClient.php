@@ -50,9 +50,9 @@ class WebsocketClient
         $this->send(json_encode($wsData));
     }
 
-    public function testing()
+    public function ping()
     {
-        $this->send('testing');
+        $this->send('ping');
     }
 
     private function send(string $string)
@@ -61,6 +61,10 @@ class WebsocketClient
         \Amp\Loop::run(function () {
             $connection = yield connect('ws://websocket:8089/socketserver');
             yield $connection->send($this->string);
+
+            $connection->close();
+
+            $connection = null;
 
             \Amp\Loop::stop();
         });

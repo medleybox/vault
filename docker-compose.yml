@@ -64,7 +64,7 @@ services:
     restart: always
     depends_on:
       - vault
-    entrypoint: ["bin/console", "app:websocket:start", "-vvv"]
+    entrypoint: ["/var/www/bin/docker-entrypoint-websocket"]
 
   minio:
     image: minio/minio

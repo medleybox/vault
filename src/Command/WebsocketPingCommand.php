@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class WebsocketTestCommand extends Command
+class WebsocketPingCommand extends Command
 {
     /**
      * @var \App\Service\WebsocketClient
@@ -22,9 +22,9 @@ class WebsocketTestCommand extends Command
      */
     private $io;
 
-    protected static $defaultName = 'app:websocket:test';
+    protected static $defaultName = 'app:websocket:ping';
 
-    protected static $defaultDescription = 'Test websocket server';
+    protected static $defaultDescription = 'Ping websocket server';
 
     public function __construct(WebsocketClient $client)
     {
@@ -42,9 +42,12 @@ class WebsocketTestCommand extends Command
         $this->io = new SymfonyStyle($input, $output);
         $this->io->success('Connecting to ws server');
 
-        $this->client->testing();
-
-        $this->io->success('Disconnected from ws server');
+        $this->io->text('Ping:');
+        while (true) {
+            $this->client->ping();
+            $this->io->write('.');
+            sleep(30);
+        }
 
         return Command::SUCCESS;
     }
