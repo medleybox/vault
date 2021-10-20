@@ -45,7 +45,7 @@ class EntryRefreshMetadataCommand extends Command
         foreach ($this->repo->findBy([], ['id' => 'DESC']) as $entry) {
             dump($entry);
             $this->repo->fetchMetadata($entry);
-            $this->import->webhock($entry);
+            $this->import->webhook($entry);
         }
 
         return 1;
