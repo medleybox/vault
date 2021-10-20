@@ -40,6 +40,7 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     rabbitmq-c-dev \
 # =========================================================================== #\
     && apk add --no-cache \
+        aria2 \
         freetype \
         icu-libs \
         libjpeg-turbo \

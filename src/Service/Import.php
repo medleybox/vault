@@ -235,7 +235,8 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
-        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest', '--extract-audio', '--audio-format', 'vorbis', '-o', "{$this->uuid}.%(ext)s", $url];
+        $args = ['youtube-dl', '-v', '--newline', '--youtube-skip-dash-manifest',
+        '--external-downloader', 'aria2c', '--external-downloader-args', '-j 3 -x 3 -s 3', '--extract-audio', '--audio-format', 'vorbis', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug('youtube-dl args', $args);
@@ -513,7 +514,7 @@ final class Import
         ]);
 
         $entry = $this->entryRepo->createFromCompletedImport($data, $metadata, $this->wave);
-        $this->webhock($entry);
+        $this->webhook($entry);
 
         return true;
     }
@@ -521,7 +522,7 @@ final class Import
     /**
      * Function to notify webapp of import
      */
-    public function webhock(Entry $entry, $status = 'complete')
+    public function webhook(Entry $entry, $status = 'complete')
     {
         $update = [
             'uuid' => $entry->getUuid(),
@@ -532,7 +533,7 @@ final class Import
             'seconds' => $entry->getSeconds(),
             'metadata' => $entry->getMetadata()->getData()
         ];
-        $this->log->debug("Webhock !!!", $update);
+        $this->log->debug("Webhook !!!", $update);
         $this->request->post("/media-file/update", $update);
 
         return true;

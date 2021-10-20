@@ -63,7 +63,6 @@ class WebsocketClient
             yield $connection->send($this->string);
 
             $connection->close();
-
             $connection = null;
 
             \Amp\Loop::stop();

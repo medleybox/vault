@@ -58,11 +58,13 @@ class ImportYoutubeCommand extends Command
         $forceStart = $input->getOption('force-start');
 
         // Process via message broker
-        if (true === $this->import->queue() && false === $forceStart) {
+        if (false === $forceStart && true === $this->import->queue()) {
             $io->success('Import job sent for processing!');
 
             return 0;
         }
+
+        $io->text('Running via shell...');
 
         // Process now
         if (true === $this->import->start()) {
