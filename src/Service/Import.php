@@ -235,7 +235,7 @@ final class Import
     protected function attemptDownload()
     {
         $url = $this->provider->getDownloadLink();
-        $args = ['youtube-dl', '-v', '--newline', '--youtube-skip-dash-manifest',
+        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest',
         '--external-downloader', 'aria2c', '--external-downloader-args', '-j 3 -x 3 -s 3', '--extract-audio', '--audio-format', 'vorbis', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
