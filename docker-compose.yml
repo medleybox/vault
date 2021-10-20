@@ -19,7 +19,7 @@ networks:
 
 services:
   vault:
-    image: ghcr.io/medleybox/vault
+    image: ghcr.io/medleybox/vault:master
     build:
       context: ./
       dockerfile: Dockerfile
@@ -38,7 +38,7 @@ services:
       - ./var/log:/var/www/var/log
 
   messenger:
-    image: ghcr.io/medleybox/messenger
+    image: ghcr.io/medleybox/messenger:master
     build:
       context: ./
       dockerfile: Dockerfile-messenger
@@ -52,10 +52,10 @@ services:
     volumes:
       - tmp-data:/var/www/var/tmp
       - ./vendor:/var/www/vendor
-    entrypoint: ["bin/console", "messenger:consume", "async", "-vvv"]
+    entrypoint: ["bin/console", "messenger:consume", "async", "-vv"]
 
   websocket:
-    image: ghcr.io/medleybox/vault
+    image: ghcr.io/medleybox/vault:master
     environment:
       <<: *x-variables
       APP_ENV: prod
