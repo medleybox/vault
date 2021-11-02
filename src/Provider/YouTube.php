@@ -124,6 +124,11 @@ final class YouTube implements ProviderInterface
             $thumbnail = $data->snippet->thumbnails->default->url;
         }
 
+        // Fallback to the default thumbnail
+        if (null === $thumbnail) {
+            $thumbnail = "https://img.youtube.com/vi/{$this->getId()}/default.jpg";
+        }
+
         return $thumbnail;
     }
 

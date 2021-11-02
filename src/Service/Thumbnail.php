@@ -77,6 +77,11 @@ class Thumbnail
         $providor = $entry->getMetadata()->getProviderInstance();
         $link = $providor->getThumbnailLink();
 
+        // Unable to find link to image url
+        if (null === $link) {
+            return false;
+        }
+
         return $this->generate($entry->getUuid(), $link);
     }
 
@@ -93,12 +98,16 @@ class Thumbnail
             $fs->mkdir(Import::THUMBNAILS_MIMIO, 0700);
             $fs->dumpFile(Import::TMP_DIR . $filename, $file->getContent());
         } catch (IOExceptionInterface $e) {
-            $this->log->error('[Thumbnail] Unable to save thumbnail', [$file, $filename, $this->path]);
+            $this->log->error('[Thumbnail] Unable to save thumbnail to tmp storage', [$file, $filename, $this->path]);
             return null;
         }
 
         $this->log->debug('[Thumbnail] Uploading thumbnail to minio', [$filename, $this->path]);
-        $this->minio->upload($filename, $this->path);
+        try {
+            $this->minio->upload($filename, $this->path);
+        } catch (\Exception $e) {
+            $this->log->error('[Thumbnail] Unable to save thumbnail to object storage', [$file, $filename, $this->path]);
+        }
 
         return $this->path;
     }

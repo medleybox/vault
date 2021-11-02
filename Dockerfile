@@ -54,7 +54,7 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
         rabbitmq-c \
         gcc zlib-static libpng-static boost-static \
         ca-certificates curl ffmpeg python3 gnupg py-pip nginx \
-    && pip install -U youtube-dl \
+    && pip install -U yt-dlp \
 # =========================================================================== #\
     && docker-php-ext-configure gd -enable-gd --with-freetype --with-jpeg --with-webp \
     && git clone --branch $EXT_AMQP_VERSION --depth 1 https://github.com/php-amqp/php-amqp.git /usr/src/php/ext/amqp \

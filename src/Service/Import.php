@@ -17,6 +17,12 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class Import
 {
+    const DOWNLOADER = '/usr/bin/yt-dlp';
+
+    const DOWNLOADER_EXTERNAL = 'aria2c';
+
+    const DOWNLOADER_EXTERNAL_ARGS = 'aria2c:-j 3 -x 3 -s 3';
+
     /**
      * Full path to directory where imports are downloaded
      * @var string
@@ -145,7 +151,7 @@ final class Import
 
     public function seachForDownload($provider)
     {
-        $args = ['youtube-dl', '--print-json', '--get-thumbnail', $provider->getDownloadLink()];
+        $args = [self::DOWNLOADER, '--print-json', '--no-check-formats', '--get-thumbnail', $provider->getDownloadLink()];
         $this->log->debug('youtube search', $args);
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         $process->run();
@@ -234,9 +240,9 @@ final class Import
      */
     protected function attemptDownload()
     {
+        // '--downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL
         $url = $this->provider->getDownloadLink();
-        $args = ['youtube-dl', '--newline', '--youtube-skip-dash-manifest',
-        '--external-downloader', 'aria2c', '--external-downloader-args', '-j 3 -x 3 -s 3', '--extract-audio', '--audio-format', 'vorbis', '-o', "{$this->uuid}.%(ext)s", $url];
+        $args = [self::DOWNLOADER, '--newline', '--youtube-skip-dash-manifest', '-N 4', '--audio-format', 'vorbis', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug('youtube-dl args', $args);
