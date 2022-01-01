@@ -5,15 +5,20 @@
     "license": "proprietary",
     "config": {
         "platform": {
-            "php": "8.0"
+            "php": "8.1"
         },
         "preferred-install": {
             "*": "dist"
         },
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "symfony/flex": true,
+            "symfony/runtime": true
+        }
     },
     "require": {
-        "php": "^8.0",
+        "php": "^8.1",
         "ext-amqp": "*",
         "composer-plugin-api": "^2",
         "amphp/websocket-client": "^1.0",
@@ -82,7 +87,7 @@
     "extra": {
         "symfony": {
             "allow-contrib": true,
-            "require": "~5.3"
+            "require": "~5.4"
         }
     }
 }

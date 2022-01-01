@@ -6,7 +6,7 @@ COPY src/ /app/src
 
 RUN composer install -vvv --no-dev -o -a --no-scripts --ignore-platform-reqs
 
-FROM php:8-fpm-alpine as vault
+FROM php:8.1-fpm-alpine as vault
 
 ENV TZ=Europe/London
 ENV PAGER='busybox less'

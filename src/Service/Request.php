@@ -6,7 +6,8 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class Request
 {
-    const BASE_URI = 'http://webapp:9501';
+    // Connect to the nginx container to proxy to webapp (default site)
+    const BASE_URI = 'https://nginx';
 
     /*
      * @var \Symfony\Contracts\HttpClient\HttpClientInterface
@@ -15,7 +16,11 @@ class Request
 
     public function __construct(HttpClientInterface $client)
     {
-        $this->client = $client;
+        $this->client = $this->client = $client->withOptions([
+            'base_uri' => self::BASE_URI,
+            'verify_host' => false,
+            'verify_peer' => false
+        ]);
     }
 
     public function checkConnectivity(): bool
@@ -37,8 +42,7 @@ class Request
         try {
             return $this->client->request(
                 'GET',
-                $url,
-                ['base_uri' => self::BASE_URI]
+                $url
             );
         } catch (\Exception $e) {
             return false;
@@ -50,8 +54,7 @@ class Request
         try {
             return $this->client->request(
                 'HEAD',
-                $url,
-                ['base_uri' => self::BASE_URI]
+                $url
             );
         } catch (\Exception $e) {
             return false;
@@ -65,7 +68,6 @@ class Request
                 'POST',
                 $url,
                 [
-                    'base_uri' => self::BASE_URI,
                     'body' => $data
                 ]
             );

@@ -3,7 +3,8 @@ version: '3.7'
 x-variables: &x-variables
   APP_ENV: dev
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
-  MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+  #MESSENGER_TRANSPORT_DSN: amqp://guest:guest@rabbitmq:5672/%2f/messages
+  MESSENGER_TRANSPORT_DSN: redis://redis:6379/messages/symfony/consumer?auto_setup=true&serializer=1&stream_max_entries=0&dbindex=4
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
   POSTGRES_DB: medleybox_vault
@@ -76,8 +77,8 @@ services:
      - minio-data:/data
     ports:
      - "9000:9000"
-    entrypoint: sh
-    command: ["sh", "-c", "mkdir -p /data/$MINIO_BUCKET && /usr/bin/docker-entrypoint.sh minio server /data"]
+    entrypoint: [""]
+    command: ["sh", "-c", "mkdir -p /data/medley && /usr/bin/docker-entrypoint.sh minio server /data"]
 
   rabbitmq:
     image: rabbitmq:3-alpine
