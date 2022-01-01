@@ -77,7 +77,7 @@ services:
     ports:
      - "9000:9000"
     entrypoint: sh
-    command: -c 'mkdir -p /data/medley && /usr/bin/minio server /data'
+    command: ["sh", "-c", "mkdir -p /data/$MINIO_BUCKET && /usr/bin/docker-entrypoint.sh minio server /data"]
 
   rabbitmq:
     image: rabbitmq:3-alpine
