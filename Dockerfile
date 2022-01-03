@@ -14,6 +14,7 @@ ENV APP_ENV prod
 ENV MINIO_ENDPOINT 'http://minio:9000'
 ENV REDIS_VERSION="5.3.4"
 ENV EXT_AMQP_VERSION=master
+ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4'
 
 WORKDIR /var/www
 
