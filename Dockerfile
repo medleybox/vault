@@ -39,6 +39,7 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     openldap-dev \
     postgresql-dev \
     rabbitmq-c-dev \
+    python3-dev \
 # =========================================================================== #\
     && apk add --no-cache \
         aria2 \
