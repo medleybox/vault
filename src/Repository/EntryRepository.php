@@ -6,14 +6,25 @@ use App\Entity\{Entry, EntryMetadata};
 use App\Service\{Minio, Request, Thumbnail, WebsocketClient};
 use App\Provider\{ProviderInterface, YouTube};
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
-use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception as DBALException;
 use DateTime;
 use Exception;
 
 class EntryRepository extends ServiceEntityRepository
 {
+    /**
+     * @var \Doctrine\Persistence\ManagerRegistry
+     */
+    protected $registry;
+
+    /**
+     * @var \Doctrine\ORM\EntityManagerInterface
+     */
+    protected $_em;
+
     /**
      * @var \App\Service\Minio
      */
@@ -36,6 +47,7 @@ class EntryRepository extends ServiceEntityRepository
 
     public function __construct(ManagerRegistry $registry, Minio $minio, EntryMetadataRepository $meta, Request $request, WebsocketClient $wsClient)
     {
+        $this->registry = $registry;
         $this->minio = $minio;
         $this->meta = $meta;
         $this->request = $request;
@@ -97,7 +109,7 @@ class EntryRepository extends ServiceEntityRepository
         $ref = $providor->findRef($entry->getTitle());
         $metadata = $this->meta->findOneBy(['ref' => $ref]);
 
-        if (false === $metadata) {
+        if (false == $metadata) {
             $metadata = $providor->search($entry->getTitle());
         }
 
@@ -146,15 +158,15 @@ class EntryRepository extends ServiceEntityRepository
             $this->_em->persist($entry);
             $this->_em->flush();
         } catch (DBALException $e) {
-            if (!$this->entityManager->isOpen()) {
-                $this->entityManager = $this->doctrine->resetManager();
+            if (!$this->_em->isOpen()) {
+                $this->registry->resetManager();
             }
             try {
-                $this->entityManager->persist($entity);
-                $this->entityManager->flush();
+                $this->_em->persist($entry);
+                $this->_em->flush();
             } catch (DBALException $e) {
-                if (!$this->entityManager->isOpen()) {
-                    $this->entityManager = $this->doctrine->resetManager();
+                if (!$this->_em->isOpen()) {
+                    $this->registry->resetManager();
                 }
             }
         }

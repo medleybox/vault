@@ -15,11 +15,6 @@ use Ramsey\Uuid\Uuid;
 class ExportData
 {
     /**
-     * @var \Doctrine\ORM\EntityManagerInterface
-     */
-    private $em;
-
-    /**
      * @var \App\Repository\EntryRepository
      */
     private $entry;
@@ -45,9 +40,8 @@ class ExportData
         'imported',
     ];
 
-    public function __construct(EntityManagerInterface $em, EntryRepository $entry, Minio $minio, Request $request)
+    public function __construct(EntryRepository $entry, Minio $minio, Request $request)
     {
-        $this->em = $em;
         $this->entry = $entry;
         $this->minio = $minio;
         $this->request = $request;

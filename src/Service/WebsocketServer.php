@@ -14,8 +14,6 @@ class WebsocketServer implements MessageComponentInterface
      */
     private SplObjectStorage $clients;
 
-    private $resourceId;
-
     public function __construct()
     {
         $this->clients = new SplObjectStorage();

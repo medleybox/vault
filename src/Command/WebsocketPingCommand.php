@@ -43,12 +43,14 @@ class WebsocketPingCommand extends Command
         $this->io->success('Connecting to ws server');
 
         $this->io->text('Ping:');
-        while (true) {
-            $this->client->ping();
-            $this->io->write('.');
-            sleep(30);
+        try {
+            while (true) {
+                $this->client->ping();
+                $this->io->write('.');
+                sleep(30);
+            }
+        } catch (\Exception $e) {
+            return Command::SUCCESS;
         }
-
-        return Command::SUCCESS;
     }
 }

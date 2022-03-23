@@ -1,0 +1,9 @@
+includes:
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+parameters:
+    scanDirectories:
+        - vendor/doctrine/dbal/src
+    ignoreErrors:
+        -
+          message: '#While loop condition is always true.#'
+          path: src/Command/WebsocketPingCommand.php

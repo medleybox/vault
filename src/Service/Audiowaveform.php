@@ -4,7 +4,6 @@ namespace App\Service;
 
 use App\Entity\WaveData;
 use App\Repository\WaveDataRepository;
-use Psr\Log\LoggerInterface;
 use Symfony\Component\Finder\{Finder, SplFileInfo};
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
@@ -30,25 +29,13 @@ final class Audiowaveform
     const AF_PIXELS_PER_SECOND = 5;
 
     /**
-     * File downloaded via youtube-dl
-     * @var \Symfony\Component\Finder\SplFileInfo
-     */
-    private $file;
-
-    /**
      * @var \App\Repository\WaveDataRepository
      */
     private $waveDataRepo;
 
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $log;
-
-    public function __construct(WaveDataRepository $waveDataRepo, LoggerInterface $log)
+    public function __construct(WaveDataRepository $waveDataRepo)
     {
         $this->waveDataRepo = $waveDataRepo;
-        $this->log = $log;
     }
 
     public function generate(string $uuid, SplFileInfo $input): ?WaveData

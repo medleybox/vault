@@ -22,15 +22,9 @@ class EntryCheckStreamCommand extends Command
      */
     private $repo;
 
-    /**
-     * @var \App\Service\Import
-     */
-    private $import;
-
-    public function __construct(EntryRepository $repo, Import $import)
+    public function __construct(EntryRepository $repo)
     {
         $this->repo = $repo;
-        $this->import = $import;
         parent::__construct();
     }
 

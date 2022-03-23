@@ -113,8 +113,6 @@ class Minio
             return $this->filesystem->readStream($path);
         } catch (\League\Flysystem\FileNotFoundException $e) {
             // Unable to find file
-        } catch (\Exception $e) {
-            // Unable to stream file from minio
         }
 
         return false;
