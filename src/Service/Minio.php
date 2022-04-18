@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use Aws\S3\S3Client;
+use Aws\S3\Exception\S3Exception;
 use Symfony\Component\Finder\SplFileInfo;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
@@ -27,7 +28,12 @@ class Minio
      */
     protected $filesystem;
 
-    public function __construct($endpoint, $key, $bucket, $secret)
+    public function __construct(string $endpoint, string $key, string $bucket, string $secret)
+    {
+        $this->connect($endpoint, $key, $bucket, $secret);
+    }
+
+    public function connect(string $endpoint, string $key, string $bucket, string $secret)
     {
         $this->client = new S3Client([
             'version' => 'latest',
@@ -45,6 +51,17 @@ class Minio
 
         $this->adapter = new AwsS3Adapter($this->client, $bucket, '', [], false);
         $this->filesystem = new Filesystem($this->adapter);
+    }
+
+    public function testConnection()
+    {
+        try {
+            $list = $this->filesystem->listContents('youtube', false);
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
     }
 
     public function getFileStats(SplFileInfo $file)
@@ -126,5 +143,21 @@ class Minio
     public function delete($path): bool
     {
         return $this->filesystem->delete($path);
+    }
+
+    public function mirror(self $minio, $path)
+    {
+        $stream = $this->stream($path);
+        if ($stream === false) {
+            return false;
+        }
+
+        // If uploading a file with the same name, delete it first as it can't be overwritten
+        if (true === $this->filesystem->has($path)) {
+            $this->filesystem->delete($path);
+        }
+
+        $write = $minio->filesystem->writeStream($path, $stream);
+        return true;
     }
 }

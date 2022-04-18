@@ -55,15 +55,18 @@ class Thumbnail
             $thumbnail = $this->minio->get($path);
         }
 
-        if (null === $thumbnail) {
-            // Load 404 not found image here
-        }
-
         $response = new Response();
         $response->setPublic();
         $response->setMaxAge(86400 * 30);
         $response->headers->set('Content-Type', 'image/jpg');
         $response->setContent($thumbnail);
+
+        // Thumbnail is still null so set some headers and return image
+        if (null === $thumbnail) {
+            // Load 404 not found image here
+            $response = new Response(null, 404);
+            $response->headers->set('Content-Type', 'image/jpg');
+        }
 
         return $response;
     }
@@ -90,7 +93,7 @@ class Thumbnail
         $filename = "{$uuid}.jpg";
         $this->path = Import::THUMBNAILS_MIMIO . "/{$filename}";
 
-        $this->log->debug("[Thumbnail] Downloading from {$link} and uploading to {$this->path}");
+        $this->log->debug("[Thumbnail] Downloading from {$link}");
         $file = (new HttpClient())->create()->request('GET', $link);
 
         try {
@@ -102,7 +105,7 @@ class Thumbnail
             return null;
         }
 
-        $this->log->debug('[Thumbnail] Uploading thumbnail to minio', [$filename, $this->path]);
+        $this->log->debug("[Thumbnail] Uploading thumbnail to minio {$this->path}", [$filename, $this->path]);
         try {
             $this->minio->upload($filename, $this->path);
         } catch (\Exception $e) {

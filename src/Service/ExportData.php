@@ -11,6 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use League\Csv\Writer;
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class ExportData
 {
@@ -38,6 +39,8 @@ class ExportData
         'title',
         'ref',
         'imported',
+        'path',
+        'thumbnail',
     ];
 
     public function __construct(EntryRepository $entry, Minio $minio, Request $request)
@@ -53,6 +56,54 @@ class ExportData
         $name = $this->upload($csv);
 
         return $name;
+    }
+
+    public function checkMinioConncetion(string $endpoint, string $key, string $bucket, string $secret, $io = null): ?Minio
+    {
+        $minio = clone $this->minio;
+        $minio->connect($endpoint, $key, $bucket, $secret);
+
+        if (!$minio->testConnection()) {
+            return null;
+        }
+
+        return $minio;
+    }
+
+    public function exportMinioData(Minio $minio, $io = null): bool
+    {
+        if (null !== $io) {
+            $io->section('Fetching all entries and checking for metadata');
+        }
+
+        $entries = $this->getEntries();
+        if (null !== $io) {
+            ProgressBar::setFormatDefinition('custom', '[%bar%] %current%/%max%%percent:3s%% %message%');
+            $bar = $io->createProgressBar();
+            $bar->setMessage('');
+            $bar->setFormat('custom');
+            $bar->setMaxSteps(count($entries));
+            $bar->start();
+        }
+
+        foreach ($entries as $entry) {
+            $uuid = $entry[0];
+            $title = $entry[1];
+            $path = $entry[4];
+            $thumbnail = $entry[5];
+
+            if (null !== $io) {
+                $bar->setMessage($title);
+                $bar->advance();
+            }
+
+            $this->minio->mirror($minio, $path);
+            $this->minio->mirror($minio, $thumbnail);
+        }
+
+        $bar->finish();
+
+        return true;
     }
 
     private function getEntries()
@@ -84,11 +135,20 @@ class ExportData
                 $imported = $entity->getImported()->format(Kernel::APP_TIMEFORMAT);
             }
 
+            $path = $entity->getPath();
+            if (null === $path) {
+                dump('Unable to find entry in minio, skipping ....');
+                dump($uuid);
+                continue;
+            }
+
             $data->set($uuid, [
                 $uuid,
                 $entity->getTitle(),
                 $ref,
                 $imported,
+                $entity->getPath(),
+                $entity->getThumbnail(),
             ]);
         }
 

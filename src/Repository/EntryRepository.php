@@ -113,7 +113,7 @@ class EntryRepository extends ServiceEntityRepository
             $metadata = $providor->search($entry->getTitle());
         }
 
-        if (null === $metadata) {
+        if (null === $metadata || false === $metadata) {
             return null;
         }
 
