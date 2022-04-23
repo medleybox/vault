@@ -6,6 +6,7 @@ x-variables: &x-variables
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
   POSTGRES_DB: medleybox_vault
+  # MINIO_ENDPOINT: ''
   MINIO_ACCESS_KEY: medley
   MINIO_BUCKET: medley
   MINIO_SECRET_KEY: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf

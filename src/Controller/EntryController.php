@@ -182,9 +182,10 @@ class EntryController extends AbstractController
         if (null === $metadata) {
             $metadata = $provider->fetchMetadata();
             if (false === $metadata) {
+                $reason = $provider->fetchMetadata();
                 return $this->json([
                     'found' => false,
-                    'message' => 'Unable to find video metadata'
+                    'message' => "Unable to find video metadata. Reason {$reason}"
                 ]);
             }
         }

@@ -1,12 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 use Symfony\Component\Finder\SplFileInfo;
+use Psr\Log\LoggerInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\Filesystem;
+use League\Flysystem\{Filesystem, DirectoryListing};
 
 /**
  * Copied and adapted from https://github.com/medleybox/import/blob/master/src/Service/Minio.php
@@ -28,11 +31,20 @@ class Minio
      */
     protected $filesystem;
 
-    public function __construct(string $endpoint, string $key, string $bucket, string $secret)
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    private $log;
+
+    public function __construct(string $endpoint, string $key, string $bucket, string $secret, LoggerInterface $log)
     {
         $this->connect($endpoint, $key, $bucket, $secret);
+        $this->log = $log;
     }
 
+    /**
+     * Setup the call with a connection to minio
+     */
     public function connect(string $endpoint, string $key, string $bucket, string $secret)
     {
         $this->client = new S3Client([
@@ -53,10 +65,13 @@ class Minio
         $this->filesystem = new Filesystem($this->adapter);
     }
 
-    public function testConnection()
+    /**
+     * Test connection to minio intance by listing a directory
+     */
+    public function testConnection(): bool
     {
         try {
-            $list = $this->filesystem->listContents('youtube', false);
+            $list = $this->listContents('youtube', false);
         } catch (\Exception $e) {
             return false;
         }
@@ -64,7 +79,7 @@ class Minio
         return true;
     }
 
-    public function getFileStats(SplFileInfo $file)
+    public function getFileStats(SplFileInfo $file): array
     {
         $getID3 = new \getID3();
         $info = $getID3->analyze($file->getRealPath());
@@ -82,30 +97,34 @@ class Minio
 
     public function get(string $path): ?string
     {
-        if (false === $this->filesystem->has($path)) {
+        if (false === $this->has($path)) {
             return null;
         }
 
         return $this->filesystem->read($path);
     }
 
-    public function listContents($path, $recursive = false)
+    public function listContents($path, $recursive = false): DirectoryListing
     {
         return $this->filesystem->listContents($path, $recursive);
     }
 
-    public function upload($file, $dest)
+    public function upload($file, $dest): bool
     {
         $path = Import::TMP_DIR;
         $file = trim(preg_replace('/\s+/', ' ', $file));
         $stream = fopen("{$path}{$file}", 'r+');
 
+        $this->log->debug("[Minio] Starting upload of stream to {$dest}");
+
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($dest)) {
+        if (true === $this->has($dest)) {
+            $this->log->debug("[Minio] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
         $this->filesystem->writeStream($dest, $stream);
+        $this->log->info("[Minio] Completed upload via stream to {$dest}");
         fclose($stream);
         unlink("{$path}{$file}");
 
@@ -115,49 +134,74 @@ class Minio
     public function uploadString(string $dest, string $contents): bool
     {
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($dest)) {
+        if (true === $this->has($dest)) {
+            $this->log->debug("[Minio] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
+        $this->log->debug("[Minio] Starting upload of string to {$dest}");
         $this->filesystem->write($dest, $contents);
+        $this->log->debug("[Minio] Filesystem has check returned false");
 
         return true;
     }
 
     public function stream(string $path)
     {
+        if (false === $this->has($path)) {
+            $this->log->debug("[Minio] Filesystem has check returned false");
+
+            return null;
+        }
+
         try {
             return $this->filesystem->readStream($path);
         } catch (\League\Flysystem\FileNotFoundException $e) {
-            // Unable to find file
+            $this->log->error("[Minio] Unable to find file");
+            $this->log->debug("[Minio] {$e->getMessage()}");
         }
 
         return false;
     }
 
-    public function read($path)
+    public function read(string $path): string
     {
+        $this->log->debug("[Minio] started read for {$path}");
+
         return $this->filesystem->read($path);
     }
 
-    public function delete($path): bool
+    public function delete(string $path): bool
     {
+        $this->log->debug("[Minio] started delete of {$path}");
+
         return $this->filesystem->delete($path);
     }
 
-    public function mirror(self $minio, $path)
+    public function mirror(self $minio, string $path): bool
     {
         $stream = $this->stream($path);
-        if ($stream === false) {
+        if (null === $stream) {
+            $this->log->debug("[Minio] stream is null while trying to mirror");
+
+            return false;
+        }
+
+        if (false === $stream) {
+            $this->log->debug("[Minio] stream is false while trying to mirror");
+
             return false;
         }
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->filesystem->has($path)) {
-            $this->filesystem->delete($path);
+        if (true === $minio->has($path)) {
+            $this->log->debug("[Minio] Replacing file in target minio {$path}");
+            $minio->delete($path);
         }
 
         $write = $minio->filesystem->writeStream($path, $stream);
+        $this->log->info("[Minio] Completed mirror via stream");
+
         return true;
     }
 }

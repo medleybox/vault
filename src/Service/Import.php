@@ -17,10 +17,22 @@ use Symfony\Component\Messenger\MessageBusInterface;
 
 final class Import
 {
+    /**
+     * Full path to program used to download media
+     * @var string
+     */
     const DOWNLOADER = '/usr/bin/yt-dlp';
 
+    /**
+     * Download library used by download program
+     * @var string
+     */
     const DOWNLOADER_EXTERNAL = 'aria2c';
 
+    /**
+     * Arguments for download library
+     * @var string
+     */
     const DOWNLOADER_EXTERNAL_ARGS = 'aria2c:-j 3 -x 3 -s 3';
 
     /**
@@ -221,7 +233,7 @@ final class Import
             return false;
         }
 
-        $this->log('Running process functions', 'process');
+        $this->log('Running process functions on media', 'process');
         $this->process();
 
         $this->log('Uploading file to minio', 'upload');
@@ -427,15 +439,22 @@ final class Import
         return $this;
     }
 
-    protected function process()
+    /**
+     * Run functions after downloading media from source
+     */
+    protected function process(): bool
     {
-        // Make sure that the metadata has been fetched
-        $this->provider->fetchMetadata();
-
-        $this->generateWaves()
-            ->generateThumbnail()
+        $this->generateThumbnail()
             ->calculateFileStats()
         ;
+
+        // Make sure that the metadata has been fetched
+        $metadata = $this->provider->fetchMetadata();
+        if (false === $metadata) {
+            return false;
+        }
+
+        $this->generateWaves();
 
         return true;
     }

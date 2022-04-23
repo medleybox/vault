@@ -95,20 +95,62 @@ final class YouTube implements ProviderInterface
         }
 
         $data = $this->metadata->getData();
+        if (is_array($data)) {
+            return $data['title'];
+        }
 
         return $data->snippet->title;
     }
 
-    public function getThumbnailLink()
+    private function tryFallbackMetadata()
     {
+        // https://stackoverflow.com/a/68492807
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8");
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, '{"context":{"client":{"hl":"en","clientName":"WEB","clientVersion":"2.20210721.00.00","clientFormFactor":"UNKNOWN_FORM_FACTOR","clientScreen":"WATCH","mainAppWebInfo":{"graftUrl":"/watch?v='.$this->getId().'",}},"user":{"lockedSafetyMode":false},"request":{"useSsl":true,"internalExperimentFlags":[],"consistencyTokenJars":[]}},"videoId":"'.$this->getId().'","playbackContext":{"contentPlaybackContext":{"vis":0,"splay":false,"autoCaptionsDefaultOn":false,"autonavState":"STATE_NONE","html5Preference":"HTML5_PREF_WANTS","lactMilliseconds":"-1"}},"racyCheckOk":false,"contentCheckOk":false}');
+        curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/json';
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+            return false;
+        }
+        $json = json_decode($result, true);
+        curl_close($ch);
+
+        return $json;
+    }
+
+    public function getThumbnailLink(): ?string
+    {
+        // This is a URL to fallback to if a thumbnail link isn't found
+        $defaultThumbnail = "https://img.youtube.com/vi/{$this->getId()}/default.jpg";
+
+        // Fetch metadata from YouTube API
         if (null === $this->metadata) {
             $this->fetchMetaData();
         }
 
-        // Check if the metadata stored has snippet data
+        // Unable to load metadata from API
+        if (null === $this->metadata) {
+            return $defaultThumbnail;
+        }
+
         $data = $this->metadata->getData();
+        if (is_array($data)) {
+            $thumbnails = $data['thumbnail']['thumbnails'];
+            return $thumbnails[count($thumbnails) - 1]['url'];
+        }
+
+        // Check if the metadata stored has snippet data
         if (false === property_exists($data, 'snippet')) {
-            return null;
+            return $defaultThumbnail;
         }
 
         $thumbnail = null;
@@ -126,7 +168,7 @@ final class YouTube implements ProviderInterface
 
         // Fallback to the default thumbnail
         if (null === $thumbnail) {
-            $thumbnail = "https://img.youtube.com/vi/{$this->getId()}/default.jpg";
+            $thumbnail = $defaultThumbnail;
         }
 
         return $thumbnail;
@@ -142,7 +184,13 @@ final class YouTube implements ProviderInterface
         try {
             $data = $this->api->getVideoInfo($this->id);
         } catch (\Exception $e) {
-            return false;
+            $data = $this->tryFallbackMetadata();
+            if (null === $data) {
+                return false;
+            }
+
+            $data = $data["videoDetails"];
+            $data['isFallback'] = true;
         }
 
         // Remove data that isn't required so shouldn't get stored

@@ -101,7 +101,9 @@ class ExportData
             $this->minio->mirror($minio, $thumbnail);
         }
 
-        $bar->finish();
+        if (null !== $io) {
+            $bar->finish();
+        }
 
         return true;
     }

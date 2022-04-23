@@ -26,6 +26,11 @@ class ExportDataCommand extends Command
      */
     private $export;
 
+    /**
+     * @var \App\Service\Minio
+     */
+    private $minio = null;
+
     public function __construct(ExportData $export)
     {
         $this->export = $export;
@@ -46,7 +51,6 @@ class ExportDataCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        
         $endpoint = $io->ask('endpoint', $input->getOption('endpoint'));
         $accesskey = $io->ask('accesskey', $input->getOption('accesskey'));
         $bucket = $io->ask('bucket', $input->getOption('bucket'));
@@ -64,7 +68,6 @@ class ExportDataCommand extends Command
 
             return true;
         });
-        
         $export = $this->export->exportMinioData($this->minio, $io);
         $io->newLine();
         $io->success('Completed export to minio');
