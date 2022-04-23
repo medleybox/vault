@@ -9,7 +9,7 @@ use Aws\S3\Exception\S3Exception;
 use Symfony\Component\Finder\SplFileInfo;
 use Psr\Log\LoggerInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\{Filesystem, DirectoryListing};
+use League\Flysystem\Filesystem;
 
 /**
  * Copied and adapted from https://github.com/medleybox/import/blob/master/src/Service/Minio.php
@@ -104,7 +104,7 @@ class Minio
         return $this->filesystem->read($path);
     }
 
-    public function listContents($path, $recursive = false): DirectoryListing
+    public function listContents($path, $recursive = false): array
     {
         return $this->filesystem->listContents($path, $recursive);
     }

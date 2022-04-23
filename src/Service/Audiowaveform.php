@@ -11,6 +11,12 @@ use Symfony\Component\Process\Process;
 final class Audiowaveform
 {
     /**
+     * Path to audiowaveform binary
+     * @var string
+     */
+    const AUDIOWAVEFORM = '/usr/local/bin/audiowaveform';
+
+    /**
      * Audiowaveform process must complete within 3 minutes
      * @var int
      */
@@ -38,11 +44,20 @@ final class Audiowaveform
         $this->waveDataRepo = $waveDataRepo;
     }
 
+    public function getVersion(): string
+    {
+        $process = new Process([self::AUDIOWAVEFORM, '--version'], Import::TMP_DIR);
+        $process->run();
+        preg_match('/([0-9]{1,}\.)+[0-9]{1,}/', $process->getOutput(), $output);
+
+        return $output[0];
+    }
+
     public function generate(string $uuid, SplFileInfo $input): ?WaveData
     {
         $output = Import::TMP_DIR . "{$uuid}-audiowaveform.json";
         $args = [
-            '/usr/local/bin/audiowaveform',
+            self::AUDIOWAVEFORM,
             '-i', $input->getRealPath(),
             '-o', $output,
             '--pixels-per-second', self::AF_PIXELS_PER_SECOND,

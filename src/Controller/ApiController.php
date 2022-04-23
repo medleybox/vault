@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\{Import, Minio};
+use App\Service\{Audiowaveform, Import, Minio};
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,11 +13,12 @@ class ApiController extends AbstractController
     /**
      * @Route("/api/version", name="api_version")
      */
-    public function version(): Response
+    public function version(Audiowaveform $af): Response
     {
         return $this->json([
             'php' => PHP_VERSION,
-            'symfony' => Kernel::VERSION
+            'symfony' => Kernel::VERSION,
+            'audiowaveform' => $af->getVersion()
         ]);
     }
 
