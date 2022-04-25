@@ -58,7 +58,7 @@ class EntryController extends AbstractController
     {
         $path = $entry->getPath();
         $stream = $this->minio->stream($path);
-        if (false === $stream) {
+        if (false === $stream || null === $stream) {
             throw $this->createNotFoundException("File removed from minio ${path}");
         }
         $metadata = stream_get_meta_data($stream);

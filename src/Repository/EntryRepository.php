@@ -85,6 +85,35 @@ class EntryRepository extends ServiceEntityRepository
         return null;
     }
 
+    public function hasWebapp(Entry $entry): ?bool
+    {
+        try {
+            $check = $this->request->head("/media-file/metadata/{$entry->getUuid()}");
+            if (false !== $check && 200 === $check->getStatusCode()) {
+                return true;
+            }
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public function hasStream(Entry $entry): ?bool
+    {
+        $path = $entry->getPath();
+        if (null === $path) {
+            return null;
+        }
+
+        $stream = $this->minio->stream($path);
+        if (is_resource($stream)) {
+            return true;
+        }
+
+        return false;
+    }
+
     public function metadata(Entry $entry): array
     {
         $metadata = $entry->getMetadata();

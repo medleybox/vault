@@ -149,7 +149,7 @@ class Minio
     public function stream(string $path)
     {
         if (false === $this->has($path)) {
-            $this->log->debug("[Minio] Filesystem has check returned false");
+            $this->log->debug("[Minio] Filesystem has check returned false before stream");
 
             return null;
         }

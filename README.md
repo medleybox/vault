@@ -1,7 +1,7 @@
 # Vault
 [![Github Workflows Link](https://github.com/medleybox/vault/workflows/PHP%20Tests/badge.svg)][github-workflows]
 
-A Symfony 5.3 application to retrieve and store music for Medlybox. Rewritten concepts from [medlybox/import][github-import].
+A Symfony 5.4 application to retrieve and store music for Medlybox. Rewritten concepts from [medlybox/import][github-import].
 
 ## Quick Start
 This project uses Docker and docker-compose to manage project dependencies. You will need up to date installed and working versions of both. PHP 7.4 is used within the nginx + FPM container setup. There is only one container for running nginx and fpm.

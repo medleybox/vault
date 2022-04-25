@@ -503,7 +503,7 @@ final class Import
         return $path;
     }
 
-    public function refreshSource(Entry $entry): bool
+    public function refreshSource(Entry $entry, $upload = false): bool
     {
         $this->log->info('Attempting to refresh from source');
         $this->uuid = $entry->getUuid();
@@ -517,6 +517,18 @@ final class Import
 
         if (null === $this->checkForDownload($this->uuid)) {
             return false;
+        }
+
+        if (true === $upload) {
+            $this->process();
+            $this->upload();
+
+            // Update entry with latest data after process and upload
+            $entry->setPath($this->upload)
+                ->setSize($this->stats['size'])
+                ->setSeconds($this->stats['seconds'])
+            ;
+            $this->entryRepo->save($entry);
         }
 
         return true;
