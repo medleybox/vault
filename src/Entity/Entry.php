@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
+use Symfony\Component\Uid\UuidV4;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EntryRepository")
@@ -19,7 +21,8 @@ class Entry
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=36, unique=true)
+     * @ORM\Column(type="uuid", unique=true)
+     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
      */
     private $uuid;
 
@@ -68,12 +71,12 @@ class Entry
         return $this->id;
     }
 
-    public function getUuid(): ?string
+    public function getUuid(): ?UuidV4
     {
         return $this->uuid;
     }
 
-    public function setUuid(string $uuid): self
+    public function setUuid(UuidV4 $uuid): self
     {
         $this->uuid = $uuid;
 

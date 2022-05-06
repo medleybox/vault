@@ -6,13 +6,13 @@ use App\Entity\Entry;
 use App\Provider\YouTube;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Service\{Import, Minio, Thumbnail};
-use Ramsey\Uuid\Uuid;
 use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{Request, Response, ResponseHeaderBag};
+use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Uid\Uuid;
 
 class EntryController extends AbstractController
 {
@@ -50,10 +50,8 @@ class EntryController extends AbstractController
         $this->thumbnail = $thumbnail;
     }
 
-    /**
-     * @Route("/entry/stream/{uuid}/{name}", name="entry_stream", methods={"GET"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
+    #[Route('/entry/stream/{uuid}/{name}', name: 'entry_stream', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
     public function streamEntry(Entry $entry, string $name = '')
     {
         $path = $entry->getPath();
@@ -71,63 +69,51 @@ class EntryController extends AbstractController
         return $response;
     }
 
-    /**
-     * @Route("/entry/download/{uuid}", name="entry_download", methods={"GET"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
-    public function download(Entry $entry)
+    #[Route('/entry/download/{uuid}', name: 'entry_download', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function download(Entry $entry): Response
     {
         $contents = $this->minio->read($entry->getPath());
 
         return new Response($contents);
     }
 
-    /**
-     * @Route("/entry/thumbnail/{uuid}.{ext}", name="entry_thumbnail", methods={"GET"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
-    public function thumbnail(Entry $entry)
+    #[Route('/entry/thumbnail/{uuid}.{ext}', name: 'entry_thumbnail', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function thumbnail(Entry $entry): Response
     {
         return $this->thumbnail->render($entry);
     }
 
-    /**
-     * @Route("/entry/refresh-thumbnail/{uuid}", name="entry_refreshThumbnail", methods={"GET"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
-    public function refreshThumbnail(Entry $entry)
+    #[Route('/entry/refresh-thumbnail/{uuid}', name: 'entry_refreshThumbnail', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function refreshThumbnail(Entry $entry): JsonResponse
     {
         $this->thumbnail->refreshThumbnail($entry);
 
         return $this->json(['refresh' => true]);
     }
 
-    /**
-     * @Route("/entry/metadata/{uuid}", name="entry_metadata", methods={"GET"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
-    public function metadata(Entry $entry)
+    #[Route('/entry/metadata/{uuid}', name: 'entry_metadata', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function metadata(Entry $entry): JsonResponse
     {
         $metadata = $this->entryRepo->metadata($entry);
 
         return $this->json($metadata);
     }
 
-    /**
-     * @Route("/entry/delete/{uuid}", name="entry_delete", methods={"DELETE"})
-     * @ParamConverter("uuid", class="\App\Entity\Entry", options={"mapping": {"uuid": "uuid"}})
-     */
-    public function delete(Entry $entry)
+    #[Route('/entry/delete/{uuid}', name: 'entry_delete', methods: ['DELETE'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function delete(Entry $entry): JsonResponse
     {
         $this->entryRepo->delete($entry);
 
         return $this->json(['delete' => true]);
     }
 
-    /**
-     * @Route("/entry/import", name="entry_import", methods={"POST"})
-     */
-    public function import(Request $request)
+    #[Route('/entry/import', name: 'entry_import', methods: ['POST'])]
+    public function import(Request $request): JsonResponse
     {
         $uuid = $request->request->get('uuid');
         if (null === $uuid) {
@@ -150,10 +136,8 @@ class EntryController extends AbstractController
         return $this->json(['error' => false, 'uuid' => $uuid, 'queue' => $queue]);
     }
 
-    /**
-     * @Route("/entry/check", name="entry_check", methods={"POST"})
-     */
-    public function check(Request $request)
+    #[Route('/entry/check', name: 'entry_check', methods: ['POST'])]
+    public function check(Request $request): JsonResponse
     {
         $id = $request->request->get('id');
         if (null === $id) {
@@ -164,7 +148,6 @@ class EntryController extends AbstractController
         }
 
         $provider = new YouTube($id);
-
         $check = $this->entryRepo->checkForImported($provider);
         if (null !== $check) {
             return $this->json(['found' => false, 'message' => 'Entry already imported']);
@@ -200,7 +183,7 @@ class EntryController extends AbstractController
             ]);
         }
 
-        $uuid = Uuid::uuid4()->toString();
+        $uuid = Uuid::v4();
         $link = $provider->getThumbnailLink();
         $thumbnail = $this->thumbnail->generate($uuid, $link);
         $this->entryRepo->createPartialImport($metadata, $provider, $uuid, $thumbnail);

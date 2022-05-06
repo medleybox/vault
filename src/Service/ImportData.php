@@ -9,7 +9,7 @@ use App\Provider\YouTube;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use League\Csv\{Reader, Statement};
-use Ramsey\Uuid\Uuid;
+use Symfony\Component\Uid\Uuid;
 use Exception;
 
 class ImportData
@@ -107,7 +107,7 @@ class ImportData
 
         $metadata = $provider->fetchMetadata();
 
-        $uuid = $record['uuid'];
+        $uuid = Uuid::fromString($record['uuid']);
         $link = $provider->getThumbnailLink();
         $thumbnail = $this->thumbnail->generate($uuid, $link);
         $entry = $this->entry->createPartialImport($metadata, $provider, $uuid, $thumbnail);

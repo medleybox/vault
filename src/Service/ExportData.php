@@ -10,8 +10,8 @@ use App\Repository\{EntryRepository, EntryMetadataRepository};
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use League\Csv\Writer;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Uid\Uuid;
 
 class ExportData
 {
@@ -182,7 +182,7 @@ class ExportData
 
     private function upload($csv)
     {
-        $name = Uuid::uuid4()->toString();
+        $name = Uuid::v4();
         $path = "export/${name}.csv";
         $this->minio->uploadString($path, $csv);
 

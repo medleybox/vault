@@ -8,12 +8,12 @@ use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Message\ImportJob;
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
-use Ramsey\Uuid\Uuid;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Finder\{Finder, SplFileInfo};
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Uid\Uuid;
 
 final class Import
 {
@@ -195,7 +195,7 @@ final class Import
         $this->provider = $provider;
         $this->uuid = $uuid;
         if (null === $uuid) {
-            $this->uuid = Uuid::uuid4()->toString();
+            $this->uuid = Uuid::v4();
         }
 
         return true;

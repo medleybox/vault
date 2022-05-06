@@ -71,7 +71,7 @@ class Thumbnail
         return $response;
     }
 
-    public function refreshThumbnail(Entry $entry)
+    public function refreshThumbnail(Entry $entry): ?string
     {
         if (null === $entry->getMetadata() || 0 === count((array) $entry->getMetadata()->getData())) {
             $this->repo->fetchMetadata($entry);

@@ -50,9 +50,6 @@
     "aws/aws-sdk-php": {
         "version": "3.134.6"
     },
-    "brick/math": {
-        "version": "0.8.14"
-    },
     "cash/lrucache": {
         "version": "1.0.0"
     },
@@ -229,12 +226,6 @@
     },
     "ralouphie/getallheaders": {
         "version": "3.0.3"
-    },
-    "ramsey/collection": {
-        "version": "1.0.1"
-    },
-    "ramsey/uuid": {
-        "version": "4.0.1"
     },
     "ratchet/rfc6455": {
         "version": "v0.3"
@@ -439,6 +430,9 @@
     "symfony/polyfill-mbstring": {
         "version": "v1.15.0"
     },
+    "symfony/polyfill-uuid": {
+        "version": "v1.25.0"
+    },
     "symfony/process": {
         "version": "v5.0.7"
     },
@@ -485,6 +479,9 @@
     },
     "symfony/twig-bridge": {
         "version": "v5.1.5"
+    },
+    "symfony/uid": {
+        "version": "v5.4.3"
     },
     "symfony/var-dumper": {
         "version": "v5.0.7"
