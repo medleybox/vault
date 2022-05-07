@@ -1,26 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Service\ExportData;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputInterface, InputDefinition, InputOption};
-use Symfony\Component\Console\Question\Question;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:export:data',
+    description: 'Migrate data stored in minio storage'
+)]
 class ExportDataCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:export:data';
-
-    /**
-     * @var string
-     */
-    protected static $defaultDescription = 'Migrate data stored in minio storage';
-
     /**
      * @var \App\Service\ExportData
      */

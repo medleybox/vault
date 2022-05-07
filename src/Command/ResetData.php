@@ -1,21 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Provider\YouTube;
 use App\Service\ResetData as ResetDataService;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:reset-data',
+    description: 'Remove all data stored in minio and the vault database'
+)]
 class ResetData extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:reset-data';
-
     /**
      * @var \App\Service\ResetData
      */
@@ -25,11 +27,6 @@ class ResetData extends Command
     {
         $this->resetData = $resetData;
         parent::__construct();
-    }
-
-    protected function configure()
-    {
-        $this->setDescription('Remove all data stored in minio and the vault database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -43,6 +40,6 @@ class ResetData extends Command
 
         $this->resetData->removeEntities();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

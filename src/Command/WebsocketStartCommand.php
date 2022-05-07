@@ -1,18 +1,23 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Service\WebsocketServer;
 use Ratchet\Server\IoServer;
 use Ratchet\Http\HttpServer;
 use Ratchet\WebSocket\WsServer;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:websocket:start',
+    description: 'Start the websocket server'
+)]
 class WebsocketStartCommand extends Command
 {
     /**
@@ -20,19 +25,10 @@ class WebsocketStartCommand extends Command
      */
     private $ws;
 
-    protected static $defaultName = 'app:websocket:start';
-
-    protected static $defaultDescription = 'Start the websocket server';
-
     public function __construct(WebsocketServer $ws)
     {
         $this->ws = $ws;
         parent::__construct();
-    }
-
-    protected function configure()
-    {
-        $this->setDescription(self::$defaultDescription);
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

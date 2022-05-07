@@ -1,19 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Service\Request;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:check-webapp-connection',
+    description: 'Check connection to webapp service',
+)]
 class CheckWebappConnectionCommand extends Command
 {
-    protected static $defaultName = 'app:check-webapp-connection';
-
     /**
      * @var \App\Service\Request
      */
@@ -25,11 +28,6 @@ class CheckWebappConnectionCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
-    {
-        $this->setDescription('Check the connection to webapp');
-    }
-
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
@@ -37,13 +35,13 @@ class CheckWebappConnectionCommand extends Command
             $this->request->checkConnectivity();
             $io->success('Connected to webapp service!');
 
-            return 0;
+            return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error($e->getMessage());
         }
 
         $io->error('Failed to connect to the webapp service');
 
-        return 1;
+        return Command::FAILURE;
     }
 }

@@ -7,42 +7,31 @@ namespace App\Command;
 use App\Provider\YouTube;
 use App\Service\{Import, Minio};
 use App\Repository\EntryRepository;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:entry:check-stream',
+    description: 'Check stream for all entries in vault and download from source if missing'
+)]
 class EntryCheckStreamCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:entry:check-stream';
-
-    /**
-     * @var string
-     */
-    protected static $defaultDescription = 'Check stream for all entries in vault and download from source if missing';
-
     /**
      * @var \App\Repository\EntryRepository
      */
     private $repo;
 
     /**
-     * @var \App\Service\Minio
-     */
-    private $minio;
-
-    /**
      * @var \App\Service\Import
      */
     private $import;
 
-    public function __construct(EntryRepository $repo, Minio $minio, Import $import)
+    public function __construct(EntryRepository $repo, Import $import)
     {
         $this->repo = $repo;
-        $this->minio = $minio;
         $this->import = $import;
         parent::__construct();
     }
@@ -50,36 +39,37 @@ class EntryCheckStreamCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
+        $io->title('Fetching entries from database');
         foreach ($this->repo->findBy([], ['id' => 'DESC']) as $entry) {
-            dump($entry->getTitle());
+            $io->text("Checking '{$entry->getTitle()}'");
 
             // Check if webapp has this entry
             $webapp = $this->repo->hasWebapp($entry);
             if (false === $webapp) {
-                dump('Skipping as not in webapp');
+                $io->caution('Skipping as not in webapp');
                 continue;
             }
 
             // Check if the stream returns
             $stream = $this->repo->hasStream($entry);
             if (true === $stream) {
-                dump('Stream is valid');
+                $io->success('Stream is valid');
                 continue;
             }
 
+            $io->text("Refreching media from source");
             $this->import->refreshSource($entry, true);
 
-            // Check again if the stream returns valid
+            $io->text("Check again if the stream returns valid");
             $stream = $this->repo->hasStream($entry);
             if (true === $stream) {
-                dump('Stream is valid');
+                $io->success('Stream is valid after refresh');
                 continue;
             }
 
-            dump("Stream wasn't vaild!!!!!!!!!!!");
-            exit();
+            $io->error("Stream wasn't vaild!");
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 }

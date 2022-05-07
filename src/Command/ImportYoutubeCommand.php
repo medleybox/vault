@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Provider\YouTube;
 use App\Service\Import;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputOption, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Exception;
 
+#[AsCommand(
+    name: 'app:import:youtube',
+    description: 'Download and import YouTube video into the vault'
+)]
 class ImportYoutubeCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:import:youtube';
-
     /**
      * @var \App\Service\Import
      */
@@ -30,8 +32,7 @@ class ImportYoutubeCommand extends Command
 
     protected function configure()
     {
-        $this->setDescription('Download and import YouTube video into the vault')
-            ->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
+        $this->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
             ->addOption(
                 'force-start',
                 null,
@@ -51,7 +52,7 @@ class ImportYoutubeCommand extends Command
         } catch (\Exception $e) {
             $io->error($e->getMessage());
 
-            return 1;
+            return Command::FAILURE;
         }
 
         // Check if we queue
@@ -61,7 +62,7 @@ class ImportYoutubeCommand extends Command
         if (false === $forceStart && true === $this->import->queue()) {
             $io->success('Import job sent for processing!');
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         $io->text('Running via shell...');
@@ -70,10 +71,10 @@ class ImportYoutubeCommand extends Command
         if (true === $this->import->start()) {
             $io->success('Import Complete!');
 
-            return 0;
+            return Command::SUCCESS;
         }
         $io->error('Unable to process import!');
 
-        return 1;
+        return Command::FAILURE;
     }
 }

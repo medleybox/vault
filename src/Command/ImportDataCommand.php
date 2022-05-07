@@ -1,22 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Service\ImportData;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use Exception;
+use \Exception;
 
+#[AsCommand(
+    name: 'app:import:data',
+    description: 'Import Entry entities from CSV'
+)]
 class ImportDataCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:import:data';
-
     /**
      * @var \App\Service\ImportData
      */
@@ -26,11 +28,6 @@ class ImportDataCommand extends Command
     {
         $this->import = $import;
         parent::__construct();
-    }
-
-    protected function configure()
-    {
-        $this->setDescription('Import Entry entities from CSV');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int

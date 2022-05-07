@@ -3,20 +3,20 @@
 namespace App\Command;
 
 use App\Provider\YouTube;
-use App\Service\Import;
 use App\Repository\EntryRepository;
+use App\Service\Import;
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\{InputOption, InputArgument, InputInterface};
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
+#[AsCommand(
+    name: 'app:entry:audiowave',
+    description: 'Generate AudioWave data for all entries in vault',
+)]
 class EntryAudiowaveCommand extends Command
 {
-    /**
-     * @var string
-     */
-    protected static $defaultName = 'app:entry:audiowave';
-
     /**
      * @var \App\Repository\EntryRepository
      */
@@ -36,8 +36,7 @@ class EntryAudiowaveCommand extends Command
 
     protected function configure()
     {
-        $this->setDescription('Generate Audiowave data for all entries in vault')
-            ->addArgument('uuid', InputArgument::OPTIONAL, 'UUID of entity to generate')
+        $this->addArgument('uuid', InputArgument::OPTIONAL, 'UUID of entity to generate')
             ->addOption(
                 'cache',
                 null,
@@ -66,7 +65,7 @@ class EntryAudiowaveCommand extends Command
             $io->text("Running audiowaveform on '{$entry->getTitle()}'");
             $entry = $this->import->generateEntryWaveData($entry, $convert);
 
-            return 0;
+            return Command::SUCCESS;
         }
 
         $io->text("Running audiowaveform on entries");
@@ -86,6 +85,6 @@ class EntryAudiowaveCommand extends Command
 
         $this->import->clearTempFiles();
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
