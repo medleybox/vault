@@ -67,7 +67,7 @@ class ImportData
         $imported = 0;
         $path = "export/${filename}";
         $data = $this->minio->read($path);
-        if (false === $data) {
+        if (null === $data) {
             // throw
         }
 
@@ -115,7 +115,7 @@ class ImportData
         $this->em->flush();
 
         try {
-            $this->import->setUp($provider, $uuid);
+            $this->import->setUp($provider, (string) $uuid);
         } catch (\Exception $e) {
             dump($e->getMessage());
 

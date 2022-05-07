@@ -10,6 +10,7 @@ use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
+use Symfony\Component\Uid\Uuid;
 
 class Thumbnail
 {
@@ -82,13 +83,13 @@ class Thumbnail
 
         // Unable to find link to image url
         if (null === $link) {
-            return false;
+            return null;
         }
 
         return $this->generate($entry->getUuid(), $link);
     }
 
-    public function generate(string $uuid, string $link): ?string
+    public function generate(Uuid $uuid, string $link): ?string
     {
         $filename = "{$uuid}.jpg";
         $this->path = Import::THUMBNAILS_MIMIO . "/{$filename}";

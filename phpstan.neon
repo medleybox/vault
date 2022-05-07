@@ -3,6 +3,7 @@ includes:
 parameters:
     scanDirectories:
         - vendor/doctrine/dbal/src
+        - vendor/symfony/uid
     ignoreErrors:
         -
           message: '#While loop condition is always true.#'

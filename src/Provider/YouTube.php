@@ -109,7 +109,7 @@ final class YouTube implements ProviderInterface
         curl_setopt($ch, CURLOPT_URL, "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8");
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, '{"context":{"client":{"hl":"en","clientName":"WEB","clientVersion":"2.20210721.00.00","clientFormFactor":"UNKNOWN_FORM_FACTOR","clientScreen":"WATCH","mainAppWebInfo":{"graftUrl":"/watch?v='.$this->getId().'",}},"user":{"lockedSafetyMode":false},"request":{"useSsl":true,"internalExperimentFlags":[],"consistencyTokenJars":[]}},"videoId":"'.$this->getId().'","playbackContext":{"contentPlaybackContext":{"vis":0,"splay":false,"autoCaptionsDefaultOn":false,"autonavState":"STATE_NONE","html5Preference":"HTML5_PREF_WANTS","lactMilliseconds":"-1"}},"racyCheckOk":false,"contentCheckOk":false}');
+        curl_setopt($ch, CURLOPT_POSTFIELDS, '{"context":{"client":{"hl":"en","clientName":"WEB","clientVersion":"2.20210721.00.00","clientFormFactor":"UNKNOWN_FORM_FACTOR","clientScreen":"WATCH","mainAppWebInfo":{"graftUrl":"/watch?v=' . $this->getId() . '",}},"user":{"lockedSafetyMode":false},"request":{"useSsl":true,"internalExperimentFlags":[],"consistencyTokenJars":[]}},"videoId":"' . $this->getId() . '","playbackContext":{"contentPlaybackContext":{"vis":0,"splay":false,"autoCaptionsDefaultOn":false,"autonavState":"STATE_NONE","html5Preference":"HTML5_PREF_WANTS","lactMilliseconds":"-1"}},"racyCheckOk":false,"contentCheckOk":false}');
         curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
 
         $headers = array();

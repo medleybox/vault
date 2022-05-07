@@ -164,11 +164,17 @@ class Minio
         return false;
     }
 
-    public function read(string $path): string
+    public function read(string $path): ?string
     {
-        $this->log->debug("[Minio] started read for {$path}");
+        try {
+            $this->log->debug("[Minio] started read for {$path}");
 
-        return $this->filesystem->read($path);
+            return $this->filesystem->read($path);
+        } catch (\Exception $e) {
+            $this->log->error("[Minio] Failed to read path {$path}");
+        }
+
+        return null;
     }
 
     public function delete(string $path): bool

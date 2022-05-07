@@ -6,7 +6,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
-use Symfony\Component\Uid\UuidV4;
+use Symfony\Component\Uid\{Uuid, UuidV4};
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\EntryRepository")
@@ -76,7 +76,7 @@ class Entry
         return $this->uuid;
     }
 
-    public function setUuid(UuidV4 $uuid): self
+    public function setUuid(Uuid $uuid): self
     {
         $this->uuid = $uuid;
 

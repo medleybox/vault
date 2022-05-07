@@ -427,9 +427,6 @@
     "symfony/polyfill-intl-normalizer": {
         "version": "v1.18.0"
     },
-    "symfony/polyfill-mbstring": {
-        "version": "v1.15.0"
-    },
     "symfony/polyfill-uuid": {
         "version": "v1.25.0"
     },

@@ -34,6 +34,7 @@ services:
       - ./templates:/var/www/templates
       - ./vendor:/var/www/vendor
       - ./var/log:/var/www/var/log
+      - ./phpstan.neon:/var/www/phpstan.neon
 
   messenger:
     image: ghcr.io/medleybox/messenger:master

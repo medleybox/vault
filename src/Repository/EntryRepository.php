@@ -10,7 +10,7 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Exception as DBALException;
-use Symfony\Component\Uid\UuidV4;
+use Symfony\Component\Uid\Uuid;
 use DateTime;
 use Exception;
 
@@ -162,11 +162,11 @@ class EntryRepository extends ServiceEntityRepository
     /**
      * @param  EntryMetadata     $metadata
      * @param  ProviderInterface $provider
-     * @param  string            $uuid
+     * @param  Uuid              $uuid
      * @param  string            $thumbnail
      * @return Entry
      */
-    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, UuidV4 $uuid, string $thumbnail, ?\DateTimeInterface $imported = null): Entry
+    public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, Uuid $uuid, string $thumbnail, ?\DateTimeInterface $imported = null): Entry
     {
         $entry = (new Entry())
             ->setUuid($uuid)
