@@ -75,7 +75,7 @@ class ResetData
         return $files;
     }
 
-    public function removeThubmnails(): bool
+    public function removeThumbnails(): bool
     {
         $this->removeAllFilesInFolder(Import::THUMBNAILS_MIMIO);
 

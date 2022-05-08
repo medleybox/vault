@@ -34,10 +34,13 @@ class ResetData extends Command
         $io = new SymfonyStyle($input, $output);
         $io->caution('Removing files and data from Vault');
 
-        $this->resetData->removeThubmnails();
+        $io->text('Removing thumbnails');
+        $this->resetData->removeThumbnails();
 
+        $io->text('Removing metadata');
         $this->resetData->removeProviderData();
 
+        $io->text('Removing entity');
         $this->resetData->removeEntities();
 
         return Command::SUCCESS;

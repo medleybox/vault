@@ -113,8 +113,7 @@ class ExportData
     {
         $data = new ArrayCollection();
         foreach ($this->entry->findAll() as $entity) {
-            $uuid = $entity->getUuid();
-            $data->containsKey($uuid);
+            $uuid = (string) $entity->getUuid();
             if ($data->containsKey($uuid)) {
                 dump('Duplicate entry found, skipping ....');
                 dump($uuid, $entity);
