@@ -44,7 +44,7 @@ class ResetData
         $this->log = $log;
     }
 
-    public function removeEntities()
+    public function removeEntities(): bool
     {
         foreach ($this->entry->findAll() as $entity) {
             $this->log->debug("Removed entry: '{$entity->getTitle()}'");

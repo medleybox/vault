@@ -45,7 +45,7 @@ class Minio
     /**
      * Setup the call with a connection to minio
      */
-    public function connect(string $endpoint, string $key, string $bucket, string $secret)
+    public function connect(string $endpoint, string $key, string $bucket, string $secret): void
     {
         $this->client = new S3Client([
             'version' => 'latest',
@@ -146,7 +146,7 @@ class Minio
         return true;
     }
 
-    public function stream(string $path)
+    public function stream(string $path): mixed
     {
         if (false === $this->has($path)) {
             $this->log->debug("[Minio] Filesystem has check returned false before stream");

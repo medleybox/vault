@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repository;
 
 use App\Entity\WaveData;
@@ -13,7 +15,7 @@ class WaveDataRepository extends ServiceEntityRepository
         parent::__construct($registry, WaveData::class);
     }
 
-    public function save(WaveData $waveData)
+    public function save(WaveData $waveData): void
     {
         if (null === $waveData->getId()) {
             $this->_em->persist($waveData);

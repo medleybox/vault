@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use Ratchet\MessageComponentInterface;
@@ -19,13 +21,13 @@ class WebsocketServer implements MessageComponentInterface
         $this->clients = new SplObjectStorage();
     }
 
-    public function onOpen(ConnectionInterface $conn)
+    public function onOpen(ConnectionInterface $conn): void
     {
         // Store the new connection to send messages to later
         $this->clients->attach($conn);
     }
 
-    public function onMessage(ConnectionInterface $from, $msg)
+    public function onMessage(ConnectionInterface $from, $msg): void
     {
         /**
          * @var \Ratchet\WebSocket\WsConnection $from
@@ -46,13 +48,13 @@ class WebsocketServer implements MessageComponentInterface
         }
     }
 
-    public function onClose(ConnectionInterface $conn)
+    public function onClose(ConnectionInterface $conn): void
     {
         // The connection is closed, remove it, as we can no longer send it messages
         $this->clients->detach($conn);
     }
 
-    public function onError(ConnectionInterface $conn, \Exception $e)
+    public function onError(ConnectionInterface $conn, \Exception $e): void
     {
         echo "An error has occurred: {$e->getMessage()}\n";
 

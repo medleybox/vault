@@ -1,15 +1,21 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Service;
 
 use Symfony\Contracts\HttpClient\HttpClientInterface;
+use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class Request
 {
-    // Connect to the nginx container to proxy to webapp (default site)
+    /**
+     * Connect to the nginx container to proxy to webapp (default site)
+     * @var string
+     */
     const BASE_URI = 'https://nginx';
 
-    /*
+    /**
      * @var \Symfony\Contracts\HttpClient\HttpClientInterface
      */
     public $client;
@@ -37,7 +43,7 @@ class Request
         return false;
     }
 
-    public function get($url)
+    public function get($url): ?ResponseInterface
     {
         try {
             return $this->client->request(
@@ -45,11 +51,11 @@ class Request
                 $url
             );
         } catch (\Exception $e) {
-            return false;
+            return null;
         }
     }
 
-    public function head($url)
+    public function head($url): ?ResponseInterface
     {
         try {
             return $this->client->request(
@@ -57,11 +63,11 @@ class Request
                 $url
             );
         } catch (\Exception $e) {
-            return false;
+            return null;
         }
     }
 
-    public function post($url, array $data = [])
+    public function post($url, array $data = []): ?ResponseInterface
     {
         try {
             return $this->client->request(
@@ -72,7 +78,7 @@ class Request
                 ]
             );
         } catch (\Exception $e) {
-            return false;
+            return null;
         }
     }
 }

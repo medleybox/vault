@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Command;
 
 use App\Provider\YouTube;
@@ -34,7 +36,7 @@ class EntryAudiowaveCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('uuid', InputArgument::OPTIONAL, 'UUID of entity to generate')
             ->addOption(

@@ -30,7 +30,7 @@ class ImportYoutubeCommand extends Command
         parent::__construct();
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
             ->addOption(

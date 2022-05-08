@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\MessageHandler;
 
 use App\Service\Import;
@@ -18,7 +20,7 @@ class ImportJobHandler implements MessageHandlerInterface
         $this->import = $import;
     }
 
-    public function __invoke(ImportJob $message)
+    public function __invoke(ImportJob $message): void
     {
         $this->import->setUp($message->getProvider(), $message->getUuid());
         $this->import->start();

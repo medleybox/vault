@@ -1,6 +1,9 @@
 includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon
 parameters:
+    level: 5
+    paths:
+        - src
     scanDirectories:
         - vendor/doctrine/dbal/src
         - vendor/symfony/uid

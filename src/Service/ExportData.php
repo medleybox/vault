@@ -11,7 +11,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use League\Csv\Writer;
 use Symfony\Component\Console\Helper\ProgressBar;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Uid\{Uuid, UuidV4};
 
 class ExportData
 {
@@ -50,7 +51,7 @@ class ExportData
         $this->request = $request;
     }
 
-    public function export(): string
+    public function export(): UuidV4
     {
         $csv = $this->createCsv($this->getEntries());
         $name = $this->upload($csv);
@@ -70,7 +71,7 @@ class ExportData
         return $minio;
     }
 
-    public function exportMinioData(Minio $minio, $io = null): bool
+    public function exportMinioData(Minio $minio, ?SymfonyStyle $io = null): bool
     {
         if (null !== $io) {
             $io->section('Fetching all entries and checking for metadata');
@@ -108,7 +109,7 @@ class ExportData
         return true;
     }
 
-    private function getEntries()
+    private function getEntries(): ArrayCollection
     {
         $data = new ArrayCollection();
         foreach ($this->entry->findAll() as $entity) {
@@ -171,7 +172,7 @@ class ExportData
         return false;
     }
 
-    private function createCsv(ArrayCollection $data)
+    private function createCsv(ArrayCollection $data): string
     {
         $csv = Writer::createFromString('');
         $csv->insertOne($this->headers);
@@ -180,7 +181,7 @@ class ExportData
         return $csv->getContent();
     }
 
-    private function upload($csv)
+    private function upload($csv): UuidV4
     {
         $name = Uuid::v4();
         $path = "export/${name}.csv";

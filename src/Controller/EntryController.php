@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Controller;
 
 use App\Entity\Entry;
@@ -52,7 +54,7 @@ class EntryController extends AbstractController
 
     #[Route('/entry/stream/{uuid}/{name}', name: 'entry_stream', methods: ['GET'])]
     #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function streamEntry(Entry $entry, string $name = '')
+    public function streamEntry(Entry $entry, string $name = ''): Response
     {
         $path = $entry->getPath();
         $stream = $this->minio->stream($path);

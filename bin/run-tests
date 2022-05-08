@@ -1,10 +1,14 @@
 #!/bin/sh
 
-vendor/bin/phpstan analyse -l 5 src
+vendor/bin/phpstan analyse
 
 vendor/bin/phpcs --standard=PSR12 --colors -pn --report=full,summary src
 
-
-echo ""
-echo "Fix code with:"
-echo "vendor/bin/phpcbf --standard=PSR12 --colors src"
+PHPCS=$?
+if [ $PHPCS -eq 0 ]; then
+  exit 0
+else
+  echo "Fix code issues with:"
+  echo "vendor/bin/phpcbf --standard=PSR12 --colors src"
+  exit 1
+fi

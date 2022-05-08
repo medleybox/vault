@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Message;
 
 use App\Provider\ProviderInterface;
@@ -24,7 +26,7 @@ class ImportJob
         $this->uuid = $uuid;
     }
 
-    public function getProvider()
+    public function getProvider(): ProviderInterface
     {
         return $this->provider;
     }

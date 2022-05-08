@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace MedleyBox\Plugins;
 
 use Symfony\Component\HttpKernel\Bundle\{Bundle, BundleInterface};
