@@ -240,12 +240,16 @@ final class YouTube implements ProviderInterface
         return $this->fetchMetaData();
     }
 
-    public function findRef($title)
+    public function findRef($title): ?String
     {
         try {
             $search = $this->api->searchVideos($title, 1);
         } catch (\Exception $e) {
-            return false;
+            return null;
+        }
+
+        if (false === $search) {
+            return null;
         }
 
         return $search[0]->id->videoId;

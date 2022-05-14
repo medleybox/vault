@@ -133,14 +133,17 @@ class EntryRepository extends ServiceEntityRepository
         ];
     }
 
-    public function fetchMetadata(Entry $entry)
+    public function fetchMetadata(Entry $entry): ?Metadata
     {
         // For the time being, it will only be youtube that will have metadata
         $providor = new YouTube();
 
         $ref = $providor->findRef($entry->getTitle());
-        $metadata = $this->meta->findOneBy(['ref' => $ref]);
+        if (null === $ref) {
+            return null;
+        }
 
+        $metadata = $this->meta->findOneBy(['ref' => $ref]);
         if (false == $metadata) {
             $metadata = $providor->search($entry->getTitle());
         }
@@ -207,9 +210,8 @@ class EntryRepository extends ServiceEntityRepository
     }
 
     /**
-     * Update webapp with new entry
-     * @param  Entry  $entry
-     * @return bool
+     * Update webapp with new entry via webhook
+     * @param Entry $entry
      */
     private function createWebappEntry(Entry $entry): bool
     {
@@ -224,7 +226,7 @@ class EntryRepository extends ServiceEntityRepository
         return (bool) true;
     }
 
-    public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata, $wave = null)
+    public function createFromCompletedImport(ArrayCollection $data, EntryMetadata $metadata, $wave = null): Entry
     {
         // Do some baisc validation on fields that are required in the database
         foreach (['uuid', 'path', 'title', 'thumbnail', 'size', 'seconds'] as $key) {
@@ -271,7 +273,7 @@ class EntryRepository extends ServiceEntityRepository
         return $entry;
     }
 
-    public function save(Entry $entry)
+    public function save(Entry $entry): void
     {
         $this->_em->flush();
 
@@ -279,7 +281,7 @@ class EntryRepository extends ServiceEntityRepository
         $this->wsClient->refreshMediaList();
     }
 
-    public function delete(Entry $entry)
+    public function delete(Entry $entry): bool
     {
         $this->minio->delete($entry->getPath());
 
