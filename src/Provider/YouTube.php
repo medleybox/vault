@@ -240,7 +240,7 @@ final class YouTube implements ProviderInterface
         return $this->fetchMetaData();
     }
 
-    public function findRef($title): ?String
+    public function findRef($title): ?string
     {
         try {
             $search = $this->api->searchVideos($title, 1);
@@ -248,7 +248,7 @@ final class YouTube implements ProviderInterface
             return null;
         }
 
-        if (false === $search) {
+        if (false == (bool) $search) {
             return null;
         }
 

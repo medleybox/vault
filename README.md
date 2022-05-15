@@ -34,8 +34,12 @@ Bin scripts have been written to automate common CLI tasks:
 ## Testing
 PHP Coding Standards tests using `phpstan` and `squizlabs/php_codesniffer` using the [Symfony:risky][phpcs-symfony-ruleset] ruleset. Use the `run-tests` bin script to use the correct command line arguments for each program.
 
-Fix reported issues with `phpcbf`:
+```bash
+docker-compose exec vault bin/run-tests 
 ```
+
+Fix reported issues with `phpcbf`:
+```bash
 vendor/bin/phpcbf --standard=PSR12 --colors src
 ```
 

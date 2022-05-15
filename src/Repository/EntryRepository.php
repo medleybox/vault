@@ -133,7 +133,7 @@ class EntryRepository extends ServiceEntityRepository
         ];
     }
 
-    public function fetchMetadata(Entry $entry): ?Metadata
+    public function fetchMetadata(Entry $entry): ?EntryMetadata
     {
         // For the time being, it will only be youtube that will have metadata
         $providor = new YouTube();
