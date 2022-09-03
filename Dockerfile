@@ -8,13 +8,17 @@ RUN composer install -vvv --no-dev -o -a --no-scripts --ignore-platform-reqs
 
 FROM php:8.1-fpm-alpine as vault
 
-ENV TZ="Europe/London"
-ENV PAGER="busybox less"
-ENV APP_ENV="prod"
-ENV MINIO_ENDPOINT="http://minio:9000"
-ENV REDIS_VERSION="5.3.7"
-ENV EXT_AMQP_VERSION=master
-ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4'
+ENV APP_ENV=prod \
+  POSTGRES_DB=medleybox_webapp \
+  POSTGRES_USER=medleybox \
+  POSTGRES_PASSWORD='' \
+  TZ='Europe/London' \
+  PAGER='busybox less' \
+  MINIO_ENDPOINT='http://minio:9000' \
+  REDIS_VERSION='5.3.7' \
+  EXT_AMQP_VERSION=master \
+  MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4' \
+  PATH='/var/www/bin:/var/www/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
 
 WORKDIR /var/www
 

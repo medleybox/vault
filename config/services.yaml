@@ -33,6 +33,16 @@ services:
             $bucket: "%env(MINIO_BUCKET)%"
             $secret: "%env(MINIO_SECRET_KEY)%"
 
+    # Add DateTime Normalizer to Dunglas' Doctrine JSON ODM Bundle
+    dunglas_doctrine_json_odm.serializer:
+        class: Dunglas\DoctrineJsonOdm\Serializer
+        arguments:
+          - ['@dunglas_doctrine_json_odm.normalizer.array', '@serializer.normalizer.datetime', '@dunglas_doctrine_json_odm.normalizer.object']
+          - ['@serializer.encoder.json']
+        public: true
+        autowire: false
+        autoconfigure: false
+
     # https://stackoverflow.com/a/64929154
     doctrine.query_sql_command:
         class: Doctrine\DBAL\Tools\Console\Command\RunSqlCommand

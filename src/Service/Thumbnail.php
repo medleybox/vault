@@ -113,6 +113,7 @@ class Thumbnail
             $this->minio->upload($filename, $this->path);
         } catch (\Exception $e) {
             $this->log->error('[Thumbnail] Unable to save thumbnail to object storage', [$file, $filename, $this->path]);
+            return null;
         }
 
         return $this->path;

@@ -47,10 +47,10 @@ class ImportDataCommand extends Command
         $helper = $this->getHelper('question');
         $file = $helper->ask($input, $output, $question);
 
-        $output->writeln("You have just selected: ${file} for import");
+        $output->writeln("You have just selected: {$file} for import");
 
         $import = $this->import->import($file);
-        $output->writeln("${import} entries queued for import");
+        $output->writeln("{$import} entries queued for import");
 
         return Command::SUCCESS;
     }

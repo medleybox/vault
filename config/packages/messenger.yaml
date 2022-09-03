@@ -1,9 +1,7 @@
 framework:
     messenger:
-        # Prevent redis from filling up - https://github.com/symfony/symfony-docs/issues/13559#issuecomment-615217332
+        reset_on_message: true
         transports:
-            async: "%env(MESSENGER_TRANSPORT_DSN)%"
-
+            async: '%env(MESSENGER_TRANSPORT_DSN)%'
         routing:
-            # Route your messages to the transports
             'App\Message\ImportJob':  async

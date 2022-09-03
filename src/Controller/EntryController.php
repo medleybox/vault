@@ -188,6 +188,14 @@ class EntryController extends AbstractController
         $uuid = Uuid::v4();
         $link = $provider->getThumbnailLink();
         $thumbnail = $this->thumbnail->generate($uuid, $link);
+        if (null === $thumbnail) {
+            return $this->json([
+                'found' => false,
+                'message' => 'Unable to generate and save thumbnail'
+            ]);
+        }
+
+        // Save a partial import to keep metadata about this entry
         $this->entryRepo->createPartialImport($metadata, $provider, $uuid, $thumbnail);
 
         return $this->json([
