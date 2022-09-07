@@ -120,17 +120,22 @@ class EntryRepository extends ServiceEntityRepository
     public function metadata(Entry $entry): array
     {
         $metadata = $entry->getMetadata();
+
+        return [
+            'meta' => $metadata->getRef(),
+            'imported' => $entry->getImported(),
+            'provider' => $metadata->getProvider()
+        ];
+    }
+
+    public function wavedata(Entry $entry): ?array
+    {
         $wavedata = null;
         if (null !== $entry->getWaveData()) {
             $wavedata = $entry->getWaveData()->getData();
         }
 
-        return [
-            'meta' => $metadata->getRef(),
-            'imported' => $entry->getImported(),
-            'provider' => $metadata->getProvider(),
-            'wavedata' => $wavedata
-        ];
+        return $wavedata;
     }
 
     public function fetchMetadata(Entry $entry): ?EntryMetadata

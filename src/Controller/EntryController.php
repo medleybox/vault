@@ -105,6 +105,15 @@ class EntryController extends AbstractController
         return $this->json($metadata);
     }
 
+    #[Route('/entry/wavedata/{uuid}', name: 'entry_wavedata', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function wavedata(Entry $entry): JsonResponse
+    {
+        $wavedata = $this->entryRepo->wavedata($entry);
+
+        return $this->json($wavedata);
+    }
+
     #[Route('/entry/delete/{uuid}', name: 'entry_delete', methods: ['DELETE'])]
     #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
     public function delete(Entry $entry): JsonResponse
