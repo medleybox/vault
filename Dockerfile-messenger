@@ -1,6 +1,10 @@
 FROM ghcr.io/medleybox/vault:master as vault
 
+ENV APP_ENV prod
+
 HEALTHCHECK --interval=20s --timeout=5s --start-period=30s \  
-    CMD bin/docker-console 
+    CMD bin/docker-console
+
+USER www-data
 
 ENTRYPOINT ["/var/www/bin/docker-entrypoint-messenger"]

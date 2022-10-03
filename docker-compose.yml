@@ -39,7 +39,9 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile-messenger
-    environment: *x-variables
+    environment:
+      <<: *x-variables
+      APP_ENV: prod
     networks:
       - medley
     restart: always
@@ -47,14 +49,9 @@ services:
       - vault
     volumes:
       - tmp-data:/var/www/var/tmp
-      - ./vendor:/var/www/vendor
-    entrypoint: ["bin/console", "messenger:consume", "async", "-vv"]
 
   websocket:
     image: ghcr.io/medleybox/vault:master
-    environment:
-      <<: *x-variables
-      APP_ENV: prod
     networks:
       - medley
     restart: always

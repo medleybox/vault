@@ -4,10 +4,15 @@ namespace App\Provider;
 
 use App\Entity\EntryMetadata;
 use Madcoda\Youtube\Youtube as YouTubeApi;
-use Exception;
+use \Exception;
 
 final class YouTube implements ProviderInterface
 {
+    /**
+     * @var string
+     */
+    const REGEX = '/(youtu.be|youtube.com)[a-zA-Z0-9\-_]{11}/m';
+
     /**
      * URL of import
      * @var string
@@ -32,14 +37,11 @@ final class YouTube implements ProviderInterface
      */
     private $metadata = null;
 
-    public function __construct($url = null)
+    public function __construct()
     {
         $this->api = new YouTubeApi([
             'key' => $_ENV['API_GOOGLE']
         ]);
-        if (null !== $url) {
-            $this->setUrl($url);
-        }
     }
 
     public function toString()
@@ -174,7 +176,7 @@ final class YouTube implements ProviderInterface
         return $thumbnail;
     }
 
-    public function fetchMetaData()
+    public function fetchMetaData(): ?EntryMetadata
     {
         // Check if the metadata has been fetched
         if (null !== $this->metadata && (array) $this->metadata->getData() !== []) {
@@ -186,7 +188,11 @@ final class YouTube implements ProviderInterface
         } catch (\Exception $e) {
             $data = $this->tryFallbackMetadata();
             if (null === $data) {
-                return false;
+                return null;
+            }
+
+            if (array_key_exists('playabilityStatus', $data) && $data['playabilityStatus']['status'] === 'ERROR') {
+                return null;
             }
 
             $data = $data["videoDetails"];
@@ -220,7 +226,6 @@ final class YouTube implements ProviderInterface
         if (null === $this->metadata) {
             $this->fetchMetaData();
         }
-
         $data = $this->metadata->getData();
 
         return $data->id;
@@ -263,7 +268,7 @@ final class YouTube implements ProviderInterface
     private function getIdFromUrl(): string
     {
         $match = null;
-        preg_match('/[a-zA-Z0-9\-_]{11}/m', $this->url, $match);
+        preg_match(self::REGEX, $this->url, $match);
         if ([] !== $match && 1 === count($match)) {
             return $match[0];
         }

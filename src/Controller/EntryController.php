@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Entity\Entry;
-use App\Provider\YouTube;
+use App\Provider\{ProviderGuesser, YouTube};
 use App\Repository\{EntryRepository, EntryMetadataRepository};
 use App\Service\{Import, Minio, Thumbnail};
 use GuzzleHttp\Psr7\Stream;
@@ -124,14 +124,15 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/import', name: 'entry_import', methods: ['POST'])]
-    public function import(Request $request): JsonResponse
+    public function import(Request $request, ProviderGuesser $guesser): JsonResponse
     {
         $uuid = $request->request->get('uuid');
         if (null === $uuid) {
             return $this->json(['error' => true, 'message' => 'No uuid provided']);
         }
 
-        $provider = new YouTube($request->request->get('url'));
+        $url = $request->request->get('url');
+        $provider = $guesser->providerFromUrl($url);
         $check = $this->entryRepo->checkForImported($provider);
         if (null !== $check) {
             return $this->json(['error' => true, 'message' => 'Entry already imported']);
@@ -148,7 +149,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/check', name: 'entry_check', methods: ['POST'])]
-    public function check(Request $request): JsonResponse
+    public function check(Request $request, ProviderGuesser $guesser): JsonResponse
     {
         $id = $request->request->get('id');
         if (null === $id) {
@@ -158,7 +159,7 @@ class EntryController extends AbstractController
             ]);
         }
 
-        $provider = new YouTube($id);
+        $provider = $guesser->providerFromUrl($id);
         $check = $this->entryRepo->checkForImported($provider);
         if (null !== $check) {
             return $this->json(['found' => false, 'message' => 'Entry already imported']);

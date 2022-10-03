@@ -161,14 +161,18 @@ final class Import
         return true;
     }
 
-    public function seachForDownload($provider)
+    public function seachForDownload(ProviderInterface $provider): bool
     {
-        $args = [self::DOWNLOADER, '--print-json', '--no-check-formats', '--get-thumbnail', $provider->getDownloadLink()];
-        $this->log->debug('youtube search', $args);
-        $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
-        $process->run();
+        $metadata = $provider->fetchMetadata();
+        if (null === $metadata || false === $metadata->getData()) {
+           return false;
+        }
 
-        return $process->isSuccessful();
+        if (null !== $this->uuid && null !== $provider->getThumbnailLink()) {
+            $this->thumbnail->generate($this->uuid, $provider->getThumbnailLink());
+        }
+
+        return true;
     }
 
     /**
@@ -187,16 +191,17 @@ final class Import
             throw new \Exception('Entry has already been imported in database');
         }
 
-        $search = $this->seachForDownload($provider);
-        if (true !== $search) {
-            throw new \Exception('Unable to find entry after search');
-        }
-
-        $this->provider = $provider;
         $this->uuid = Uuid::v4();
         if (null !== $uuid) {
             $this->uuid = Uuid::fromString($uuid);
         }
+
+        $search = $this->seachForDownload($provider);
+        if (false === $search) {
+            throw new \Exception('Unable to find entry after search');
+        }
+
+        $this->provider = $provider;
 
         return true;
     }
@@ -257,18 +262,33 @@ final class Import
         $args = [self::DOWNLOADER, '--newline', '--youtube-skip-dash-manifest', '-N 4', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
-        $this->log->debug('youtube-dl args', $args);
+        $this->log->debug(self::DOWNLOADER . ' args', $args);
 
         $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
         if (null !== $this->log) {
             $process->start();
+            $progress = 0;
+            $lastProgress = 0;
             foreach ($process as $type => $data) {
-                $this->wsClient->importOutput($data);
                 if ($process::OUT === $type) {
                     $this->log->debug($data);
                 } else { // $process::ERR === $type
                     $this->log->error($data);
                 }
+                $match = null;
+                preg_match('/](\s{1,})?(\d{1,}\.\d{1,})%/', $data, $match);
+
+                if ([] === $match) {
+                    $this->wsClient->importOutput($data);
+
+                    continue;
+                }
+
+                $progress = (float) $match[2];
+                if (0 !== $lastProgress && $progress > $lastProgress) {
+                    $this->wsClient->importOutput($data);
+                }
+                $lastProgress = $progress;
             }
             $this->log('completed', 'attemptDownload');
 
@@ -444,9 +464,7 @@ final class Import
      */
     protected function process(): bool
     {
-        $this->generateThumbnail()
-            ->calculateFileStats()
-        ;
+        $this->calculateFileStats();
 
         // Make sure that the metadata has been fetched
         $metadata = $this->provider->fetchMetadata();

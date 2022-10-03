@@ -103,4 +103,13 @@ class EntryMetadata
 
         return $this;
     }
+
+    public function get($key)
+    {
+        if (array_key_exists($key, $this->getData())) {
+            return $this->getData()[$key];
+        }
+
+        return '-';
+    }
 }

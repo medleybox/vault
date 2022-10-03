@@ -2,6 +2,10 @@
 
 whoami;
 
+export APP_ENV prod
+
+printenv;
+
 bin/console messenger:consume async -vvv
 
 # docker-php-entrypoint 

@@ -78,21 +78,14 @@ RUN curl -L -o /tmp/redis.tar.gz https://github.com/phpredis/phpredis/archive/${
     && rm -rf /var/cache/apk/* \
     && rm -rf /usr/src
 
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform
-
 COPY --from=composer /app/vendor /var/www/vendor
 COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
-COPY bin/ /var/www/bin
-COPY config/ /var/www/config
+COPY config /var/www/config
 COPY public/index.php /var/www/public/index.php
-COPY src/ /var/www/src
-
-RUN chmod +x /var/www/bin/console \
-    && mkdir -p /var/www/var/tmp \
-    && chmod 777 /var/www/var/tmp \
-    && chown -Rf 82:82 /var/www
-
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY bin/console /var/www/bin/console
+COPY bin/docker-entrypoint* /var/www/bin/
 
 RUN mkdir -p /var/tmp/nginx/client_body && chmod 777 /var/tmp/nginx/client_body \
     && mkdir -p /var/www/log/nginx && chmod 777 /var/www/log/nginx \
@@ -101,3 +94,10 @@ RUN mkdir -p /var/tmp/nginx/client_body && chmod 777 /var/tmp/nginx/client_body 
     && sed -i 's/pm.max_children = 6/pm.max_children = 4/' /usr/local/etc/php-fpm.d/www.conf
 
 ENTRYPOINT ["/var/www/bin/docker-entrypoint"]
+
+COPY src/ /var/www/src
+
+RUN chmod +x /var/www/bin/* \
+    && mkdir -p /var/www/var/tmp \
+    && chmod 777 /var/www/var/tmp \
+    && chown -Rf 82:82 /var/www

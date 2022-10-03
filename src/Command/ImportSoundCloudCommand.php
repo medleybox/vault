@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Command;
 
-use App\Provider\YouTube;
+use App\Provider\SoundCloud;
 use App\Service\Import;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -14,25 +14,26 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Exception;
 
 #[AsCommand(
-    name: 'app:import:youtube',
-    description: 'Download and import YouTube video into the vault'
+    name: 'app:import:soundcloud',
+    description: 'Download and import Soundcloud tracks into the vault'
 )]
-class ImportYoutubeCommand extends Command
+class ImportSoundCloudCommand extends Command
 {
     /**
      * @var \App\Service\Import
      */
     private $import;
 
-    public function __construct(Import $import)
+    public function __construct(Import $import, SoundCloud $sc)
     {
         $this->import = $import;
+        $this->sc = $sc;
         parent::__construct();
     }
 
     protected function configure(): void
     {
-        $this->addArgument('url', InputArgument::REQUIRED, 'YouTube url or video id')
+        $this->addArgument('url', InputArgument::REQUIRED, 'SoundCloud track url')
             ->addOption(
                 'force-start',
                 null,
@@ -45,10 +46,10 @@ class ImportYoutubeCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $youtube = (new YouTube())->setUrl($input->getArgument('url'));
+        $soundcloud = $this->sc->setUrl($input->getArgument('url'));
 
         try {
-            $this->import->setUp($youtube);
+            $this->import->setUp($soundcloud);
         } catch (\Exception $e) {
             $io->error($e->getMessage());
 
