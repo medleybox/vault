@@ -133,6 +133,10 @@ class EntryController extends AbstractController
 
         $url = $request->request->get('url');
         $provider = $guesser->providerFromUrl($url);
+        if (null === $provider) {
+            return $this->json(['error' => true, 'message' => 'Unable to find provider']);
+        }
+
         $check = $this->entryRepo->checkForImported($provider);
         if (null !== $check) {
             return $this->json(['error' => true, 'message' => 'Entry already imported']);
@@ -160,6 +164,10 @@ class EntryController extends AbstractController
         }
 
         $provider = $guesser->providerFromUrl($id);
+        if (null === $provider) {
+            return $this->json(['error' => true, 'message' => 'Unable to find provider']);
+        }
+
         $check = $this->entryRepo->checkForImported($provider);
         if (null !== $check) {
             return $this->json(['found' => false, 'message' => 'Entry already imported']);

@@ -11,7 +11,7 @@ final class YouTube implements ProviderInterface
     /**
      * @var string
      */
-    const REGEX = '/(youtu.be|youtube.com)[a-zA-Z0-9\-_]{11}/m';
+    const REGEX = '/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/m';
 
     /**
      * URL of import
@@ -61,7 +61,7 @@ final class YouTube implements ProviderInterface
         return $this->id;
     }
 
-    public function setUrl($url)
+    public function setUrl(string $url)
     {
         $this->url = $url;
         $this->setIdFromUrl();
@@ -269,12 +269,17 @@ final class YouTube implements ProviderInterface
     {
         $match = null;
         preg_match(self::REGEX, $this->url, $match);
-        if ([] !== $match && 1 === count($match)) {
-            return $match[0];
+        if ([] !== $match && 8 === count($match)) {
+            return $match[7];
         }
 
         $params = null;
-        parse_str(parse_url($this->url, PHP_URL_QUERY), $params);
+        $url = parse_url($this->url, PHP_URL_QUERY);
+        if (null === $url) {
+            throw new Exception("Unable to parse_url link", 1);
+        }
+
+        parse_str($url, $params);
         if (!array_key_exists('v', $params)) {
             throw new Exception("Unable to find video id in link", 1);
         }

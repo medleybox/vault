@@ -51,7 +51,7 @@ class BaseProvider
         return $this->id;
     }
 
-    public function setUrl($url)
+    public function setUrl(string $url)
     {
         $this->url = $url;
         // add to interface - $this->setIdFromUrl();

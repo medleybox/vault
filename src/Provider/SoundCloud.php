@@ -30,7 +30,7 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
         $this->downloader = $downloader;
     }
 
-    public function setUrl($url)
+    public function setUrl(string $url)
     {
         $this->url = $url;
         $this->setIdFromUrl();

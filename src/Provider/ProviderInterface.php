@@ -5,7 +5,7 @@ namespace App\Provider;
 interface ProviderInterface
 {
     public function toString();
-    public function setUrl($url);
+    public function setUrl(string $url);
     public function getUrl();
     public function setId($id);
     public function getId();
