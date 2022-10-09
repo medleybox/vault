@@ -242,7 +242,9 @@ final class Import
         $this->process();
 
         $this->log('Uploading file to minio', 'upload');
-        $this->upload();
+        if (false === $this->upload()) {
+            return false;
+        }
 
         $this->log('Importing into database and webapp', 'import');
         $this->import();
@@ -486,11 +488,17 @@ final class Import
         return strtolower($name);
     }
 
-    protected function upload()
+    protected function upload(): bool
     {
-        $this->upload = "{$this->getProviderNamespace()}/{$this->file->getFilename()}";
-        $this->log->debug('upload()', [$this->upload, $this->file]);
-        $this->minio->upload($this->file->getFilename(), $this->upload);
+        try {
+            $this->upload = "{$this->getProviderNamespace()}/{$this->file->getFilename()}";
+            $this->log->debug('upload()', [$this->upload, $this->file]);
+            $this->minio->upload($this->file->getFilename(), $this->upload);
+        } catch (\Exception $e) {
+            $this->log->error("Unable to upload stream", ['message' => $e->getMessage()]);
+
+            return false;
+        }
 
         return true;
     }
@@ -539,13 +547,19 @@ final class Import
 
         if (true === $upload) {
             $this->process();
-            $this->upload();
 
-            // Update entry with latest data after process and upload
-            $entry->setPath($this->upload)
-                ->setSize($this->stats['size'])
-                ->setSeconds($this->stats['seconds'])
-            ;
+            if (false === $this->upload()) {
+                return false;
+            }
+
+            $entry->setPath($this->upload);
+            if (array_key_exists('size', $this->stat)) {
+                $entry->setPath($this->stats['size']);
+            }
+            if (array_key_exists('seconds', $this->stat)) {
+                $entry->setSeconds($this->stats['seconds']);
+            }
+
             $this->entryRepo->save($entry);
         }
 

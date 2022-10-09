@@ -83,11 +83,18 @@ class Minio
     {
         $getID3 = new \getID3();
         $info = $getID3->analyze($file->getRealPath());
-
-        return [
-            'size' => $info['filesize'],
-            'seconds' => $info['playtime_seconds']
+        $stats = [
+            'size' => null,
+            'seconds' => null,
         ];
+        if (array_key_exists('filesize', $info)) {
+            $stats['size'] = $info['filesize'];
+        }
+        if (array_key_exists('playtime_seconds', $info)) {
+            $stats['seconds'] = $info['playtime_seconds'];
+        }
+
+        return $stats;
     }
 
     public function has(string $path): bool
