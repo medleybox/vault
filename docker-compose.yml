@@ -5,7 +5,6 @@ x-variables: &x-variables
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
-  POSTGRES_DB: medleybox_vault
   # MINIO_ENDPOINT: ''
   MINIO_ACCESS_KEY: medley
   MINIO_BUCKET: medley
@@ -51,13 +50,15 @@ services:
       - tmp-data:/var/www/var/tmp
 
   websocket:
-    image: ghcr.io/medleybox/vault:master
+    image: ghcr.io/medleybox/websocket:master
+    build:
+      context: ./
+      dockerfile: Dockerfile-websocket
     networks:
       - medley
     restart: always
     depends_on:
       - vault
-    entrypoint: ["/var/www/bin/docker-entrypoint-websocket"]
 
   minio:
     image: minio/minio
@@ -69,8 +70,9 @@ services:
      - minio-data:/data
     ports:
      - "9000:9000"
+     - "9001:9001"
     entrypoint: [""]
-    command: ["sh", "-c", "mkdir -p /data/medley && /usr/bin/docker-entrypoint.sh minio server /data"]
+    command: ["sh", "-c", "mkdir -p /data/medley && /usr/bin/docker-entrypoint.sh minio server /data --console-address ':9001'"]
 
 volumes:
   minio-data:

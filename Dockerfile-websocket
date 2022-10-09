@@ -1,0 +1,13 @@
+FROM ghcr.io/medleybox/vault:master as vault
+FROM ghcr.io/medleybox/php-cli:master as websocket
+
+WORKDIR /app
+
+HEALTHCHECK --interval=20s --timeout=5s --start-period=30s \  
+  CMD bin/docker-console
+
+USER 82
+
+ENTRYPOINT ["/app/bin/docker-entrypoint-websocket"]
+
+COPY --from=vault /var/www /app

@@ -1,10 +1,25 @@
 FROM ghcr.io/medleybox/vault:master as vault
+FROM ghcr.io/medleybox/php-cli:master as messenger
 
-ENV APP_ENV prod
+WORKDIR /app
+
+ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4' \
+  PATH='/app/bin:/app/vendor/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin'
+
+RUN apk add --no-cache gcc zlib-static libpng-static boost-static ca-certificates curl ffmpeg python3 gnupg \
+  && apk add --no-cache --virtual .pip-deps py-pip gcc libc-dev zlib-static libpng-static boost-static python3-dev\
+  && pip install --no-cache-dir --no-color -U yt-dlp \
+  && pip cache purge \
+  && apk del .pip-deps \
+  && rm -rf /var/cache/apk/* \
+  && rm -rf /usr/src
 
 HEALTHCHECK --interval=20s --timeout=5s --start-period=30s \  
-    CMD bin/docker-console
+  CMD bin/docker-console
 
-USER www-data
+USER 82
 
-ENTRYPOINT ["/var/www/bin/docker-entrypoint-messenger"]
+ENTRYPOINT ["/app/bin/docker-entrypoint-messenger"]
+
+COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform
+COPY --from=vault /var/www /app
