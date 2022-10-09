@@ -52,6 +52,20 @@ class EntryController extends AbstractController
         $this->thumbnail = $thumbnail;
     }
 
+    #[Route('/entry/list-all', name: 'entry_listAll', methods: ['GET'])]
+    public function listAll(): Response
+    {
+        $entries = [];
+        foreach ($this->entryRepo->findAll([]) as $entry) {
+            $uuid = $entry->getUuid()->__toString();
+            $entries[$uuid] = [
+                'thumbnail' => $entry->getThumbnail()
+            ];
+        }
+
+        return $this->json($entries);
+    }
+
     #[Route('/entry/stream/{uuid}/{name}', name: 'entry_stream', methods: ['GET'])]
     #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
     public function streamEntry(Entry $entry, string $name = ''): Response
