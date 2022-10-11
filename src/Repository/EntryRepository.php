@@ -68,6 +68,17 @@ class EntryRepository extends ServiceEntityRepository
         return null;
     }
 
+    public function listAll(): array
+    {
+        $qb = $this->_em->createQueryBuilder('entry')
+            ->from(Entry::class, 'e', 'e.uuid')
+            ->select('partial e.{id, uuid, thumbnail}')
+            ->leftJoin('e.waveData', 'w')
+        ;
+
+        return $qb->getQuery()->getArrayResult();
+    }
+
     /**
      * Search for entry that had been marked as imported. Returns null if nothing found
      * @param  ProviderInterface $provider

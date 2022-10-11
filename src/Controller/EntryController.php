@@ -55,15 +55,7 @@ class EntryController extends AbstractController
     #[Route('/entry/list-all', name: 'entry_listAll', methods: ['GET'])]
     public function listAll(): Response
     {
-        $entries = [];
-        foreach ($this->entryRepo->findAll([]) as $entry) {
-            $uuid = $entry->getUuid()->__toString();
-            $entries[$uuid] = [
-                'thumbnail' => $entry->getThumbnail()
-            ];
-        }
-
-        return $this->json($entries);
+        return $this->json($this->entryRepo->listAll());
     }
 
     #[Route('/entry/stream/{uuid}/{name}', name: 'entry_stream', methods: ['GET'])]
