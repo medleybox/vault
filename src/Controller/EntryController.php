@@ -63,6 +63,10 @@ class EntryController extends AbstractController
     public function streamEntry(Entry $entry, string $name = ''): Response
     {
         $path = $entry->getPath();
+        if (null === $path) {
+            throw $this->createNotFoundException("Path not set for entry");
+        }
+
         $stream = $this->minio->stream($path);
         if (false === $stream || null === $stream) {
             throw $this->createNotFoundException("File removed from minio ${path}");

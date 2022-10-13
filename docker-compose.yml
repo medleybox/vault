@@ -46,8 +46,6 @@ services:
     restart: always
     depends_on:
       - vault
-    volumes:
-      - tmp-data:/var/www/var/tmp
 
   websocket:
     image: ghcr.io/medleybox/websocket:master

@@ -8,7 +8,6 @@ use App\Entity\{Entry, EntryMetadata};
 use App\Service\{Minio, Request, Thumbnail, WebsocketClient};
 use App\Provider\{ProviderInterface, YouTube};
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\DBAL\Exception as DBALException;
@@ -70,7 +69,7 @@ class EntryRepository extends ServiceEntityRepository
 
     public function listAll(): array
     {
-        $qb = $this->_em->createQueryBuilder('entry')
+        $qb = $this->_em->createQueryBuilder()
             ->from(Entry::class, 'e', 'e.uuid')
             ->select('partial e.{id, uuid, thumbnail}')
             ->leftJoin('e.waveData', 'w')

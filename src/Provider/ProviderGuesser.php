@@ -5,10 +5,20 @@ namespace App\Provider;
 use App\Entity\EntryMetadata;
 use App\Service\EntryDownloader;
 use Symfony\Component\Process\Process;
-use \Exception;
+use Exception;
 
 final class ProviderGuesser
 {
+    /**
+     * @var \App\Provider\SoundCloud
+     */
+    private $soundcloud;
+
+    /**
+     * @var \App\Provider\YouTube
+     */
+    private $youtube;
+
     public function __construct(SoundCloud $soundcloud, YouTube $youtube)
     {
         $this->soundcloud = $soundcloud;

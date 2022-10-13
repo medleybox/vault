@@ -5,7 +5,7 @@ namespace App\Provider;
 use App\Entity\EntryMetadata;
 use App\Service\EntryDownloader;
 use Symfony\Component\Process\Process;
-use \Exception;
+use Exception;
 
 final class SoundCloud extends BaseProvider implements ProviderInterface
 {
@@ -24,6 +24,11 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
      * @var string
      */
     public $user;
+
+    /**
+     * @var \App\Service\EntryDownloader
+     */
+    public $downloader;
 
     public function __construct(EntryDownloader $downloader)
     {
@@ -67,6 +72,7 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
     public function findRef($title): ?string
     {
         // todo
+        return null;
     }
 
     public function getTitle()

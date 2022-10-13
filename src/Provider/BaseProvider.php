@@ -3,7 +3,7 @@
 namespace App\Provider;
 
 use App\Entity\EntryMetadata;
-use \Exception;
+use Exception;
 
 class BaseProvider
 {

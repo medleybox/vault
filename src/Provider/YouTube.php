@@ -4,7 +4,7 @@ namespace App\Provider;
 
 use App\Entity\EntryMetadata;
 use Madcoda\Youtube\Youtube as YouTubeApi;
-use \Exception;
+use Exception;
 
 final class YouTube implements ProviderInterface
 {
@@ -253,7 +253,7 @@ final class YouTube implements ProviderInterface
             return null;
         }
 
-        if (false == (bool) $search) {
+        if (false == $search) {
             return null;
         }
 

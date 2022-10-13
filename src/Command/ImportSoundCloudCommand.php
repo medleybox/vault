@@ -24,6 +24,11 @@ class ImportSoundCloudCommand extends Command
      */
     private $import;
 
+    /**
+     * @var \App\Provider\SoundCloud
+     */
+    private $sc;
+
     public function __construct(Import $import, SoundCloud $sc)
     {
         $this->import = $import;

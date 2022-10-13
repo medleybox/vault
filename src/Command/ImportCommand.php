@@ -24,6 +24,11 @@ class ImportCommand extends Command
      */
     private $import;
 
+    /**
+     * @var \App\Provider\ProviderGuesser
+     */
+    private $guesser;
+
     public function __construct(Import $import, ProviderGuesser $guesser)
     {
         $this->import = $import;

@@ -97,7 +97,9 @@ class ImportData
     private function importRecord(array $record): bool
     {
         $imported = (new \DateTime())->createFromFormat(Kernel::APP_TIMEFORMAT, $record['imported']);
-        $provider = new YouTube($record['ref']);
+
+        //TODO - Replace with provider guesser
+        $provider = (new YouTube())->setUrl($record['ref']);
 
         // First check for import
         $entry = $this->entry->findViaProvider($provider);

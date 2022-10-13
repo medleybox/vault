@@ -165,7 +165,7 @@ final class Import
     {
         $metadata = $provider->fetchMetadata();
         if (null === $metadata || false === $metadata->getData()) {
-           return false;
+            return false;
         }
 
         if (null !== $this->uuid && null !== $provider->getThumbnailLink()) {
@@ -553,10 +553,10 @@ final class Import
             }
 
             $entry->setPath($this->upload);
-            if (array_key_exists('size', $this->stat)) {
+            if (array_key_exists('size', $this->stats)) {
                 $entry->setPath($this->stats['size']);
             }
-            if (array_key_exists('seconds', $this->stat)) {
+            if (array_key_exists('seconds', $this->stats)) {
                 $entry->setSeconds($this->stats['seconds']);
             }
 
