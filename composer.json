@@ -19,7 +19,6 @@
     },
     "require": {
         "php": "^8.1",
-        "ext-amqp": "*",
         "composer-plugin-api": "^2",
         "amphp/websocket-client": "^1.0",
         "cboden/ratchet": "^0.4.3",
@@ -51,7 +50,7 @@
         "symfony/yaml": "^5"
     },
     "require-dev": {
-        "phpstan/phpstan": "~1.4.9",
+        "phpstan/phpstan": "~1.8.8",
         "phpstan/phpstan-doctrine": "^1.2",
         "squizlabs/php_codesniffer": "^3.5",
         "symfony/debug-bundle": "^5",
