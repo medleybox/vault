@@ -4,66 +4,45 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Repository\EntryRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\IdGenerator\UuidV4Generator;
+use Symfony\Bridge\Doctrine\IdGenerator\UuidGenerator;
 use Symfony\Component\Uid\{Uuid, UuidV4};
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\EntryRepository")
- */
+#[ORM\Entity(repositoryClass: EntryRepository::class)]
 class Entry
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id()]
+    #[ORM\GeneratedValue()]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\CustomIdGenerator(class=UuidV4Generator::class)
-     */
+    #[ORM\Column(type: "uuid", unique: true)]
+    #[ORM\CustomIdGenerator(class: UuidGenerator::class)]
     private $uuid;
 
-    /**
-     * @ORM\Column(type="string", nullable=true)
-     */
+    #[ORM\Column(type: "string", nullable: true)]
     private $path;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $title;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $thumbnail;
 
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
+    #[ORM\Column(type: "integer", nullable: true)]
     private $size;
 
-    /**
-     * @ORM\Column(type="float", nullable=true)
-     */
+    #[ORM\Column(type: "float", nullable: true)]
     private $seconds;
 
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
+    #[ORM\Column(type: "datetime", nullable: true)]
     private $imported;
 
-    /**
-     * @ORM\OneToOne(targetEntity=EntryMetadata::class, inversedBy="entry", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: EntryMetadata::class, inversedBy: "entry", cascade: ["persist", "remove"])]
     private $metadata;
 
-    /**
-     * @ORM\OneToOne(targetEntity=WaveData::class, mappedBy="entry", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: WaveData::class, mappedBy: "entry", cascade: ["persist", "remove"])]
     private $waveData;
 
     public function getId(): ?int

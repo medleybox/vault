@@ -8,36 +8,24 @@ use App\Repository\EntryMetadataRepository;
 use App\Provider\ProviderInterface;
 use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass=EntryMetadataRepository::class)
- */
+#[ORM\Entity(repositoryClass: EntryMetadataRepository::class)]
 class EntryMetadata
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[ORM\Id()]
+    #[ORM\GeneratedValue()]
+    #[ORM\Column(type: "integer")]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true)
-     */
+    #[ORM\Column(type: "string", length: 255, unique: true)]
     private $ref;
 
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
+    #[ORM\Column(type: "string", length: 255)]
     private $provider;
 
-    /**
-     * @ORM\Column(type="json_document")
-     */
+    #[ORM\Column(type: "json_document")]
     private $data;
 
-    /**
-     * @ORM\OneToOne(targetEntity=Entry::class, mappedBy="metadata", cascade={"persist", "remove"})
-     */
+    #[ORM\OneToOne(targetEntity: Entry::class, mappedBy: "metadata", cascade: ["persist", "remove"])]
     private $entry;
 
     public function getId(): ?int
