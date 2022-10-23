@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Provider;
 
 use App\Entity\EntryMetadata;
@@ -30,7 +32,7 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
      */
     public $downloader;
 
-    public function __construct(EntryDownloader $downloader)
+    public function __construct(EntryDownloader $downloader = null)
     {
         $this->downloader = $downloader;
     }
@@ -50,7 +52,7 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
         return $this;
     }
 
-    private function getUser(): string
+    private function getUser(): ?string
     {
         return $this->user;
     }
@@ -61,6 +63,7 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
      */
     public function getDownloadLink(): string
     {
+        $this->setIdFromUrl();
         return self::BASE_URI . "/{$this->getUser()}/{$this->getId()}";
     }
 
@@ -132,11 +135,31 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
 
     private function getIdFromUrl(): array
     {
+        if (str_contains($this->url, '/sets/')) {
+            throw new Exception("Searching sets currently not supported", 1);
+        }
+
         preg_match(self::REGEX, $this->url, $match);
         if (array_key_exists('user', $match) && array_key_exists('track', $match)) {
+            $set = explode('/', $match['user']);
+            if (count($set) < 2) {
+                return [
+                    'user' => $match['user'],
+                    'track' => $match['track'],
+                ];
+            }
+
+            $user = $set[0];
+            $track = $set[1];
+            $splitTrack = explode('?in=', $track);
+
+            if (array_key_exists(0, $splitTrack)) {
+                $track = $splitTrack[0];
+            }
+
             return [
-                'user' => $match['user'],
-                'track' => $match['track'],
+                'user' => $user,
+                'track' => $track,
             ];
         }
 

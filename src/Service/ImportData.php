@@ -117,7 +117,7 @@ class ImportData
         $this->em->flush();
 
         try {
-            $this->import->setUp($provider, (string) $uuid);
+            $this->import->setUp($provider, $uuid);
         } catch (\Exception $e) {
             dump($e->getMessage());
 

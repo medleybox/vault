@@ -44,6 +44,8 @@ services:
     networks:
       - medley
     restart: always
+    volumes:
+      - tmp-data:/var/www/var/tmp
     depends_on:
       - vault
 

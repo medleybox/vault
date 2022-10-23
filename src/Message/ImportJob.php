@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Message;
 
 use App\Provider\ProviderInterface;
+use Symfony\Component\Uid\UuidV4;
 
 class ImportJob
 {
@@ -16,11 +17,11 @@ class ImportJob
 
     /**
      * UUID for this import
-     * @var string
+     * @var UuidV4
      */
     private $uuid;
 
-    public function __construct(ProviderInterface $provider, string $uuid)
+    public function __construct(ProviderInterface $provider, UuidV4 $uuid)
     {
         $this->provider = $provider;
         $this->uuid = $uuid;
@@ -31,7 +32,7 @@ class ImportJob
         return $this->provider;
     }
 
-    public function getUuid(): string
+    public function getUuid(): UuidV4
     {
         return $this->uuid;
     }

@@ -4,7 +4,7 @@ COPY composer* /app/
 COPY config/ /app/config
 COPY src/ /app/src
 
-RUN composer install -vvv --no-dev -o -a --no-scripts --ignore-platform-reqs
+RUN composer install --no-ansi --no-progress --no-interaction --no-dev -o -a --no-scripts --ignore-platform-reqs
 
 FROM ghcr.io/medleybox/php-fpm:master as vault
 COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform

@@ -14,7 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\Uuid;
+use Symfony\Component\Uid\{Uuid, Uuidv4};
 
 class EntryController extends AbstractController
 {
@@ -136,13 +136,32 @@ class EntryController extends AbstractController
     #[Route('/entry/import', name: 'entry_import', methods: ['POST'])]
     public function import(Request $request, ProviderGuesser $guesser): JsonResponse
     {
+        $url = $request->request->get('url');
         $uuid = $request->request->get('uuid');
+        $provider = null;
         if (null === $uuid) {
-            return $this->json(['error' => true, 'message' => 'No uuid provided']);
+            $provider = $guesser->providerFromUrl($url);
+            if (null === $provider) {
+                return $this->json(['error' => true, 'message' => 'Unable to find provider with no uuid']);
+            }
+
+            $uuid = Uuid::v4();
         }
 
-        $url = $request->request->get('url');
-        $provider = $guesser->providerFromUrl($url);
+        if ('string' === gettype($uuid)) {
+            $uuid = Uuid::fromString($uuid);
+        }
+
+        $entry = $this->entryRepo->findViaUuid($uuid);
+        if (null === $entry && null === $provider) {
+            return $this->json(['error' => true, 'message' => 'Unable to find entry']);
+        }
+
+        if (null === $provider) {
+            $provider = $entry->getMetadata()->getProviderInstance();
+            $provider->setUrl($url);
+        }
+
         if (null === $provider) {
             return $this->json(['error' => true, 'message' => 'Unable to find provider']);
         }
@@ -152,6 +171,7 @@ class EntryController extends AbstractController
             return $this->json(['error' => true, 'message' => 'Entry already imported']);
         }
 
+        $uuid = $entry->getUuid();
         $setup = $this->import->setUp($provider, $uuid);
         if (false === $setup) {
             return $this->json(['error' => true, 'message' => 'Unable to setup import']);

@@ -32,6 +32,12 @@ class Thumbnail
     private $repo;
 
     /**
+     * Filename of generated thumnail in mino
+     * @var string
+     */
+    private $filename;
+
+    /**
      * Path of generated thumnail in mino
      * @var string
      */
@@ -47,6 +53,21 @@ class Thumbnail
     public function getPath(): string
     {
         return $this->path;
+    }
+
+    protected function setPath(Uuid $uuid): string
+    {
+        $this->filename = "{$uuid}.jpg";
+        $this->path = Import::THUMBNAILS_MIMIO . "/{$this->filename}";
+
+        return $this->path;
+    }
+
+    public function hasThumbnail(Uuid $uuid): bool
+    {
+        $this->setPath($uuid);
+
+        return $this->minio->has($this->path);
     }
 
     public function render(Entry $entry): Response
@@ -93,27 +114,34 @@ class Thumbnail
 
     public function generate(Uuid $uuid, string $link): ?string
     {
-        $filename = "{$uuid}.jpg";
-        $this->path = Import::THUMBNAILS_MIMIO . "/{$filename}";
-
-        $this->log->debug("[Thumbnail] Downloading from {$link}");
+        $this->setPath($uuid);
+        $this->log->debug(
+            "[Thumbnail] Downloading from {$link}" .
+            "to {$this->getPath()}"
+        );
         $file = (new HttpClient())->create()->request('GET', $link);
 
         try {
             $fs = new Filesystem();
             $fs->mkdir(Import::THUMBNAILS_MIMIO, 0700);
-            $fs->dumpFile(Import::TMP_DIR . $filename, $file->getContent());
+            $fs->dumpFile(Import::TMP_DIR . $this->filename, $file->getContent());
         } catch (IOExceptionInterface $e) {
-            $this->log->error('[Thumbnail] Unable to save thumbnail to tmp storage', [$file, $filename, $this->path]);
+            $this->log->error('[Thumbnail] Unable to save thumbnail to tmp storage', [$file, $this->filename, $this->path]);
             return null;
         }
 
-        $this->log->debug("[Thumbnail] Uploading thumbnail to minio {$this->path}", [$filename, $this->path]);
+        $this->log->debug("[Thumbnail] Uploading thumbnail to minio", [$this->filename, $this->path]);
         try {
-            $this->minio->upload($filename, $this->path);
+            $this->minio->upload($this->filename, $this->path);
         } catch (\Exception $e) {
-            $this->log->error('[Thumbnail] Unable to save thumbnail to object storage', [$file, $filename, $this->path]);
+            $this->log->error('[Thumbnail] Unable to save thumbnail to object storage', [$file, $this->filename, $this->path]);
             return null;
+        }
+
+        $entry = $this->repo->findOneBy(['uuid' => $uuid->toBinary()]);
+        if (null !== $entry) {
+            $entry->setThumbnail($this->path);
+            $this->repo->save($entry);
         }
 
         return $this->path;

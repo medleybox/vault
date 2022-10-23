@@ -126,7 +126,7 @@ class Minio
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
         if (true === $this->has($dest)) {
-            $this->log->debug("[Minio] Replacing file in target minio {$dest}");
+            $this->log->debug("[Minio][upload] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
@@ -142,7 +142,7 @@ class Minio
     {
         // If uploading a file with the same name, delete it first as it can't be overwritten
         if (true === $this->has($dest)) {
-            $this->log->debug("[Minio] Replacing file in target minio {$dest}");
+            $this->log->debug("[Minio][uploadString] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
@@ -208,7 +208,7 @@ class Minio
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
         if (true === $minio->has($path)) {
-            $this->log->debug("[Minio] Replacing file in target minio {$path}");
+            $this->log->debug("[Minio][mirror] Replacing file in target minio {$path}");
             $minio->delete($path);
         }
 

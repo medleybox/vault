@@ -67,6 +67,16 @@ class EntryRepository extends ServiceEntityRepository
         return null;
     }
 
+    public function findViaUuid(Uuid $uuid): ?Entry
+    {
+        $entry = $this->findOneBy(['uuid' => $uuid]);
+        if (null !== $entry) {
+            return $entry;
+        }
+
+        return null;
+    }
+
     public function listAll(): array
     {
         $qb = $this->_em->createQueryBuilder()
@@ -188,9 +198,12 @@ class EntryRepository extends ServiceEntityRepository
      */
     public function createPartialImport(EntryMetadata $metadata, ProviderInterface $provider, Uuid $uuid, string $thumbnail, ?\DateTimeInterface $imported = null): Entry
     {
-        $entry = (new Entry())
-            ->setUuid($uuid)
-            ->setTitle($provider->getTitle())
+        $entry = $this->findOneBy(['uuid' => $uuid->toBinary()]);
+        if (null === $entry) {
+            $entry = (new Entry())->setUuid($uuid);
+        }
+
+        $entry->setTitle($provider->getTitle())
             ->setThumbnail($thumbnail)
             ->setMetadata($metadata)
         ;
@@ -205,14 +218,18 @@ class EntryRepository extends ServiceEntityRepository
         }
 
         try {
-            $this->_em->persist($entry);
+            if (null === $entry->getId()) {
+                $this->_em->persist($entry);
+            }
             $this->_em->flush();
         } catch (DBALException $e) {
             if (!$this->_em->isOpen()) {
                 $this->registry->resetManager();
             }
             try {
-                $this->_em->persist($entry);
+                if (null === $entry->getId()) {
+                    $this->_em->persist($entry);
+                }
                 $this->_em->flush();
             } catch (DBALException $e) {
                 if (!$this->_em->isOpen()) {
@@ -250,7 +267,7 @@ class EntryRepository extends ServiceEntityRepository
             }
         }
 
-        $entry = $this->findOneBy(['uuid' => $data['uuid']]);
+        $entry = $metadata->getEntry();
         if (null === $entry) {
             $entry = (new Entry())
                 ->setTitle($data['title'])
@@ -288,12 +305,17 @@ class EntryRepository extends ServiceEntityRepository
         return $entry;
     }
 
-    public function save(Entry $entry): void
+    public function save(Entry $entry, bool $refresh = true): void
     {
+        if (null === $entry->getId()) {
+            $this->_em->persist($entry);
+        }
         $this->_em->flush();
 
         // Do webhook to webapp here to update that database
-        $this->wsClient->refreshMediaList();
+        if (true === $refresh) {
+            $this->wsClient->refreshMediaList();
+        }
     }
 
     public function delete(Entry $entry): bool

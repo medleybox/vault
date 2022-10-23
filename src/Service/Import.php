@@ -168,7 +168,15 @@ final class Import
             return false;
         }
 
-        if (null !== $this->uuid && null !== $provider->getThumbnailLink()) {
+        $thumbnail = null;
+        $entry = $metadata->getEntry();
+        if (null !== $entry) {
+            if (null !== $entry) {
+                $thumbnail = $entry->getThumbnail();
+            }
+        }
+
+        if (null !== $this->uuid && null === $thumbnail && null !== $provider->getThumbnailLink()) {
             $this->thumbnail->generate($this->uuid, $provider->getThumbnailLink());
         }
 
@@ -178,7 +186,7 @@ final class Import
     /**
      * Setup service for first import
      */
-    public function setUp(ProviderInterface $provider, ?string $uuid = null): bool
+    public function setUp(ProviderInterface $provider, ?UuidV4 $uuid = null): bool
     {
         // First check for import
         $entry = $this->entryRepo->findViaProvider($provider);
@@ -193,7 +201,7 @@ final class Import
 
         $this->uuid = Uuid::v4();
         if (null !== $uuid) {
-            $this->uuid = Uuid::fromString($uuid);
+            $this->uuid = $uuid;
         }
 
         $search = $this->seachForDownload($provider);
@@ -416,14 +424,6 @@ final class Import
         return $entry;
     }
 
-    public function generateThumbnail()
-    {
-        $link = $this->provider->getThumbnailLink();
-        $this->thumbnail->generate($this->uuid, $link);
-
-        return $this;
-    }
-
     private function calculateFileStats()
     {
         $this->stats = $this->minio->getFileStats($this->file);
@@ -471,6 +471,7 @@ final class Import
         // Make sure that the metadata has been fetched
         $metadata = $this->provider->fetchMetadata();
         if (false === $metadata) {
+            $this->log->debug("Make sure that the metadata has been fetched is false");
             return false;
         }
 
@@ -571,6 +572,10 @@ final class Import
         $metadata = $this->entryMetaRepo->findOneBy(['ref' => $this->provider->getId()]);
         if (null === $metadata) {
             $metadata = $this->provider->fetchMetadata();
+        }
+
+        if (false === $this->thumbnail->hasThumbnail($this->uuid)) {
+            $this->thumbnail->generate($this->uuid, $provider->getThumbnailLink());
         }
 
         $data = new ArrayCollection([
