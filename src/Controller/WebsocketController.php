@@ -28,4 +28,12 @@ class WebsocketController extends AbstractController
 
         return new Response();
     }
+
+    #[Route('/websocket/refreshLatestList', name: 'ws_refreshLatestList', methods: ['GET', 'HEAD'])]
+    public function refreshLatestList(): Response
+    {
+        $this->wsClient->refreshLatestList();
+
+        return new Response();
+    }
 }

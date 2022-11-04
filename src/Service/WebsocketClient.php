@@ -22,6 +22,16 @@ class WebsocketClient
         $this->send('refreshMediaList');
     }
 
+    public function refreshLatestList(): void
+    {
+        $this->send('refreshLatestList');
+    }
+
+    public function refreshUserList(): void
+    {
+        $this->send('refreshUserList');
+    }
+
     public function importOutput($data): void
     {
         $lines = [];

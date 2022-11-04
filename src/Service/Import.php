@@ -610,6 +610,9 @@ final class Import
         $this->log->debug("Webhook !!!", $update);
         $this->request->post("/media-file/update", $update);
 
+        $this->wsClient->refreshLatestList();
+        $this->wsClient->refreshUserList();
+
         return true;
     }
 }
