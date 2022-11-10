@@ -53,10 +53,12 @@ class EntryCheckStreamCommand extends Command
             // Check if the stream returns
             $stream = $this->repo->hasStream($entry);
             if (true === $stream) {
-                $io->success('Stream is valid');
+                $io->write('✅');
                 continue;
             }
 
+            $io->write('❌');
+            $io->newLine();
             $io->text("Refreching media from source");
             $this->import->refreshSource($entry, true);
 

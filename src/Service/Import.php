@@ -555,7 +555,7 @@ final class Import
 
             $entry->setPath($this->upload);
             if (array_key_exists('size', $this->stats)) {
-                $entry->setPath($this->stats['size']);
+                $entry->setSize($this->stats['size']);
             }
             if (array_key_exists('seconds', $this->stats)) {
                 $entry->setSeconds($this->stats['seconds']);

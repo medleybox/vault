@@ -63,6 +63,11 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
      */
     public function getDownloadLink(): string
     {
+        $url = $this->fetchMetaData()->get('webpage_url');
+        if (null !== $url) {
+            return $url;
+        }
+
         $this->setIdFromUrl();
         return self::BASE_URI . "/{$this->getUser()}/{$this->getId()}";
     }
