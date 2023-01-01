@@ -6,9 +6,9 @@ x-variables: &x-variables
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
   # MINIO_ENDPOINT: ''
-  MINIO_ACCESS_KEY: medley
+  MINIO_ROOT_USER: medley
   MINIO_BUCKET: medley
-  MINIO_SECRET_KEY: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
+  MINIO_ROOT_PASSWORD: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
   # Test key to be removed in production
   API_GOOGLE: AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc
 
@@ -27,11 +27,9 @@ services:
      - medley
     volumes:
       - tmp-data:/var/www/var/tmp
-      - ./bin:/var/www/bin
-      - ./config:/var/www/config
-      - ./src:/var/www/src
-      - ./vendor:/var/www/vendor
-      - ./phpstan.neon:/var/www/phpstan.neon
+      - vault-vendor:/var/www/vendor
+      - ~/git/medleybox/vault/src:/var/www/src
+      - ~/git/medleybox/vault/phpstan.neon:/var/www/phpstan.neon
 
   messenger:
     image: ghcr.io/medleybox/messenger:master
@@ -68,13 +66,11 @@ services:
       - medley
     volumes:
      - minio-data:/data
-    ports:
-     - "9000:9000"
-     - "9001:9001"
     entrypoint: [""]
     command: ["sh", "-c", "mkdir -p /data/medley && /usr/bin/docker-entrypoint.sh minio server /data --console-address ':9001'"]
 
 volumes:
+  vault-vendor:
   minio-data:
   postgres-data:
   tmp-data:

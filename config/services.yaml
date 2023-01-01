@@ -29,9 +29,9 @@ services:
     App\Service\Minio:
         arguments:
             $endpoint: "%env(MINIO_ENDPOINT)%"
-            $key: "%env(MINIO_ACCESS_KEY)%"
+            $key: "%env(MINIO_ROOT_USER)%"
             $bucket: "%env(MINIO_BUCKET)%"
-            $secret: "%env(MINIO_SECRET_KEY)%"
+            $secret: "%env(MINIO_ROOT_PASSWORD)%"
 
     # Add DateTime Normalizer to Dunglas' Doctrine JSON ODM Bundle
     dunglas_doctrine_json_odm.serializer:
