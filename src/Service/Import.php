@@ -5,7 +5,7 @@ namespace App\Service;
 use App\Entity\{Entry, WaveData};
 use App\Provider\ProviderInterface;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
-use App\Message\ImportJob;
+use App\Message\{ImportJob, RefreshJob};
 use Doctrine\Common\Collections\ArrayCollection;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
@@ -186,7 +186,7 @@ final class Import
     /**
      * Setup service for first import
      */
-    public function setUp(ProviderInterface $provider, ?UuidV4 $uuid = null): bool
+    public function setUp(ProviderInterface $provider, ?Uuid $uuid = null): bool
     {
         // First check for import
         $entry = $this->entryRepo->findViaProvider($provider);
@@ -217,7 +217,7 @@ final class Import
     public function queue(): bool
     {
         try {
-            $this->log("Starting queue for job {$this->uuid}", 'queue');
+            $this->log("Starting queue for import job {$this->uuid}", 'queue');
             // Create a new import job and dispatch it to run in the background.
             $this->bus->dispatch(new ImportJob($this->provider, $this->uuid));
         } catch (\Exception $e) {
@@ -384,7 +384,7 @@ final class Import
         $file = $this->minioToTmp($entry);
         if (null === $file) {
             $this->log->error("Unable to download mediafile - {$entry->getUuid()}");
-            if (false === $this->refreshSource($entry)) {
+            if (false === $this->refreshSource($entry->getUuid())) {
                 return null;
             }
 
@@ -530,8 +530,26 @@ final class Import
         return $path;
     }
 
-    public function refreshSource(Entry $entry, $upload = false): bool
+    public function queueRefreshSource(UuidV4 $uuid): bool
     {
+        try {
+            $this->log("Starting queue for refresh job {$uuid}", 'queue');
+            // Create a new import job and dispatch it to run in the background.
+            $this->bus->dispatch(new RefreshJob($uuid));
+        } catch (\Exception $e) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function refreshSource(UuidV4 $uuid, $upload = false): bool
+    {
+        $entry = $this->entryRepo->findViaUuid($uuid);
+        if (null === $entry) {
+            return false;
+        }
+
         $this->log->info('Attempting to refresh from source');
         $this->uuid = $entry->getUuid();
         $this->provider = $entry->getMetadata()->getProviderInstance();
@@ -564,6 +582,13 @@ final class Import
             $this->entryRepo->save($entry);
         }
 
+        $webhook = $this->webhook($entry);
+        if (false === $webhook) {
+            return false;
+        }
+
+        $this->wsClient->completeRefreshSource($this->uuid);
+
         return true;
     }
 
@@ -575,7 +600,7 @@ final class Import
         }
 
         if (false === $this->thumbnail->hasThumbnail($this->uuid)) {
-            $this->thumbnail->generate($this->uuid, $provider->getThumbnailLink());
+            $this->thumbnail->generate($this->uuid, $this->provider->getThumbnailLink());
         }
 
         $data = new ArrayCollection([
@@ -588,15 +613,21 @@ final class Import
         ]);
 
         $entry = $this->entryRepo->createFromCompletedImport($data, $metadata, $this->wave);
-        $this->webhook($entry);
+        $webhook = $this->webhook($entry);
+        if (false === $webhook) {
+            return false;
+        }
+
+        $this->wsClient->refreshLatestList();
+        $this->wsClient->refreshUserList();
 
         return true;
     }
 
     /**
-     * Function to notify webapp of import
+     * Function to notify webapp of update to MediaFile entity
      */
-    public function webhook(Entry $entry, $status = 'complete')
+    public function webhook(Entry $entry): bool
     {
         $update = [
             'uuid' => $entry->getUuid(),
@@ -609,9 +640,6 @@ final class Import
         ];
         $this->log->debug("Webhook !!!", $update);
         $this->request->post("/media-file/update", $update);
-
-        $this->wsClient->refreshLatestList();
-        $this->wsClient->refreshUserList();
 
         return true;
     }

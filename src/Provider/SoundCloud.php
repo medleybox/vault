@@ -23,9 +23,9 @@ final class SoundCloud extends BaseProvider implements ProviderInterface
 
     /**
      * The user that uploaded the media to soundcloud
-     * @var string
+     * @var string|null
      */
-    public $user;
+    public $user = null;
 
     /**
      * @var \App\Service\EntryDownloader

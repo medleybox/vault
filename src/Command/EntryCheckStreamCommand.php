@@ -60,7 +60,7 @@ class EntryCheckStreamCommand extends Command
             $io->write('❌');
             $io->newLine();
             $io->text("Refreching media from source");
-            $this->import->refreshSource($entry, true);
+            $this->import->refreshSource($entry->getUuid(), true);
 
             $io->text("Check again if the stream returns valid");
             $stream = $this->repo->hasStream($entry);

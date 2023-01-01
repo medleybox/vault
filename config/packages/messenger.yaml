@@ -5,3 +5,4 @@ framework:
             async: '%env(MESSENGER_TRANSPORT_DSN)%'
         routing:
             'App\Message\ImportJob':  async
+            'App\Message\RefreshJob':  async

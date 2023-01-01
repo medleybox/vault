@@ -17,6 +17,11 @@ class WebsocketClient
      */
     private string $string;
 
+    public function completeRefreshSource($uuid): void
+    {
+        $this->sendData('completeRefreshSource', ['uuid' => $uuid]);
+    }
+
     public function refreshMediaList(): void
     {
         $this->send('refreshMediaList');
@@ -43,12 +48,7 @@ class WebsocketClient
             $lines[] = str_replace(["\n"], "", $line);
         }
 
-        $wsData = [
-            'type' => 'importOutput',
-            'data' => $data,
-        ];
-
-        $this->send(json_encode($wsData));
+        $this->sendData('importOutput', ['data' => $data, 'lines' => $lines]);
     }
 
     public function importLogOutput($data, $stage = 'no-set'): void
@@ -59,12 +59,22 @@ class WebsocketClient
             'stage' => $stage
         ];
 
-        $this->send(json_encode($wsData));
+        $this->sendData('importLogOutput', $wsData);
     }
 
     public function ping(): void
     {
         $this->send('ping');
+    }
+
+    private function sendData(string $name, array $data): void
+    {
+        $wsData = [
+            'type' => $name,
+            'data' => $data,
+        ];
+
+        $this->send(json_encode($wsData));
     }
 
     private function send(string $string): bool

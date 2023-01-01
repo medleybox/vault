@@ -14,7 +14,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Uid\{Uuid, Uuidv4};
+use Symfony\Component\Uid\Uuid;
 
 class EntryController extends AbstractController
 {
@@ -106,6 +106,15 @@ class EntryController extends AbstractController
         return $this->json(['refresh' => true]);
     }
 
+    #[Route('/entry/refresh-source/{uuid}', name: 'entry_refreshSource', methods: ['GET'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function refreshSource(Entry $entry): JsonResponse
+    {
+        $refresh = $this->import->queueRefreshSource($entry->getUuid());
+
+        return $this->json(['queue' => $refresh]);
+    }
+
     #[Route('/entry/metadata/{uuid}', name: 'entry_metadata', methods: ['GET'])]
     #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
     public function metadata(Entry $entry): JsonResponse
@@ -159,11 +168,10 @@ class EntryController extends AbstractController
 
         if (null === $provider) {
             $provider = $entry->getMetadata()->getProviderInstance();
+            if (null === $provider) {
+                return $this->json(['error' => true, 'message' => 'Unable to find provider']);
+            }
             $provider->setUrl($url);
-        }
-
-        if (null === $provider) {
-            return $this->json(['error' => true, 'message' => 'Unable to find provider']);
         }
 
         $check = $this->entryRepo->checkForImported($provider);
