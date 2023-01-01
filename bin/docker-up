@@ -1,5 +1,5 @@
 #!/bin/bash
 
-docker-compose up -d --force-recreate
-docker-compose exec vault bin/console doctrine:schema:update --force
-docker-compose exec vault bin/console app:check-webapp-connection
+docker-compose -p 'medleybox' up -d --force-recreate
+
+docker-compose -p 'medleybox' up -d --force-recreate messenger
