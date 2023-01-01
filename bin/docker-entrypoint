@@ -2,6 +2,7 @@
 
 whoami
 
-nginx &&
+bin/console app:check-webapp-connection
 
+echo "do entrypoint here?"
 docker-php-entrypoint php-fpm
