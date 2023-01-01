@@ -1,6 +1,9 @@
 FROM ghcr.io/medleybox/vault:master as vault
 FROM ghcr.io/medleybox/php-cli:master as messenger
 
+ENV POSTGRES_DB=medleybox_vault
+ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4'
+
 WORKDIR /app
 
 ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4' \
