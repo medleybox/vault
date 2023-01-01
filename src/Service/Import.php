@@ -300,13 +300,11 @@ final class Import
                 }
                 $lastProgress = $progress;
             }
-            $this->log('completed', 'attemptDownload');
 
             return $process->isSuccessful();
         }
 
         $process->run();
-        $this->log('completed', 'attemptDownload');
 
         return $process->isSuccessful();
     }
