@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Kernel;
 use App\Entity\Entry;
 use App\Repository\EntryRepository;
 use App\Service\Minio;
@@ -124,7 +125,7 @@ class Thumbnail
         try {
             $fs = new Filesystem();
             $fs->mkdir(Import::THUMBNAILS_MIMIO, 0700);
-            $fs->dumpFile(Import::TMP_DIR . $this->filename, $file->getContent());
+            $fs->dumpFile(Kernel::APP_TMPDIR . $this->filename, $file->getContent());
         } catch (IOExceptionInterface $e) {
             $this->log->error('[Thumbnail] Unable to save thumbnail to tmp storage', [$file, $this->filename, $this->path]);
             return null;

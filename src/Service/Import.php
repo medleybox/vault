@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\Kernel;
 use App\Entity\{Entry, WaveData};
 use App\Provider\ProviderInterface;
 use App\Repository\{EntryRepository, EntryMetadataRepository};
@@ -34,12 +35,6 @@ final class Import
      * @var string
      */
     const DOWNLOADER_EXTERNAL_ARGS = 'aria2c:-j 3 -x 3 -s 3';
-
-    /**
-     * Full path to directory where imports are downloaded
-     * @var string
-     */
-    const TMP_DIR = '/var/www/var/tmp/';
 
     /**
      * Mimio folder for storing thumbnails
@@ -274,7 +269,7 @@ final class Import
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug(self::DOWNLOADER . ' args', $args);
 
-        $process = new Process($args, self::TMP_DIR, null, null, self::DOWNLOAD_TIMEOUT);
+        $process = new Process($args, Kernel::APP_TMPDIR, null, null, self::DOWNLOAD_TIMEOUT);
         if (null !== $this->log) {
             $process->start();
             $progress = 0;
@@ -316,7 +311,7 @@ final class Import
         $this->log("Looking for files with name {$name}", 'checkForDownload');
         $finder = new Finder();
         $finder->files()
-            ->in(self::TMP_DIR)
+            ->in(Kernel::APP_TMPDIR)
             ->name($search)
         ;
 
@@ -361,11 +356,11 @@ final class Import
 
     private function convert($entry, $file)
     {
-        $args = ['/usr/bin/ffmpeg', '-i', $file->getPathname(), '-c:a', 'libvorbis', '-b:a', '64k', self::TMP_DIR . "{$entry->getUuid()}.ogg"];
+        $args = ['/usr/bin/ffmpeg', '-i', $file->getPathname(), '-c:a', 'libvorbis', '-b:a', '64k', Kernel::APP_TMPDIR . "{$entry->getUuid()}.ogg"];
         $this->log->debug("ffmpeg args to convert '{$entry->getTitle()}' to .ogg", $args);
 
         try {
-            $process = new Process($args, self::TMP_DIR);
+            $process = new Process($args, Kernel::APP_TMPDIR);
             $process->setTimeout(300);
             $process->run();
         } catch (\Exception $e) {
@@ -444,7 +439,7 @@ final class Import
     {
         $finder = (new Finder())
             ->files()
-            ->in(self::TMP_DIR)
+            ->in(Kernel::APP_TMPDIR)
         ;
 
         $remove = [];
@@ -514,7 +509,7 @@ final class Import
             return null;
         }
 
-        $path = self::TMP_DIR . basename($download);
+        $path = Kernel::APP_TMPDIR . basename($download);
         $this->log->debug("download: {$download} -> {$path}");
 
         try {

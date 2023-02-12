@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Kernel;
 use App\Entity\WaveData;
 use App\Repository\WaveDataRepository;
 use Symfony\Component\Finder\{Finder, SplFileInfo};
@@ -48,7 +49,7 @@ final class Audiowaveform
 
     public function getVersion(): string
     {
-        $process = new Process([self::AUDIOWAVEFORM, '--version'], Import::TMP_DIR);
+        $process = new Process([self::AUDIOWAVEFORM, '--version'], Kernel::APP_TMPDIR);
         $process->run();
         preg_match('/([0-9]{1,}\.)+[0-9]{1,}/', $process->getOutput(), $output);
 
@@ -57,7 +58,7 @@ final class Audiowaveform
 
     public function generate(string $uuid, SplFileInfo $input): ?WaveData
     {
-        $output = Import::TMP_DIR . "{$uuid}-audiowaveform.json";
+        $output = Kernel::APP_TMPDIR . "{$uuid}-audiowaveform.json";
         $args = [
             self::AUDIOWAVEFORM,
             '-i', $input->getRealPath(),
@@ -65,7 +66,7 @@ final class Audiowaveform
             '--pixels-per-second', self::AF_PIXELS_PER_SECOND,
             '-b', self::AF_BITS,
         ];
-        $process = new Process($args, Import::TMP_DIR);
+        $process = new Process($args, Kernel::APP_TMPDIR);
 
         $process->setTimeout(self::AF_TIMEOUT);
         $process->run();

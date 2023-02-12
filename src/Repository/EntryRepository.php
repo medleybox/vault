@@ -158,6 +158,14 @@ class EntryRepository extends ServiceEntityRepository
         return $wavedata;
     }
 
+    public function updateDownload(Entry $entry, string $filename): bool
+    {
+        $entry->setDownload($filename);
+        $this->_em->flush();
+
+        return true;
+    }
+
     public function fetchMetadata(Entry $entry): ?EntryMetadata
     {
         // For the time being, it will only be youtube that will have metadata

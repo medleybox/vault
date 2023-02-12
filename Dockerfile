@@ -8,6 +8,7 @@ RUN composer install --no-ansi --no-progress --no-interaction --no-dev -o -a --n
 
 FROM ghcr.io/medleybox/php-fpm:master as vault
 COPY www-memory.conf /usr/local/etc/php-fpm.d/www-memory.conf
+COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
 COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform
 
 ENV POSTGRES_DB=medleybox_vault
@@ -19,10 +20,10 @@ RUN apk add --no-cache ca-certificates curl ffmpeg python3 gnupg \
   && apk add --no-cache --virtual .pip-deps py-pip gcc libc-dev zlib-static libpng-static boost-static python3-dev \
   && pip install --no-cache-dir --no-color -U yt-dlp \
   && pip cache purge \
-  && apk del .pip-deps
+  && apk del .pip-deps  \
+  && rm -rf /var/cache/apk/* \
+  && rm -rf /usr/src
 
-COPY nginx.conf /etc/nginx/nginx.conf
-COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
 COPY config /var/www/config
 COPY public/index.php /var/www/public/index.php
 COPY bin/console /var/www/bin/console
@@ -36,4 +37,6 @@ COPY src/ /var/www/src
 RUN chmod +x /var/www/bin/* \
     && mkdir -p /var/www/var/tmp \
     && chmod 777 /var/www/var/tmp \
-    && chown -Rf 82:82 /var/www
+    && chown -Rf 82:82 /var/www /tmp
+
+USER 82

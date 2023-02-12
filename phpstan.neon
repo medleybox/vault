@@ -12,3 +12,6 @@ parameters:
         -
           message: '#While loop condition is always true.#'
           path: src/Command/WebsocketPingCommand.php
+        -
+          message: '#Call to an undefined method Symfony\\Component\\Console\\Helper\\HelperInterface::ask\(\).#'
+          path: src/Command/ImportDataCommand.php

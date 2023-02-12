@@ -12,7 +12,7 @@ use GuzzleHttp\Psr7\Stream;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response, ResponseHeaderBag};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse, JsonResponse, Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
@@ -85,9 +85,17 @@ class EntryController extends AbstractController
     #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
     public function download(Entry $entry): Response
     {
-        $contents = $this->minio->read($entry->getPath());
+        $path = $this->minio->read($entry->getPath());
+        $filename = 'download.mp3';
+        if (null !== $entry->getDownload()) {
+            $filename = "{$entry->getDownload()}.mp3";
+        }
 
-        return new Response($contents);
+        $response = new BinaryFileResponse($path);
+        $response->headers->set('Content-Length', (string) $entry->getSize());
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $filename);
+
+        return $response;
     }
 
     #[Route('/entry/thumbnail/{uuid}.{ext}', name: 'entry_thumbnail', methods: ['GET'])]
@@ -140,6 +148,16 @@ class EntryController extends AbstractController
         $this->entryRepo->delete($entry);
 
         return $this->json(['delete' => true]);
+    }
+
+    #[Route('/entry/update-download/{uuid}', name: 'entry_updateDownload', methods: ['POST'])]
+    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
+    public function updateDownload(Request $request, Entry $entry): JsonResponse
+    {
+        $filename = $request->request->get('filename');
+        $this->entryRepo->updateDownload($entry, $filename);
+
+        return $this->json(['update' => true]);
     }
 
     #[Route('/entry/import', name: 'entry_import', methods: ['POST'])]

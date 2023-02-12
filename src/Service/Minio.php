@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Kernel;
 use Aws\S3\S3Client;
 use Aws\S3\Exception\S3Exception;
 use Symfony\Component\Finder\SplFileInfo;
 use Psr\Log\LoggerInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
+use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Copied and adapted from https://github.com/medleybox/import/blob/master/src/Service/Minio.php
@@ -118,7 +121,7 @@ class Minio
 
     public function upload($file, $dest): bool
     {
-        $path = Import::TMP_DIR;
+        $path = Kernel::APP_TMPDIR;
         $file = trim(preg_replace('/\s+/', ' ', $file));
         $stream = fopen("{$path}{$file}", 'r+');
 
@@ -175,13 +178,23 @@ class Minio
     {
         try {
             $this->log->debug("[Minio] started read for {$path}");
-
-            return $this->filesystem->read($path);
+            $contents = $this->filesystem->read($path);
         } catch (\Exception $e) {
             $this->log->error("[Minio] Failed to read path {$path}");
         }
 
-        return null;
+        $filename = pathinfo($path)['basename'];
+        $tmpPath = Kernel::APP_TMPDIR . $filename;
+        $filesystem = new SymfonyFilesystem();
+        try {
+            $filesystem->dumpFile($tmpPath, $contents);
+        } catch (IOExceptionInterface $exception) {
+            $this->log->error("[Minio] An error occurred while dumping file at ".$exception->getPath());
+
+            return null;
+        }
+
+        return $tmpPath;
     }
 
     public function delete(string $path): bool

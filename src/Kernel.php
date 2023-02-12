@@ -15,6 +15,13 @@ class Kernel extends BaseKernel
 
     public const APP_TIMEFORMAT = 'H:i:s d-m-Y';
 
+    /**
+     * Full path to directory where imports are downloaded and stored
+     * for client downloads
+     * @var string
+     */
+    public const APP_TMPDIR = '/var/www/var/tmp/';
+
     public function registerBundles(): iterable
     {
         $contents = require $this->getProjectDir() . '/config/bundles.php';

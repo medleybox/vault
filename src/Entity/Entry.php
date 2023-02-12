@@ -45,6 +45,9 @@ class Entry
     #[ORM\OneToOne(targetEntity: WaveData::class, mappedBy: "entry", cascade: ["persist", "remove"])]
     private $waveData;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $download = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -164,6 +167,18 @@ class Entry
         }
 
         $this->waveData = $waveData;
+
+        return $this;
+    }
+
+    public function getDownload(): ?string
+    {
+        return $this->download;
+    }
+
+    public function setDownload(?string $download): self
+    {
+        $this->download = $download;
 
         return $this;
     }
