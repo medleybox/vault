@@ -41,6 +41,9 @@ services:
       APP_ENV: prod
     networks:
       - medley
+    dns:
+      - 1.1.1.1
+      - 8.8.8.8
     restart: always
     volumes:
       - tmp-data:/var/www/var/tmp
