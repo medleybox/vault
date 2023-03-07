@@ -16,7 +16,7 @@ ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_s
 
 WORKDIR /var/www
 
-RUN apk add --no-cache ca-certificates curl ffmpeg python3 gnupg \
+RUN apk add --no-cache ca-certificates aria2 ffmpeg python3 gnupg \
   && apk add --no-cache --virtual .pip-deps py-pip gcc libc-dev zlib-static libpng-static boost-static python3-dev \
   && pip install --no-cache-dir --no-color -U yt-dlp \
   && pip cache purge \

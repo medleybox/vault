@@ -264,7 +264,7 @@ final class Import
     {
         // '--downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL
         $url = $this->provider->getDownloadLink();
-        $args = [self::DOWNLOADER, '--newline', '--youtube-skip-dash-manifest', '-N 4', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
+        $args = [self::DOWNLOADER, '--no-part', '--restrict-filenames', '-N', '4', ' --downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL_ARGS, '--newline', '--youtube-skip-dash-manifest', '-N 4', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug(self::DOWNLOADER . ' args', $args);
@@ -296,12 +296,12 @@ final class Import
                 $lastProgress = $progress;
             }
 
-            return $process->isSuccessful();
+            return true;
         }
 
         $process->run();
 
-        return $process->isSuccessful();
+        return true;
     }
 
     public function checkForDownload(string $uuid, $search = ".*"): ?SplFileInfo
