@@ -13,7 +13,7 @@ final class YouTube implements ProviderInterface
     /**
      * @var string
      */
-    const REGEX = '/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/m';
+    const REGEX = '/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(live\/)|(watch\?))\??v?=?([^#&?]*).*/m';
 
     /**
      * URL of import
@@ -271,8 +271,14 @@ final class YouTube implements ProviderInterface
     {
         $match = null;
         preg_match(self::REGEX, $this->url, $match);
-        if ([] !== $match && 8 === count($match)) {
-            return $match[7];
+        if ([] !== $match) {
+            // If is share link using live url
+            if (9 === count($match)) {
+                return $match[8];
+            }
+            if (8 === count($match)) {
+                return $match[7];
+            }
         }
 
         $params = null;
