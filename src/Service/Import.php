@@ -487,7 +487,7 @@ final class Import
         try {
             $this->upload = "{$this->getProviderNamespace()}/{$this->file->getFilename()}";
             $this->log->debug('upload()', [$this->upload, $this->file]);
-            $this->minio->upload($this->file->getFilename(), $this->upload);
+            $this->minio->upload(Kernel::APP_TMPDIR . $this->file->getFilename(), $this->upload);
         } catch (\Exception $e) {
             $this->log->error("Unable to upload stream", ['message' => $e->getMessage()]);
 

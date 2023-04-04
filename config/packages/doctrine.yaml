@@ -5,7 +5,7 @@ doctrine:
         password: '%env(resolve:POSTGRES_PASSWORD)%'
         dbname: '%env(resolve:POSTGRES_DB)%'
         driver: 'pdo_pgsql'
-        server_version: '12'
+        server_version: '15'
         charset: utf8
         default_table_options:
             charset: utf8

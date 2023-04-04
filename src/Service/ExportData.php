@@ -54,7 +54,7 @@ class ExportData
     public function export(): UuidV4
     {
         $csv = $this->createCsv($this->getEntries());
-        $name = $this->upload($csv);
+        $name = $this->upload(Kernel::APP_TMPDIR . $csv);
 
         return $name;
     }

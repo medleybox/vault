@@ -1,6 +1,6 @@
 #!/bin/sh
 
-vendor/bin/phpstan analyse
+vendor/bin/phpstan --memory-limit=256M analyse
 
 vendor/bin/phpcs --standard=PSR12 --colors -pn --report=full,summary src
 

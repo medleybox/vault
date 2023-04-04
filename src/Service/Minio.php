@@ -12,6 +12,7 @@ use Psr\Log\LoggerInterface;
 use League\Flysystem\AwsS3v3\AwsS3Adapter;
 use League\Flysystem\Filesystem;
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
+use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Path;
 
 /**
@@ -19,6 +20,12 @@ use Symfony\Component\Filesystem\Path;
  */
 class Minio
 {
+    /**
+     * Mimio folder name for storing user avatar files
+     * @var string
+     */
+    const FOLDER_AVATAR = 'user_avatar';
+
     /**
      * @var \Aws\S3\S3Client
      */
@@ -121,11 +128,10 @@ class Minio
 
     public function upload($file, $dest): bool
     {
-        $path = Kernel::APP_TMPDIR;
         $file = trim(preg_replace('/\s+/', ' ', $file));
-        $stream = fopen("{$path}{$file}", 'r+');
+        $stream = fopen($file, 'r+');
 
-        $this->log->debug("[Minio] Starting upload of stream to {$dest}");
+        $this->log->debug("[Minio] Starting upload of stream to {$dest} from {$file}");
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
         if (true === $this->has($dest)) {
@@ -136,7 +142,7 @@ class Minio
         $this->filesystem->writeStream($dest, $stream);
         $this->log->info("[Minio] Completed upload via stream to {$dest}");
         fclose($stream);
-        unlink("{$path}{$file}");
+        unlink($file);
 
         return true;
     }
@@ -181,6 +187,7 @@ class Minio
             $contents = $this->filesystem->read($path);
         } catch (\Exception $e) {
             $this->log->error("[Minio] Failed to read path {$path}");
+            return null;
         }
 
         $filename = pathinfo($path)['basename'];
@@ -189,10 +196,11 @@ class Minio
         try {
             $filesystem->dumpFile($tmpPath, $contents);
         } catch (IOExceptionInterface $exception) {
-            $this->log->error("[Minio] An error occurred while dumping file at ".$exception->getPath());
+            $this->log->error("[Minio] An error occurred while dumping file at {$exception->getPath()}");
 
             return null;
         }
+        $this->log->debug("[Minio] File dumped at {$path}");
 
         return $tmpPath;
     }
