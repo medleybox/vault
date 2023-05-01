@@ -1,10 +1,12 @@
 # Vault
-[![Github Workflows Link](https://github.com/medleybox/vault/workflows/PHP%20Tests/badge.svg)][github-workflows]
 
-A Symfony 5.4 application to retrieve and store music for Medlybox. Rewritten concepts from [medlybox/import][github-import].
+A Symfony 6 application to retrieve and store music for Medlybox. Rewritten concepts from [medlybox/import][github-import].
+
+[![php-composer-and-tests](https://github.com/medleybox/vault/actions/workflows/php.yml/badge.svg)][github-workflows-tests]
+[![docker-publish](https://github.com/medleybox/vault/actions/workflows/docker-publish.yml/badge.svg)][github-workflows-publish]
 
 ## Quick Start
-This project uses Docker and docker-compose to manage project dependencies. You will need up to date installed and working versions of both. PHP 7.4 is used within the nginx + FPM container setup. There is only one container for running nginx and fpm.
+This project uses Docker and docker-compose to manage project dependencies. You will need up to date installed and working versions of both. PHP 8.2 is used within the nginx + FPM container setup. There is only one container running fpm for the vault service. Use the nginx image build to Medleybox
 
 ```bash
 # Install PHP dependencies on to host
@@ -49,13 +51,7 @@ vendor/bin/phpcbf --standard=PSR12 --colors src
 ```
 curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 ```
-## Useful scripts
-
-Clear rabbitmq files
-```
-find /var/lib/docker/volumes/ -name mnesia | xargs rm -rf
-```
 
 [github-import]: https://github.com/medleybox/import
-[github-workflows]: https://github.com/medleybox/vault/actions?query=workflow%3A%22PHP+Tests%22
-[phpcs-symfony-ruleset]: https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/2.17/doc/ruleSets/SymfonyRisky.rst
+[github-workflows-tests]: https://github.com/medleybox/vault/actions/workflows/php-composer-and-tests.yml
+[github-workflows-publish]: https://github.com/medleybox/vault/actions/workflows/docker-publish.yml[phpcs-symfony-ruleset]: https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/2.17/doc/ruleSets/SymfonyRisky.rst
