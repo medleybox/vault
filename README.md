@@ -54,4 +54,5 @@ curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 
 [github-import]: https://github.com/medleybox/import
 [github-workflows-tests]: https://github.com/medleybox/vault/actions/workflows/php-composer-and-tests.yml
-[github-workflows-publish]: https://github.com/medleybox/vault/actions/workflows/docker-publish.yml[phpcs-symfony-ruleset]: https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/2.17/doc/ruleSets/SymfonyRisky.rst
+[github-workflows-publish]: https://github.com/medleybox/vault/actions/workflows/docker-publish.yml
+[phpcs-symfony-ruleset]: https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/2.17/doc/ruleSets/SymfonyRisky.rst
