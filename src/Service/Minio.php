@@ -5,12 +5,10 @@ declare(strict_types=1);
 namespace App\Service;
 
 use App\Kernel;
-use Aws\S3\S3Client;
-use Aws\S3\Exception\S3Exception;
+use AsyncAws\S3\S3Client;
 use Symfony\Component\Finder\SplFileInfo;
 use Psr\Log\LoggerInterface;
-use League\Flysystem\AwsS3v3\AwsS3Adapter;
-use League\Flysystem\Filesystem;
+use League\Flysystem\{Filesystem, AsyncAwsS3\AsyncAwsS3Adapter};
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Path;
@@ -58,20 +56,14 @@ class Minio
     public function connect(string $endpoint, string $key, string $bucket, string $secret): void
     {
         $this->client = new S3Client([
-            'version' => 'latest',
             'region'  => 'us-east-1',
             'endpoint' => $endpoint,
-            'use_path_style_endpoint' => true,
-            'credentials' => [
-                'key'    => $key,
-                'secret' => $secret,
-            ],
-            'http'    => [
-                'connect_timeout' => 5
-            ]
+            'accessKeyId' => $key,
+            'accessKeySecret' => $secret,
+            'pathStyleEndpoint' => true,
         ]);
 
-        $this->adapter = new AwsS3Adapter($this->client, $bucket, '', [], false);
+        $this->adapter = new AsyncAwsS3Adapter($this->client, $bucket);
         $this->filesystem = new Filesystem($this->adapter);
     }
 
@@ -109,7 +101,7 @@ class Minio
 
     public function has(string $path): bool
     {
-        return $this->filesystem->has($path);
+        return $this->filesystem->fileExists($path);
     }
 
     public function get(string $path): ?string
