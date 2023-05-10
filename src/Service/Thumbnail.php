@@ -18,21 +18,6 @@ use Symfony\Component\Uid\Uuid;
 class Thumbnail
 {
     /**
-     * @var \App\Service\Minio
-     */
-    private $minio;
-
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $log;
-
-    /**
-     * @var \App\Repository\EntryRepository
-     */
-    private $repo;
-
-    /**
      * Filename of generated thumnail in mino
      * @var string
      */
@@ -44,11 +29,11 @@ class Thumbnail
      */
     private $path;
 
-    public function __construct(Minio $minio, LoggerInterface $log, EntryRepository $repo)
-    {
-        $this->minio = $minio;
-        $this->log = $log;
-        $this->repo = $repo;
+    public function __construct(
+        private Minio $minio,
+        private LoggerInterface $log,
+        private EntryRepository $repo
+    ) {
     }
 
     public function getPath(): string
@@ -86,7 +71,7 @@ class Thumbnail
         $response->headers->set('Content-Type', 'image/jpg');
         $response->setContent($thumbnail);
 
-        // Thumbnail is still null so set some headers and return image
+        // Thumbnail is null so set some headers and return default image
         if (null === $thumbnail) {
             // Load 404 not found image here
             $response = new Response(null, 404);
@@ -117,14 +102,14 @@ class Thumbnail
     {
         $this->setPath($uuid);
         $this->log->debug(
-            "[Thumbnail] Downloading from {$link}" .
+            "[Thumbnail] Downloading from {$link} " .
             "to {$this->getPath()}"
         );
         $file = (new HttpClient())->create()->request('GET', $link);
 
         try {
             $fs = new Filesystem();
-            $fs->mkdir(Import::THUMBNAILS_MIMIO, 0700);
+            $fs->mkdir(Kernel::APP_TMPDIR, 0700);
             $fs->dumpFile(Kernel::APP_TMPDIR . $this->filename, $file->getContent());
         } catch (IOExceptionInterface $e) {
             $this->log->error('[Thumbnail] Unable to save thumbnail to tmp storage', [$file, $this->filename, $this->path]);
