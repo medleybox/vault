@@ -34,7 +34,7 @@ final class Import
      * Arguments for download library
      * @var string
      */
-    const DOWNLOADER_EXTERNAL_ARGS = 'aria2c:-j 3 -x 3 -s 3';
+    const DOWNLOADER_EXTERNAL_ARGS = '"aria2c:-j 3 -x 3 -s 3"';
 
     /**
      * Mimio folder for storing thumbnails
@@ -262,9 +262,8 @@ final class Import
      */
     protected function attemptDownload()
     {
-        // '--downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL
         $url = $this->provider->getDownloadLink();
-        $args = [self::DOWNLOADER, '--no-part', '--restrict-filenames', '-N', '4', ' --downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL_ARGS, '--newline', '--youtube-skip-dash-manifest', '-N 4', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
+        $args = [self::DOWNLOADER, '--downloader', self::DOWNLOADER_EXTERNAL, '--external-downloader-args', self::DOWNLOADER_EXTERNAL_ARGS, '--no-part', '--restrict-filenames', '--newline', '--youtube-skip-dash-manifest', '-N 4', '-x', '-o', "{$this->uuid}.%(ext)s", $url];
 
         $this->log("Attempting to download {$url}", 'attemptDownload');
         $this->log->debug(self::DOWNLOADER . ' args', $args);
