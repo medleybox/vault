@@ -7,6 +7,6 @@ framework:
         default_redis_provider: '%env(REDIS_URL)%'
 
         pools:
-            minio.cache: null
+            minio.cache:
                 adapter: cache.system
                 tags: true
