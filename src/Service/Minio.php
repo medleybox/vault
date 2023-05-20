@@ -12,6 +12,7 @@ use League\Flysystem\{Filesystem, AsyncAwsS3\AsyncAwsS3Adapter};
 use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Contracts\Cache\{ItemInterface, TagAwareCacheInterface};
 
 /**
  * Copied and adapted from https://github.com/medleybox/import/blob/master/src/Service/Minio.php
@@ -39,15 +40,15 @@ class Minio
      */
     protected $filesystem;
 
-    /**
-     * @var \Psr\Log\LoggerInterface
-     */
-    private $log;
-
-    public function __construct(string $endpoint, string $key, string $bucket, string $secret, LoggerInterface $log)
-    {
+    public function __construct(
+        string $endpoint,
+        string $key,
+        string $bucket,
+        string $secret,
+        private LoggerInterface $log,
+        private TagAwareCacheInterface $minioCache
+    ) {
         $this->connect($endpoint, $key, $bucket, $secret);
-        $this->log = $log;
     }
 
     /**
@@ -101,7 +102,14 @@ class Minio
 
     public function has(string $path): bool
     {
-        return $this->filesystem->fileExists($path);
+        $hash = hash('sha256', $path);
+        return $this->minioCache->get("has_{$hash}", function (ItemInterface $item) use ($path) {
+            $result = $this->filesystem->fileExists($path);
+            $item->expiresAfter(1800);
+            $item->tag(['minio_has']);
+
+            return $result;
+        });
     }
 
     public function get(string $path): ?string
@@ -167,6 +175,9 @@ class Minio
         } catch (\League\Flysystem\FileNotFoundException $e) {
             $this->log->error("[Minio] Unable to find file");
             $this->log->debug("[Minio] {$e->getMessage()}");
+        } catch (\Exception $e) {
+            $this->log->error("[Minio] Unkown Exception");
+            $this->log->error("[Minio] {$e->getMessage()}");
         }
 
         return false;

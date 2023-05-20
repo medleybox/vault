@@ -73,6 +73,7 @@ class EntryController extends AbstractController
         if (false === $stream || null === $stream) {
             throw $this->createNotFoundException("File removed from minio {$path}");
         }
+
         try {
             $detector = new FinfoMimeTypeDetector();
             $mime = $detector->detectMimeTypeFromPath($path);

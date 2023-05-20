@@ -1,11 +1,11 @@
 {
     "name": "medleybox/vault",
-    "description": "A Symfony 5 application to retrieve and store music for Medlybox.",
+    "description": "A Symfony 6 application to retrieve and store music for Medlybox.",
     "type": "project",
     "license": "proprietary",
     "config": {
         "platform": {
-            "php": "8.1"
+            "php": "8.2"
         },
         "preferred-install": {
             "*": "dist"
@@ -18,7 +18,7 @@
         }
     },
     "require": {
-        "php": "^8.1",
+        "php": "^8.2",
         "composer-plugin-api": "^2",
         "amphp/websocket-client": "^1.0",
         "cboden/ratchet": "^0.4.3",
@@ -75,6 +75,7 @@
         "symfony/polyfill-ctype": "*",
         "symfony/polyfill-iconv": "*",
         "symfony/polyfill-mbstring": "*",
+        "symfony/polyfill-php82": "*",
         "symfony/polyfill-php81": "*",
         "symfony/polyfill-php80": "*",
         "symfony/polyfill-php74": "*",
