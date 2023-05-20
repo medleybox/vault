@@ -73,13 +73,17 @@ class EntryController extends AbstractController
         if (false === $stream || null === $stream) {
             throw $this->createNotFoundException("File removed from minio {$path}");
         }
-        $detector = new FinfoMimeTypeDetector();
-        $mime = $detector->detectMimeTypeFromPath($path);
+        try {
+            $detector = new FinfoMimeTypeDetector();
+            $mime = $detector->detectMimeTypeFromPath($path);
 
-        $psr7 = Stream::create($stream);
+            $psr7 = Stream::create($stream);
 
-        $response = new PSR7StreamResponse($psr7, $mime);
-        $response = $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
+            $response = new PSR7StreamResponse($psr7, $mime);
+            $response = $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
+        } catch (\Exception $e) {
+            //
+        }
 
         return $response;
     }
