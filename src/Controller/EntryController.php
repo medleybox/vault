@@ -81,9 +81,10 @@ class EntryController extends AbstractController
             $psr7 = Stream::create($stream);
 
             $response = new PSR7StreamResponse($psr7, $mime);
-            $response = $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
+            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
         } catch (\Exception $e) {
-            //
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
+            $response->headers->set('Retry-After', '5');
         }
 
         return $response;
