@@ -416,9 +416,27 @@ final class Import
         return $entry;
     }
 
+    private function getFileStats(SplFileInfo $file): array
+    {
+        $getID3 = new \getID3();
+        $info = $getID3->analyze($file->getRealPath());
+        $stats = [
+            'size' => null,
+            'seconds' => null,
+        ];
+        if (array_key_exists('filesize', $info)) {
+            $stats['size'] = $info['filesize'];
+        }
+        if (array_key_exists('playtime_seconds', $info)) {
+            $stats['seconds'] = $info['playtime_seconds'];
+        }
+
+        return $stats;
+    }
+
     private function calculateFileStats()
     {
-        $this->stats = $this->minio->getFileStats($this->file);
+        $this->stats = $this->getFileStats($this->file);
 
         return $this;
     }

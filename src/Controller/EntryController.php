@@ -54,6 +54,24 @@ class EntryController extends AbstractController
         $this->thumbnail = $thumbnail;
     }
 
+    private function streamResponse(string $path, mixed $stream): Response
+    {
+        try {
+            $detector = new FinfoMimeTypeDetector();
+            $mime = $detector->detectMimeTypeFromPath($path);
+
+            $psr7 = Stream::create($stream);
+
+            $response = new PSR7StreamResponse($psr7, $mime);
+            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
+        } catch (\Exception $e) {
+            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
+            $response->headers->set('Retry-After', '5');
+        }
+
+        return $response;
+    }
+
     #[Route('/entry/list-all', name: 'entry_listAll', methods: ['GET'])]
     public function listAll(): Response
     {
@@ -74,20 +92,7 @@ class EntryController extends AbstractController
             throw $this->createNotFoundException("File removed from minio {$path}");
         }
 
-        try {
-            $detector = new FinfoMimeTypeDetector();
-            $mime = $detector->detectMimeTypeFromPath($path);
-
-            $psr7 = Stream::create($stream);
-
-            $response = new PSR7StreamResponse($psr7, $mime);
-            $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, 'stream.mp3');
-        } catch (\Exception $e) {
-            $response = new Response('', Response::HTTP_SERVICE_UNAVAILABLE);
-            $response->headers->set('Retry-After', '5');
-        }
-
-        return $response;
+        return $this->streamResponse($path, $stream);
     }
 
     #[Route('/entry/download/{uuid}', name: 'entry_download', methods: ['GET'])]

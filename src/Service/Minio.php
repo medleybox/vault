@@ -6,12 +6,9 @@ namespace App\Service;
 
 use App\Kernel;
 use AsyncAws\S3\S3Client;
-use Symfony\Component\Finder\SplFileInfo;
 use Psr\Log\LoggerInterface;
-use League\Flysystem\{Filesystem, AsyncAwsS3\AsyncAwsS3Adapter};
-use Symfony\Component\Filesystem\Filesystem as SymfonyFilesystem;
-use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
-use Symfony\Component\Filesystem\Path;
+use League\Flysystem\{DirectoryListing, Filesystem, AsyncAwsS3\AsyncAwsS3Adapter};
+use Symfony\Component\Filesystem\{Filesystem as SymfonyFilesystem, Path, Exception\IOExceptionInterface};
 use Symfony\Contracts\Cache\{ItemInterface, TagAwareCacheInterface};
 
 /**
@@ -82,24 +79,6 @@ class Minio
         return true;
     }
 
-    public function getFileStats(SplFileInfo $file): array
-    {
-        $getID3 = new \getID3();
-        $info = $getID3->analyze($file->getRealPath());
-        $stats = [
-            'size' => null,
-            'seconds' => null,
-        ];
-        if (array_key_exists('filesize', $info)) {
-            $stats['size'] = $info['filesize'];
-        }
-        if (array_key_exists('playtime_seconds', $info)) {
-            $stats['seconds'] = $info['playtime_seconds'];
-        }
-
-        return $stats;
-    }
-
     public function has(string $path): bool
     {
         $hash = hash('sha256', $path);
@@ -121,7 +100,7 @@ class Minio
         return $this->filesystem->read($path);
     }
 
-    public function listContents($path, $recursive = false): array
+    public function listContents($path, $recursive = false): DirectoryListing
     {
         return $this->filesystem->listContents($path, $recursive);
     }

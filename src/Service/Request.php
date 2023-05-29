@@ -22,7 +22,7 @@ class Request
 
     public function __construct(HttpClientInterface $client)
     {
-        $this->client = $this->client = $client->withOptions([
+        $this->client = $client->withOptions([
             'base_uri' => self::BASE_URI,
             'verify_host' => false,
             'verify_peer' => false
