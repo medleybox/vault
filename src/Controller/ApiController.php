@@ -27,12 +27,12 @@ class ApiController extends AbstractController
     {
         $music = 0;
         foreach ($minio->listContents('youtube/') as $object) {
-            $music += $object['size'];
+            $music += $object->fileSize();
         }
 
         $thumbnails = 0;
         foreach ($minio->listContents(Import::THUMBNAILS_MIMIO) as $object) {
-            $thumbnails += $object['size'];
+            $thumbnails += $object->fileSize();
         }
 
         return $this->json([
