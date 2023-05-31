@@ -12,7 +12,7 @@ use Nyholm\Psr7\Stream;
 use Nyholm\Psr7\Response as PSR7Response;
 use League\MimeTypeDetection\FinfoMimeTypeDetector;
 use giggsey\PSR7StreamResponse\PSR7StreamResponse;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{BinaryFileResponse, JsonResponse, Request, Response, ResponseHeaderBag};
 use Symfony\Component\Routing\Annotation\Route;
@@ -79,8 +79,10 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/stream/{uuid}/{name}', name: 'entry_stream', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function streamEntry(Entry $entry, string $name = ''): Response
+    public function streamEntry(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry,
+        string $name = ''
+    ): Response
     {
         $path = $entry->getPath();
         if (null === $path) {
@@ -96,8 +98,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/download/{uuid}', name: 'entry_download', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function download(Entry $entry): Response
+    public function download(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): Response
     {
         $path = $this->minio->read($entry->getPath());
         $filename = 'download.mp3';
@@ -113,15 +114,13 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/thumbnail/{uuid}.{ext}', name: 'entry_thumbnail', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function thumbnail(Entry $entry): Response
+    public function thumbnail(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): Response
     {
         return $this->thumbnail->render($entry);
     }
 
     #[Route('/entry/refresh-thumbnail/{uuid}', name: 'entry_refreshThumbnail', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function refreshThumbnail(Entry $entry): JsonResponse
+    public function refreshThumbnail(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): JsonResponse
     {
         $this->thumbnail->refreshThumbnail($entry);
 
@@ -129,8 +128,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/refresh-source/{uuid}', name: 'entry_refreshSource', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function refreshSource(Entry $entry): JsonResponse
+    public function refreshSource(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): JsonResponse
     {
         $refresh = $this->import->queueRefreshSource($entry->getUuid());
 
@@ -138,8 +136,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/metadata/{uuid}', name: 'entry_metadata', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function metadata(Entry $entry): JsonResponse
+    public function metadata(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): JsonResponse
     {
         $metadata = $this->entryRepo->metadata($entry);
 
@@ -147,8 +144,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/wavedata/{uuid}', name: 'entry_wavedata', methods: ['GET'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function wavedata(Entry $entry): JsonResponse
+    public function wavedata(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): JsonResponse
     {
         $wavedata = $this->entryRepo->wavedata($entry);
 
@@ -156,8 +152,7 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/delete/{uuid}', name: 'entry_delete', methods: ['DELETE'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function delete(Entry $entry): JsonResponse
+    public function delete(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): JsonResponse
     {
         $this->entryRepo->delete($entry);
 
@@ -165,8 +160,10 @@ class EntryController extends AbstractController
     }
 
     #[Route('/entry/update-download/{uuid}', name: 'entry_updateDownload', methods: ['POST'])]
-    #[ParamConverter('uuid', class: '\App\Entity\Entry', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function updateDownload(Request $request, Entry $entry): JsonResponse
+    public function updateDownload(
+        Request $request,
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry
+    ): JsonResponse
     {
         $filename = $request->request->get('filename');
         $this->entryRepo->updateDownload($entry, $filename);

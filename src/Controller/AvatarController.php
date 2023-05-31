@@ -6,7 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Avatar;
 use App\Service\UserAvatar;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{JsonResponse, Request, Response};
 use Symfony\Component\Routing\Annotation\Route;
@@ -32,8 +32,10 @@ class AvatarController extends AbstractController
     }
 
     #[Route('/avatar/r/{uuid}', name: 'avatar_render', methods: ['GET'], requirements: ['uuid' => Requirement::UUID_V4])]
-    #[ParamConverter('uuid', class: '\App\Entity\Avatar', options: ['mapping' => ['uuid' => 'uuid']])]
-    public function renderAvatar(Avatar $entry, UserAvatar $avatar): Response
+    public function renderAvatar(
+        #[MapEntity(mapping: ['uuid' => 'uuid'])] Avatar $entry,
+        UserAvatar $avatar
+    ): Response
     {
         return $avatar->render($entry);
     }

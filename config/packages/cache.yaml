@@ -10,3 +10,7 @@ framework:
             minio.cache:
                 adapter: cache.system
                 tags: true
+            doctrine.result_cache_pool:
+                adapter: cache.app
+            doctrine.system_cache_pool:
+                adapter: cache.system
