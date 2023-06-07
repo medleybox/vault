@@ -51,10 +51,7 @@ services:
       - vault
 
   websocket:
-    image: ghcr.io/medleybox/websocket:master
-    build:
-      context: ./
-      dockerfile: Dockerfile-websocket
+    image: ghcr.io/medleybox/websocket-server:master
     networks:
       - medley
     restart: always

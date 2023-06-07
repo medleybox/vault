@@ -1,5 +1,0 @@
-#!/bin/sh
-
-whoami
-
-bin/console app:websocket:start & bin/console app:websocket:ping

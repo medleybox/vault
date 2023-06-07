@@ -7,7 +7,7 @@ namespace App\Service;
 use Amp\Websocket\Client\Connection;
 use Amp\Websocket\Message;
 
-use function Amp\delay;
+use function Amp\async;
 use function Amp\Websocket\Client\connect;
 
 class WebsocketClient
@@ -77,17 +77,15 @@ class WebsocketClient
         $this->send(json_encode($wsData));
     }
 
-    private function send(string $string): bool
+    private function send(string $string): mixed
     {
         $this->string = $string;
-        \Amp\Loop::run(function () {
+        \Amp\async(function () {
             $connection = yield connect('ws://websocket:8089/socketserver');
             yield $connection->send($this->string);
 
             $connection->close();
             $connection = null;
-
-            \Amp\Loop::stop();
         });
 
         return true;
