@@ -23,12 +23,12 @@ class Minio
     const FOLDER_AVATAR = 'user_avatar';
 
     /**
-     * @var \Aws\S3\S3Client
+     * @var \AsyncAws\S3\S3Client
      */
     protected $client;
 
     /**
-     * @var \League\Flysystem\AwsS3v3\AwsS3Adapter
+     * @var \League\Flysystem\AsyncAwsS3\AsyncAwsS3Adapter
      */
     protected $adapter;
 
@@ -151,11 +151,8 @@ class Minio
 
         try {
             return $this->filesystem->readStream($path);
-        } catch (\League\Flysystem\FileNotFoundException $e) {
-            $this->log->error("[Minio] Unable to find file");
-            $this->log->debug("[Minio] {$e->getMessage()}");
         } catch (\Exception $e) {
-            $this->log->error("[Minio] Unkown Exception");
+            $this->log->error("[Minio] Unable to find file");
             $this->log->error("[Minio] {$e->getMessage()}");
         }
 
@@ -190,8 +187,9 @@ class Minio
     public function delete(string $path): bool
     {
         $this->log->debug("[Minio] started delete of {$path}");
+        $this->filesystem->delete($path);
 
-        return $this->filesystem->delete($path);
+        return true;
     }
 
     public function mirror(self $minio, string $path): bool
@@ -215,7 +213,7 @@ class Minio
             $minio->delete($path);
         }
 
-        $write = $minio->filesystem->writeStream($path, $stream);
+        $minio->filesystem->writeStream($path, $stream);
         $this->log->info("[Minio] Completed mirror via stream");
 
         return true;

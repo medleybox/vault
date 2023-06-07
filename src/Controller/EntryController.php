@@ -82,8 +82,7 @@ class EntryController extends AbstractController
     public function streamEntry(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry,
         string $name = ''
-    ): Response
-    {
+    ): Response {
         $path = $entry->getPath();
         if (null === $path) {
             throw $this->createNotFoundException("Path not set for entry");
@@ -163,8 +162,7 @@ class EntryController extends AbstractController
     public function updateDownload(
         Request $request,
         #[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry
-    ): JsonResponse
-    {
+    ): JsonResponse {
         $filename = $request->request->get('filename');
         $this->entryRepo->updateDownload($entry, $filename);
 

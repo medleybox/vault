@@ -56,7 +56,7 @@ class ImportData
     public function getAvalibleImports(): array
     {
         $names = [];
-        $files = $this->minio->listContents('export/');
+        $files = $this->minio->listContents('export/')->toArray();
         usort($files, [$this, 'sortImports']);
 
         return $files;

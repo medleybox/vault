@@ -8,6 +8,7 @@ parameters:
         - vendor/doctrine/dbal/src
         - vendor/symfony/uid
         - vendor/symfony/doctrine-bridge
+        - vendor/amphp/websocket
     ignoreErrors:
         -
           message: '#While loop condition is always true.#'

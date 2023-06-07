@@ -61,7 +61,7 @@ class ResetData
         return true;
     }
 
-    private function removeAllFilesInFolder($path): array
+    private function removeAllFilesInFolder($path): bool
     {
         $this->log->debug("Removing files from {$path}");
         $files = $this->minio->listContents($path, true);
@@ -72,7 +72,7 @@ class ResetData
 
         $this->log->debug("Done!");
 
-        return $files;
+        return true;
     }
 
     public function removeThumbnails(): bool

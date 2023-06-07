@@ -35,8 +35,7 @@ class AvatarController extends AbstractController
     public function renderAvatar(
         #[MapEntity(mapping: ['uuid' => 'uuid'])] Avatar $entry,
         UserAvatar $avatar
-    ): Response
-    {
+    ): Response {
         return $avatar->render($entry);
     }
 }

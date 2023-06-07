@@ -4,19 +4,12 @@ declare(strict_types=1);
 
 namespace App\Service;
 
-use Amp\Websocket\Client\Connection;
-use Amp\Websocket\Message;
+use Amp\Websocket\Client\WebsocketHandshake;
 
-use function Amp\async;
 use function Amp\Websocket\Client\connect;
 
 class WebsocketClient
 {
-    /**
-     * @var string
-     */
-    private string $string;
-
     public function completeRefreshSource($uuid): void
     {
         $this->sendData('completeRefreshSource', ['uuid' => $uuid]);
@@ -79,14 +72,9 @@ class WebsocketClient
 
     private function send(string $string): mixed
     {
-        $this->string = $string;
-        \Amp\async(function () {
-            $connection = yield connect('ws://websocket:8089/socketserver');
-            yield $connection->send($this->string);
-
-            $connection->close();
-            $connection = null;
-        });
+        $handshake = (new WebsocketHandshake('ws://websocket:8089/socketserver'));
+        $connection = connect($handshake);
+        $connection->send($string);
 
         return true;
     }
