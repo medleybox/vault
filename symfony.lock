@@ -61,17 +61,11 @@
             "ref": "c2ab78f625df0c89af5908d50a28602ff8c4919f"
         }
     },
-    "friendsofphp/proxy-manager-lts": {
-        "version": "v1.0.3"
-    },
     "giggsey/psr7-stream-response": {
         "version": "0.1.3"
     },
     "james-heinrich/getid3": {
         "version": "v1.9.19"
-    },
-    "laminas/laminas-code": {
-        "version": "4.3.0"
     },
     "league/csv": {
         "version": "9.6.2"
@@ -286,9 +280,6 @@
     },
     "symfony/property-info": {
         "version": "v5.0.7"
-    },
-    "symfony/proxy-manager-bridge": {
-        "version": "v5.2.4"
     },
     "symfony/routing": {
         "version": "5.4",
