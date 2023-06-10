@@ -22,8 +22,7 @@
     "require": {
         "php": "^8.2",
         "composer-plugin-api": "^2",
-        "amphp/amp": "^3",
-        "amphp/websocket-client": "^2.0@beta",
+        "amphp/websocket": "^2.0@beta",
         "doctrine/collections": "^1.6",
         "doctrine/doctrine-bundle": "^2",
         "doctrine/orm": "^2.9.2",
@@ -87,7 +86,8 @@
         "doctrine/doctrine-migrations-bundle": "*"
     },
     "conflict": {
-        "symfony/symfony": "*"
+        "symfony/symfony": "*",
+        "amphp/http-client": "*"
     },
     "extra": {
         "symfony": {
