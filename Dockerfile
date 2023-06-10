@@ -25,7 +25,7 @@ RUN apk add --no-cache ca-certificates aria2 ffmpeg python3 gnupg \
   && rm -rf /usr/src
 
 COPY config /var/www/config
-COPY public/index.php /var/www/public/index.php
+COPY public /var/www/public
 COPY bin/console /var/www/bin/console
 COPY bin/run-tests /var/www/bin/run-tests
 COPY bin/docker-entrypoint* /var/www/bin/

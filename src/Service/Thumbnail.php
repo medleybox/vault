@@ -11,6 +11,7 @@ use App\Service\Minio;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Uid\Uuid;
@@ -65,18 +66,19 @@ class Thumbnail
             $thumbnail = $this->minio->get($path);
         }
 
+        // Thumbnail is stil null so set some headers to prevent caching and return not found image
+        if (null === $thumbnail) {
+            $response = new BinaryFileResponse('/var/www/public/media_not_found.png');
+            $response->setMaxAge(10);
+
+            return $response;
+        }
+
         $response = new Response();
         $response->setPublic();
         $response->setMaxAge(86400 * 30);
         $response->headers->set('Content-Type', 'image/jpg');
         $response->setContent($thumbnail);
-
-        // Thumbnail is null so set some headers and return default image
-        if (null === $thumbnail) {
-            // Load 404 not found image here
-            $response = new Response(null, 404);
-            $response->headers->set('Content-Type', 'image/jpg');
-        }
 
         return $response;
     }
@@ -127,7 +129,7 @@ class Thumbnail
         $entry = $this->repo->findOneBy(['uuid' => $uuid->toBinary()]);
         if (null !== $entry) {
             $entry->setThumbnail($this->path);
-            $this->repo->save($entry);
+            $this->repo->save($entry, false);
         }
 
         return $this->path;
