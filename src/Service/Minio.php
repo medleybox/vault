@@ -58,8 +58,8 @@ class Minio
             'endpoint' => $endpoint,
             'accessKeyId' => $key,
             'accessKeySecret' => $secret,
-            'pathStyleEndpoint' => true,
-        ]);
+            'pathStyleEndpoint' => true
+	    ]);
 
         $this->adapter = new AsyncAwsS3Adapter($this->client, $bucket);
         $this->filesystem = new Filesystem($this->adapter);
@@ -79,16 +79,27 @@ class Minio
         return true;
     }
 
-    public function has(string $path): bool
+    public function has(string $path, $cache = true): bool
     {
         $hash = hash('sha256', $path);
         return $this->minioCache->get("has_{$hash}", function (ItemInterface $item) use ($path) {
-            $result = $this->filesystem->fileExists($path);
+            $result = $this->fileExists($path);
             $item->expiresAfter(1800);
             $item->tag(['minio_has']);
 
             return $result;
         });
+    }
+
+    private function fileExists($path)
+    {
+        return $this->filesystem->fileExists($path);
+    }
+
+    private function resetHasCache($path)
+    {
+        $hash = hash('sha256', $path);
+        return $this->minioCache->deleteItems(["has_{$hash}"]);
     }
 
     public function get(string $path): ?string
@@ -113,12 +124,13 @@ class Minio
         $this->log->debug("[Minio] Starting upload of stream to {$dest} from {$file}");
 
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->has($dest)) {
+        if (true === $this->has($dest, false)) {
             $this->log->debug("[Minio][upload] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
         $this->filesystem->writeStream($dest, $stream);
+        $this->resetHasCache($dest);
         $this->log->info("[Minio] Completed upload via stream to {$dest}");
         fclose($stream);
         unlink($file);
@@ -129,14 +141,15 @@ class Minio
     public function uploadString(string $dest, string $contents): bool
     {
         // If uploading a file with the same name, delete it first as it can't be overwritten
-        if (true === $this->has($dest)) {
+        if (true === $this->has($dest, false)) {
             $this->log->debug("[Minio][uploadString] Replacing file in target minio {$dest}");
             $this->filesystem->delete($dest);
         }
 
         $this->log->debug("[Minio] Starting upload of string to {$dest}");
         $this->filesystem->write($dest, $contents);
-        $this->log->debug("[Minio] Filesystem has check returned false");
+        $this->resetHasCache($dest);
+        $this->log->debug("[Minio] Completed upload via string to {$dest}");
 
         return true;
     }

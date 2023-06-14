@@ -1,4 +1,4 @@
 #!/bin/bash
 
 docker compose build vault
-docker compose build messenger websocket
+docker compose build messenger
