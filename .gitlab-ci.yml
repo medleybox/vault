@@ -33,8 +33,7 @@ build:messenger:
     - >
       docker build
       --pull
-      --cache-from $CI_REGISTRY_IMAGE:latest
-      --tag $CI_REGISTRY_IMAGE:latest
+      --tag ${CI_REGISTRY}/medleybox/messenger:latest
       -f Dockerfile-messenger
       .
-    - docker push $CI_REGISTRY_IMAGE:latest
+    - docker push ${CI_REGISTRY}/medleybox/messenger:latest
