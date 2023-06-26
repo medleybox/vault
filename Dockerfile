@@ -9,7 +9,7 @@ RUN composer install --no-ansi --no-progress --no-interaction --no-dev -o -a --n
 FROM ghcr.io/medleybox/php-fpm:master as vault
 COPY www-memory.conf /usr/local/etc/php-fpm.d/www-memory.conf
 COPY php.ini /usr/local/etc/php/conf.d/php-common.ini
-COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform
+COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.7.1 /bin/audiowaveform /usr/local/bin/audiowaveform
 
 ENV POSTGRES_DB=medleybox_vault
 ENV MESSENGER_TRANSPORT_DSN='redis://redis:6379/messages/symfony/consumer?auto_setup=true&delete_after_ack=true&serializer=1&stream_max_entries=0&dbindex=4'
