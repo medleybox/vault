@@ -24,5 +24,5 @@ USER 82
 
 ENTRYPOINT ["/app/bin/docker-entrypoint-messenger"]
 
-COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.6.0 /bin/audiowaveform /usr/local/bin/audiowaveform
+COPY --from=ghcr.io/medleybox/audiowaveform-alpine:1.7.1 /bin/audiowaveform /usr/local/bin/audiowaveform
 COPY --from=vault /var/www /app
