@@ -11,9 +11,10 @@ build:vault:
   stage: build
   tags:
     - docker
-  script:
+  before_script:
     - sed -i "s/ghcr.io/${CI_REGISTRY}/g" Dockerfile
     - sed -i "s/:master/:latest/g" Dockerfile
+  script:
     - >
       docker build
       --pull
@@ -28,9 +29,10 @@ build:messenger:
   stage: build
   tags:
     - docker
-  script:
+  before_script:
     - sed -i "s/ghcr.io/${CI_REGISTRY}/g" Dockerfile-messenger
     - sed -i "s/:master/:latest/g" Dockerfile-messenger
+  script:
     - >
       docker build
       --pull
