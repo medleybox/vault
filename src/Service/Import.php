@@ -585,7 +585,11 @@ final class Import
             if (array_key_exists('size', $this->stats)) {
                 $entry->setSize($this->stats['size']);
             }
-            if (array_key_exists('seconds', $this->stats)) {
+            if (
+                array_key_exists('seconds', $this->stats)
+                && null !== $this->stats['seconds']
+                && is_float($this->stats['seconds'])
+            ) {
                 $entry->setSeconds($this->stats['seconds']);
             }
 
