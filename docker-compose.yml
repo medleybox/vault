@@ -5,12 +5,13 @@ x-variables: &x-variables
   APP_SECRET: c95ab68cbfba3232e79d72ebae567424
   POSTGRES_USER: medleybox
   POSTGRES_PASSWORD: medleybox
-  # MINIO_ENDPOINT: ''
+  MINIO_ENDPOINT: 'http://minio:9000'
   MINIO_ROOT_USER: medley
   MINIO_BUCKET: medley
   MINIO_ROOT_PASSWORD: h15QXfIaJVdcTQdqTQm6pYwYjFa7x87TfhF47CPf
   # Test key to be removed in production
   API_GOOGLE: AIzaSyBQpUx4udkIfX130sncXs8tLCdfCDsGYSc
+  FPM_WORKERS: 1
 
 networks:
   medley:
@@ -27,7 +28,8 @@ services:
      - medley
     volumes:
       - tmp-data:/var/www/var/tmp
-      - vault-vendor:/var/www/vendor
+      #- vault-vendor:/var/www/vendor
+      - ./vendor:/var/www/vendor
       - ~/git/medleybox/vault/src:/var/www/src
       - ~/git/medleybox/vault/phpstan.neon:/var/www/phpstan.neon
 
@@ -62,6 +64,8 @@ services:
     image: minio/minio
     hostname: minio
     environment: *x-variables
+    ports:
+      - "9001:9001"
     networks:
       - medley
     volumes:

@@ -59,7 +59,7 @@ class Minio
             'accessKeyId' => $key,
             'accessKeySecret' => $secret,
             'pathStyleEndpoint' => true
-	    ]);
+        ]);
 
         $this->adapter = new AsyncAwsS3Adapter($this->client, $bucket);
         $this->filesystem = new Filesystem($this->adapter);
@@ -156,12 +156,6 @@ class Minio
 
     public function stream(string $path): mixed
     {
-        if (false === $this->has($path)) {
-            $this->log->debug("[Minio] Filesystem has check returned false before stream");
-
-            return null;
-        }
-
         try {
             return $this->filesystem->readStream($path);
         } catch (\Exception $e) {
@@ -169,7 +163,7 @@ class Minio
             $this->log->error("[Minio] {$e->getMessage()}");
         }
 
-        return false;
+        return null;
     }
 
     public function read(string $path): ?string
