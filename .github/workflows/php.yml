@@ -6,13 +6,10 @@ on:
   pull_request:
     branches: [ master ]
 
-env:
-  PHP_VERSION: 'v8.3.2'
-
 jobs:
   composer_install:
     runs-on: ubuntu-latest
-    container: ghcr.io/medleybox/php-cli:${{ env.PHP_VERSION }}
+    container: ghcr.io/medleybox/php-cli:v8.3.2
     steps:
       - uses: actions/checkout@v4
 
@@ -33,7 +30,7 @@ jobs:
         run: composer install --prefer-dist --no-progress
   test:
     runs-on: ubuntu-latest
-    container: ghcr.io/medleybox/php-cli:${{ env.PHP_VERSION }}
+    container: ghcr.io/medleybox/php-cli:v8.3.2
     needs: [composer_install]
     steps:
       - uses: actions/checkout@v4
