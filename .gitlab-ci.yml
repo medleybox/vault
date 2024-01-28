@@ -11,15 +11,20 @@ stages:
   - test
   - build
 
+test:composer:
+  stage: test
+  image: composer:latest
+  tags:
+    - docker
+  script:
+    - composer install -vvv
+
 test:run-tests:
+  needs: ['test:composer']
   stage: test
   image: ${CI_REGISTRY}/medleybox/php-cli:latest
   tags:
     - docker
-  before_script:
-    - sed -i "s/ghcr.io/${CI_REGISTRY}/g" Dockerfile
-    - sed -i "s/:master/:latest/g" Dockerfile
-    - composer install -vvv
   script:
     - bin/run-tests
 
@@ -41,7 +46,7 @@ build:vault:
     - docker push $CI_REGISTRY_IMAGE:latest
 
 build:messenger:
-  needs: ["build:vault"]
+  needs: ['build:vault']
   stage: build
   tags:
     - docker
