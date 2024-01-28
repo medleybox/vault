@@ -7,9 +7,13 @@ variables:
 services:
   - docker:dind
 
+stages:
+  - test
+  - build
+
 test:run-tests:
   stage: test
-  image: ${CI_REGISTRY}/medleybox/php-cli:master
+  image: ${CI_REGISTRY}/medleybox/php-cli:latest
   tags:
     - docker
   before_script:
