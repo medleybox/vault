@@ -2,12 +2,8 @@ name: Docker-Publish
 
 on:
   push:
-    branches: [ master ]
     # Publish semver tags as releases.
     tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ master ]
-
 jobs:
   vault:
     runs-on: ubuntu-latest
