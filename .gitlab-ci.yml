@@ -7,6 +7,18 @@ variables:
 services:
   - docker:dind
 
+test:run-tests:
+  stage: test
+  image: ${CI_REGISTRY}/medleybox/php-cli:master
+  tags:
+    - docker
+  before_script:
+    - sed -i "s/ghcr.io/${CI_REGISTRY}/g" Dockerfile
+    - sed -i "s/:master/:latest/g" Dockerfile
+    - composer install -vvv
+  script:
+    - bin/run-tests
+
 build:vault:
   stage: build
   tags:
