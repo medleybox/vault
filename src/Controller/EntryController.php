@@ -15,6 +15,7 @@ use giggsey\PSR7StreamResponse\PSR7StreamResponse;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\{BinaryFileResponse, JsonResponse, Request, Response, ResponseHeaderBag};
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Uid\Uuid;
 
@@ -100,6 +101,9 @@ class EntryController extends AbstractController
     public function download(#[MapEntity(mapping: ['uuid' => 'uuid'])] Entry $entry): Response
     {
         $path = $this->minio->read($entry->getPath());
+        if (null === $path) {
+            throw $this->createNotFoundException('The product does not exist');
+        }
         $filename = 'download.mp3';
         if (null !== $entry->getDownload()) {
             $filename = "{$entry->getDownload()}.mp3";
