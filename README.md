@@ -52,6 +52,11 @@ vendor/bin/phpcbf --standard=PSR12 --colors src
 curl -d "uuid=dQw4w9WgXcQ" -X POST http://localhost:8084/entry/import
 ```
 
+## License
+GNU General Public License v3.0 or later
+
+See [LICENCE](LICENCE) to see the full text.
+
 [github-import]: https://github.com/medleybox/import
 [github-workflows-tests]: https://github.com/medleybox/vault/actions/workflows/php-composer-and-tests.yml
 [github-workflows-publish]: https://github.com/medleybox/vault/actions/workflows/docker-publish.yml
