@@ -81,7 +81,7 @@ class EntryRepository extends ServiceEntityRepository
     {
         $qb = $this->_em->createQueryBuilder()
             ->from(Entry::class, 'e', 'e.uuid')
-            ->select('partial e.{id, uuid, thumbnail}')
+            ->select('partial e.{id, uuid, thumbnail, title}')
             ->leftJoin('e.waveData', 'w')
         ;
 

@@ -183,7 +183,7 @@ class ExportData
     private function upload($csv): UuidV4
     {
         $name = Uuid::v4();
-        $path = "export/${name}.csv";
+        $path = "export/{$name}.csv";
         $this->minio->uploadString($path, $csv);
 
         return $name;

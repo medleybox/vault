@@ -65,7 +65,7 @@ class ImportData
     public function import(string $filename): int
     {
         $imported = 0;
-        $path = "export/${filename}";
+        $path = "export/{$filename}";
         $data = $this->minio->read($path);
         if (null === $data) {
             // throw
