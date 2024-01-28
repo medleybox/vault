@@ -7,11 +7,12 @@ on:
     branches: [ master ]
 
 env:
-  PHP_VERSION: '8.3'
+  PHP_VERSION: 'v8.3.2'
 
 jobs:
   composer_install:
     runs-on: ubuntu-latest
+    container: ghcr.io/medleybox/php-cli:${{ env.PHP_VERSION }}
     steps:
       - uses: actions/checkout@v4
 
@@ -27,20 +28,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-php-
 
-      - uses: nanasess/setup-php@v4
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-
       - name: Install dependencies
         if: steps.composer-cache.outputs.cache-hit != 'true'
         run: composer install --prefer-dist --no-progress
   test:
     runs-on: ubuntu-latest
+    container: ghcr.io/medleybox/php-cli:${{ env.PHP_VERSION }}
+    needs: [composer_install]
     steps:
-      - uses: nanasess/setup-php@v4
-        with:
-          php-version: ${{ env.PHP_VERSION }}
-
       - uses: actions/checkout@v4
 
       - name: Cache Composer packages
