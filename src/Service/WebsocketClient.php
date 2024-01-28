@@ -74,7 +74,7 @@ class WebsocketClient
     {
         $handshake = (new WebsocketHandshake('ws://websocket:8089/socketserver'));
         $connection = connect($handshake);
-        $connection->send($string);
+        $connection->sendText($string);
         $connection->close();
 
         return true;
