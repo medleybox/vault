@@ -19,6 +19,11 @@ test:composer:
   script:
     - composer install -vvv --ignore-platform-reqs
 
+  artifacts:
+    untracked: true
+    paths:
+      - vendor/
+
 test:run-tests:
   needs: ['test:composer']
   stage: test
