@@ -17,7 +17,7 @@ test:composer:
   tags:
     - docker
   script:
-    - composer install -vvv
+    - composer install -vvv --ignore-platform-reqs
 
 test:run-tests:
   needs: ['test:composer']
